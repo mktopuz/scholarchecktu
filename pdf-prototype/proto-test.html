@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>PROTO: waiting</title>
+<style>body{font-family:system-ui,sans-serif;max-width:900px;margin:20px auto;padding:0 16px}pre{white-space:pre-wrap;background:#f4f4f4;padding:12px;max-height:300px;overflow:auto}#status{font-weight:bold}</style>
+</head><body>
+<h1>Scholarly Creator — in-browser compile prototype</h1>
+<p id="status">Loading engine…</p>
+<p id="pdfinfo"></p>
+<div id="download"></div>
+<pre id="log"></pre>
+<script src="PdfTeXEngine.js"></script>
+<script src="proto-data.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+function b64ToBytes(b64) {
+  const s = atob(b64), out = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+  return out;
+}
+(async () => {
+  const report = [];
+  try {
+    const engine = new PdfTeXEngine();
+    $("status").textContent = "Loading engine (wasm)…";
+    await engine.loadEngine();
+    $("status").textContent = "Engine ready. Writing project files…";
+    engine.makeMemFSFolder("figures");
+    engine.writeMemFSFile("main.tex", window.PROTO_DATA.mainTex);
+    engine.writeMemFSFile("TUthesis_2026.sty", window.PROTO_DATA.sty);
+    engine.writeMemFSFile("references.bib", window.PROTO_DATA.bib);
+    engine.writeMemFSFile("figures/fig1.png", b64ToBytes(window.PROTO_FIG_B64));
+    engine.setEngineMainFile("main.tex");
+    let last = null;
+    for (let pass = 1; pass <= 3; pass++) {
+      $("status").textContent = "Compiling, pass " + pass + " of 3…";
+      last = await engine.compileLaTeX();
+      report.push("pass " + pass + ": status=" + last.status + " pdf=" + (last.pdf ? last.pdf.length : 0) + " bytes log=" + (last.log ? last.log.length : 0) + " chars");
+      if (last.status !== 0) break;
+    }
+    $("log").textContent = report.join("\n") + "\n\n--- log tail (last pass) ---\n" + (last.log || "").slice(-3000);
+    if (last && last.status === 0 && last.pdf) {
+      const head = String.fromCharCode.apply(null, last.pdf.slice(0, 5));
+      const text = Array.from(last.pdf, b => String.fromCharCode(b)).join("");
+      const pages = (text.match(/\/Type\s*\/Page[^s]/g) || []).length;
+      $("status").textContent = "COMPILED OK — " + last.pdf.length + " bytes, header=" + head + ", est. pages=" + pages;
+      $("pdfinfo").textContent = report.join(" | ");
+      const blob = new Blob([last.pdf], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      $("download").innerHTML = '<a id="pdflink" href="' + url + '" download="tu-sample.pdf">Download PDF</a>';
+      document.title = "PROTO: OK pdf=" + last.pdf.length + " pages=" + pages + " head=" + head;
+      window.__PROTO_DONE__ = true;
+      window.__PROTO_RESULT__ = { ok: true, bytes: last.pdf.length, pages, head, report };
+    } else {
+      $("status").textContent = "COMPILE FAILED — status=" + (last ? last.status : "none");
+      document.title = "PROTO: FAIL status=" + (last ? last.status : "none");
+      window.__PROTO_DONE__ = true;
+      window.__PROTO_RESULT__ = { ok: false, status: last ? last.status : null, report };
+    }
+  } catch (e) {
+    $("status").textContent = "ERROR: " + (e && e.message ? e.message : e);
+    $("log").textContent = String(e && e.stack ? e.stack : e);
+    document.title = "PROTO: ERROR " + (e && e.message ? e.message : e);
+    window.__PROTO_DONE__ = true;
+    window.__PROTO_RESULT__ = { ok: false, error: String(e) };
+  }
+})();
+</script>
+</body></html>
