@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>RUNS: waiting</title>
+<style>body{font-family:system-ui,sans-serif;max-width:900px;margin:20px auto;padding:0 16px}pre{white-space:pre-wrap;background:#f4f4f4;padding:12px;max-height:300px;overflow:auto}.st{font-weight:bold}</style>
+</head><body>
+<h1>TU in-browser compile — two test runs</h1>
+<p><span class="st">Run A (moderate):</span> 1 figure, 1 table, 1 equation, 1 reference, appendix — <span id="statusA">pending</span></p>
+<p><span class="st">Run B (heavy):</span> 2 figures, 2 tables, 2 equations, 3 references, 5 chapters + appendix — <span id="statusB">pending</span></p>
+<div id="downloadA"></div>
+<div id="downloadB"></div>
+<pre id="log"></pre>
+<script src="PdfTeXEngine.js"></script>
+<script src="runs-data.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+function b64ToBytes(b64) {
+  const s = atob(b64), out = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+  return out;
+}
+function pdfStats(pdf) {
+  const head = String.fromCharCode.apply(null, pdf.slice(0, 5));
+  const text = Array.from(pdf, b => String.fromCharCode(b)).join("");
+  const pages = (text.match(/\/Type\s*\/Page[^s]/g) || []).length;
+  return { head, pages };
+}
+function offerDownload(el, pdf, filename) {
+  const blob = new Blob([pdf], { type: "application/pdf" });
+  const url = URL.createObjectURL(blob);
+  $(el).innerHTML = '<a href="' + url + '" download="' + filename + '">Download ' + filename + '</a>';
+}
+async function runDoc(engine, label, writeFiles, mainFile) {
+  writeFiles();
+  engine.setEngineMainFile(mainFile);
+  const report = [];
+  let last = null;
+  for (let pass = 1; pass <= 3; pass++) {
+    last = await engine.compileLaTeX();
+    report.push(label + " pass " + pass + ": status=" + last.status + " pdf=" + (last.pdf ? last.pdf.length : 0) + " bytes");
+    if (last.status !== 0) break;
+  }
+  return { last, report };
+}
+(async () => {
+  const logs = [];
+  try {
+    const engine = new PdfTeXEngine();
+    await engine.loadEngine();
+    engine.writeMemFSFile("TUthesis_2026.sty", window.RUNS_DATA.sty);
+
+    $("statusA").textContent = "compiling…";
+    engine.makeMemFSFolder("figures");
+    const rA = await runDoc(engine, "A", () => {
+      engine.writeMemFSFile("main.tex", window.RUNS_DATA.A.tex);
+      engine.writeMemFSFile("references.bib", window.RUNS_DATA.A.bib);
+      engine.writeMemFSFile("figures/fig1.png", b64ToBytes(window.RUNS_DATA.A.fig));
+    }, "main.tex");
+    logs.push(...rA.report);
+    if (rA.last && rA.last.status === 0 && rA.last.pdf) {
+      const s = pdfStats(rA.last.pdf);
+      $("statusA").textContent = "COMPILED OK — " + rA.last.pdf.length + " bytes, header=" + s.head + ", est. pages=" + s.pages;
+      offerDownload("downloadA", rA.last.pdf, "tu-test-run-A.pdf");
+    } else {
+      $("statusA").textContent = "FAILED — status=" + (rA.last ? rA.last.status : "none");
+      logs.push("A log tail: " + (rA.last && rA.last.log ? rA.last.log.slice(-2000) : "(no log)"));
+    }
+
+    $("statusB").textContent = "compiling…";
+    engine.makeMemFSFolder("figures2");
+    const texB = window.RUNS_DATA.B.tex.replaceAll("figures/", "figures2/").replace("{references}", "{references2}");
+    const rB = await runDoc(engine, "B", () => {
+      engine.writeMemFSFile("thesis2.tex", texB);
+      engine.writeMemFSFile("references2.bib", window.RUNS_DATA.B.bib);
+      engine.writeMemFSFile("figures2/fig1.png", b64ToBytes(window.RUNS_DATA.B.fig1));
+      engine.writeMemFSFile("figures2/fig2.png", b64ToBytes(window.RUNS_DATA.B.fig2));
+    }, "thesis2.tex");
+    logs.push(...rB.report);
+    if (rB.last && rB.last.status === 0 && rB.last.pdf) {
+      const s = pdfStats(rB.last.pdf);
+      $("statusB").textContent = "COMPILED OK — " + rB.last.pdf.length + " bytes, header=" + s.head + ", est. pages=" + s.pages;
+      offerDownload("downloadB", rB.last.pdf, "tu-test-run-B.pdf");
+    } else {
+      $("statusB").textContent = "FAILED — status=" + (rB.last ? rB.last.status : "none");
+      logs.push("B log tail: " + (rB.last && rB.last.log ? rB.last.log.slice(-2000) : "(no log)"));
+    }
+    $("log").textContent = logs.join("\n");
+    document.title = "RUNS: A=" + $("statusA").textContent.slice(0, 12) + " B=" + $("statusB").textContent.slice(0, 12);
+    window.__RUNS_DONE__ = true;
+  } catch (e) {
+    $("log").textContent = "ERROR: " + (e && e.stack ? e.stack : e);
+    document.title = "RUNS: ERROR";
+    window.__RUNS_DONE__ = true;
+  }
+})();
+</script>
+</body></html>
