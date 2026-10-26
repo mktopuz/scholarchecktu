@@ -124,6 +124,13 @@ button.mini { padding: 4px 10px; font-size: .85rem; }
 .site-footer { color: var(--muted); font-size: .88rem; padding: 10px 0 30px; border-top: 2px solid var(--gold); margin-top: 6px; }
 .table-grid { display: grid; gap: 6px; }
 .table-grid input { margin-top: 0; }
+.table-grid .mini { align-self: center; }
+.table-dims { display: flex; gap: 12px; flex-wrap: wrap; }
+.table-dims label { flex: 1; min-width: 120px; }
+.paste-area { margin-top: 10px; }
+.paste-area textarea { width: 100%; box-sizing: border-box; }
+.paste-check { display: flex; align-items: center; gap: 6px; }
+.paste-check input { margin: 0; }
 .snippet-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
 @media (max-width: 640px) {
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
