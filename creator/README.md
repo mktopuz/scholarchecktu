@@ -23,9 +23,12 @@ Recompile). Everything runs in the browser tab; nothing is uploaded anywhere.
 ## What's in the builder
 
 - 7 guided steps: document kind + template → details → front matter (with live
-  abstract word count) → chapters/sections → figures (image upload, bundled in
-  the zip), tables (grid editor → booktabs), equations (snippet buttons) →
-  references (BibTeX builder) → review, live `.tex` preview, and `.zip` download.
+  abstract word count) → chapters with subsections (numbered 1.1, 1.2, ... by
+  LaTeX) → figures (image upload, bundled in the zip; two-part captions: a
+  bold title plus an explanation), tables (grid editor → booktabs, with
+  columns/rows controls and copy-paste fill from a spreadsheet or document),
+  equations (snippet buttons) → references (per-type fields, or paste whole
+  BibTeX entries at once) → review, live `.tex` preview, and `.zip` download.
 - Chapter text supports plain paragraphs, `**bold**`, `*italic*`, `$math$`, and
   `\cite{key}` citations.
 - A "How to open in Overleaf" beginner guide ships in the app (Review step)
