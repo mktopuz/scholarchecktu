@@ -28,8 +28,9 @@ Recompile). Everything runs in the browser tab; nothing is uploaded anywhere.
   references (BibTeX builder) → review, live `.tex` preview, and `.zip` download.
 - Chapter text supports plain paragraphs, `**bold**`, `*italic*`, `$math$`, and
   `\cite{key}` citations.
-- A "How to open in Overleaf" 3-step guide ships in the app and in every zip
-  (`README-OVERLEAF.txt`).
+- A "How to open in Overleaf" beginner guide ships in the app (Review step)
+  and in every zip (`README-OVERLEAF.txt`): creating a free Overleaf account,
+  uploading the .zip, recompiling, and downloading the PDF.
 
 ## Files
 
