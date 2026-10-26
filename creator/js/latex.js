@@ -48,12 +48,31 @@ function figExt(dataUrl) {
   return t === "jpeg" ? "jpg" : t;
 }
 
+/* Two-part caption: bold title + explanation/detail.
+ * both parts    -> \caption{\textbf{Title.} Detail} (a period is added
+ *                  after the title when it lacks terminal punctuation)
+ * title only    -> \caption{\textbf{Title}}
+ * detail only   -> \caption{Detail}
+ * neither       -> \caption{fallback} ("Figure N" / "Table N")
+ * Both parts are escaped with escTex; only the title is bold. */
+function captionTex(title, detail, fallback) {
+  const t = (title || "").trim();
+  const d = (detail || "").trim();
+  if (t && d) {
+    const titled = /[.!?]$/.test(t) ? t : t + ".";
+    return "\\caption{\\textbf{" + escTex(titled) + "} " + escTex(d) + "}";
+  }
+  if (t) return "\\caption{\\textbf{" + escTex(t) + "}}";
+  if (d) return "\\caption{" + escTex(d) + "}";
+  return "\\caption{" + escTex(fallback) + "}";
+}
+
 function figureTex(fig, n) {
   return [
     "\\begin{figure}[htbp]",
     "  \\centering",
     "  \\includegraphics[width=0.8\\textwidth]{figures/" + fig.file + "}",
-    "  \\caption{" + escTex(fig.caption || "Figure " + n) + "}",
+    "  " + captionTex(fig.capTitle, fig.capDetail, "Figure " + n),
     "  \\label{fig:fig" + n + "}",
     "\\end{figure}"
   ].join("\n");
@@ -66,7 +85,7 @@ function tableTex(tab, n) {
   return [
     "\\begin{table}[htbp]",
     "  \\centering",
-    "  \\caption{" + escTex(tab.caption || "Table " + n) + "}",
+    "  " + captionTex(tab.capTitle, tab.capDetail, "Table " + n),
     "  \\label{tab:tab" + n + "}",
     "  \\begin{tabular}{" + spec + "}",
     "    \\toprule",
@@ -83,24 +102,50 @@ function equationTex(eq, n) {
   return "\\begin{equation}\n  \\label{eq:eq" + n + "}\n  " + (eq.tex || "x = y") + "\n\\end{equation}";
 }
 
-function itemsForChapter(S, chapterIndex) {
+/* Item placement: each figure/table/equation carries `place`, a string:
+ * "c" for chapter-level (inside chapter c, before its subsections) or
+ * "c:s" for subsection s of chapter c. Legacy integer `chapter` fields are
+ * still honoured as place "c" so old fixtures keep working. */
+function placeOf(it) {
+  if (it.place !== undefined && it.place !== null) return String(it.place);
+  return String(it.chapter ?? "0");
+}
+
+/* Render the items at one place. Counters are shared across a chapter's
+ * places (chapter body + all its subsections) so \label numbers stay unique
+ * within a chapter; omit `counters` for a fresh per-place count. */
+function itemsAtPlace(S, place, counters) {
+  const c = counters || { fig: 0, tab: 0, eq: 0 };
   const parts = [];
-  S.figures.filter(f => f.chapter === chapterIndex).forEach((f, i) => parts.push(figureTex(f, i + 1)));
-  S.tables.filter(t => t.chapter === chapterIndex).forEach((t, i) => parts.push(tableTex(t, i + 1)));
-  S.equations.filter(e => e.chapter === chapterIndex).forEach((e, i) => parts.push(equationTex(e, i + 1)));
+  S.figures.filter(f => placeOf(f) === place).forEach(f => parts.push(figureTex(f, ++c.fig)));
+  S.tables.filter(t => placeOf(t) === place).forEach(t => parts.push(tableTex(t, ++c.tab)));
+  S.equations.filter(e => placeOf(e) === place).forEach(e => parts.push(equationTex(e, ++c.eq)));
   return parts.join("\n\n");
 }
 
+/* Backwards-compatible alias: chapter-level items of chapter `chapterIndex`. */
+function itemsForChapter(S, chapterIndex) {
+  return itemsAtPlace(S, String(chapterIndex));
+}
+
+/* Fields emitted per entry type, in output order. Every supplied field in
+ * the type's list is emitted (braces stripped, as before); empty fields
+ * are omitted. Unknown types fall back to author/title/year. */
+const BIB_FIELDS = {
+  article: ["author", "title", "journal", "volume", "pages", "year"],
+  inproceedings: ["author", "title", "booktitle", "pages", "year"],
+  book: ["author", "title", "publisher", "year"],
+  phdthesis: ["author", "title", "school", "year"],
+  mastersthesis: ["author", "title", "school", "year"]
+};
+
 function bibEntry(r) {
-  const f = (k) => (r[k] || "").trim();
   const lines = [];
-  const push = (k, v) => { if (v) lines.push("  " + k + " = {" + v.replace(/[{}]/g, "") + "},"); };
-  push("author", f("author")); push("title", f("title"));
-  if (r.type === "article") { push("journal", f("journal")); push("volume", f("volume")); push("pages", f("pages")); }
-  if (r.type === "inproceedings") { push("booktitle", f("booktitle")); push("pages", f("pages")); }
-  if (r.type === "book") { push("publisher", f("publisher")); }
-  if (r.type === "phdthesis" || r.type === "mastersthesis") { push("school", f("school")); }
-  push("year", f("year"));
+  const fields = BIB_FIELDS[r.type] || ["author", "title", "year"];
+  for (const k of fields) {
+    const v = (r[k] || "").trim();
+    if (v) lines.push("  " + k + " = {" + v.replace(/[{}]/g, "") + "},");
+  }
   return "@" + r.type + "{" + (r.key || "ref") + ",\n" + lines.join("\n") + "\n}";
 }
 
@@ -171,11 +216,18 @@ function zipFiles(S, mainTex, template) {
 
 /* ---------- thesis builders ---------- */
 
-function thesisChapters(S, cmd) {
+function thesisChapters(S, cmd, subCmd) {
   const body = [], appendix = [];
   S.chapters.forEach((ch, i) => {
-    const text = cmd + "{" + escTex(ch.title || ("Chapter " + (i + 1))) + "}\n\n"
-      + bodyToTex(ch.body) + itemsForChapter(S, i);
+    const counters = { fig: 0, tab: 0, eq: 0 };
+    let text = cmd + "{" + escTex(ch.title || ("Chapter " + (i + 1))) + "}\n\n"
+      + bodyToTex(ch.body) + itemsAtPlace(S, String(i), counters);
+    (ch.sections || []).forEach((sec, j) => {
+      text += "\n\n" + subCmd + "{" + escTex(sec.title || ("Section " + (j + 1))) + "}\n\n"
+        + bodyToTex(sec.body);
+      const secItems = itemsAtPlace(S, i + ":" + j, counters);
+      if (secItems) text += "\n\n" + secItems;
+    });
     (ch.appendix ? appendix : body).push(text);
   });
   return { body: body.join("\n\n"), appendix: appendix.join("\n\n") };
@@ -233,7 +285,7 @@ function buildTu(S) {
     lines.push("");
     lines.push(escTex(S.dedication));
   }
-  const { body, appendix } = thesisChapters(S, "\\chapter");
+  const { body, appendix } = thesisChapters(S, "\\chapter", "\\section");
   lines.push("");
   lines.push(body);
   lines.push("");
@@ -276,7 +328,7 @@ function buildMit(S) {
   lines.push("\\tableofcontents");
   if (S.figures.length) lines.push("\\listoffigures");
   if (S.tables.length) lines.push("\\listoftables");
-  const { body, appendix } = thesisChapters(S, "\\chapter");
+  const { body, appendix } = thesisChapters(S, "\\chapter", "\\section");
   lines.push("");
   lines.push(body);
   if (appendix) {
@@ -326,7 +378,7 @@ function buildGeneric(S) {
   lines.push("\\tableofcontents");
   if (S.figures.length) lines.push("\\listoffigures");
   if (S.tables.length) lines.push("\\listoftables");
-  const { body, appendix } = thesisChapters(S, "\\chapter");
+  const { body, appendix } = thesisChapters(S, "\\chapter", "\\section");
   lines.push("");
   lines.push(body);
   if (S.references.length) {
@@ -355,11 +407,19 @@ function parseAuthors(text) {
   });
 }
 
-function journalSections(S, cmd) {
-  return S.chapters.map((ch, i) =>
-    cmd + "{" + escTex(ch.title || ("Section " + (i + 1))) + "}\n\n"
-    + bodyToTex(ch.body) + itemsForChapter(S, i)
-  ).join("\n\n");
+function journalSections(S, cmd, subCmd) {
+  return S.chapters.map((ch, i) => {
+    const counters = { fig: 0, tab: 0, eq: 0 };
+    let text = cmd + "{" + escTex(ch.title || ("Section " + (i + 1))) + "}\n\n"
+      + bodyToTex(ch.body) + itemsAtPlace(S, String(i), counters);
+    (ch.sections || []).forEach((sec, j) => {
+      text += "\n\n" + subCmd + "{" + escTex(sec.title || ("Subsection " + (j + 1))) + "}\n\n"
+        + bodyToTex(sec.body);
+      const secItems = itemsAtPlace(S, i + ":" + j, counters);
+      if (secItems) text += "\n\n" + secItems;
+    });
+    return text;
+  }).join("\n\n");
 }
 
 function buildJournal(S) {
@@ -416,7 +476,7 @@ function buildJournal(S) {
     lines.push("\\end{keyword}");
   }
   lines.push("");
-  lines.push(journalSections(S, "\\section"));
+  lines.push(journalSections(S, "\\section", "\\subsection"));
   if (S.references.length) {
     lines.push("");
     lines.push("\\bibliographystyle{" + (t.id === "ieee" ? "IEEEtran" : t.id === "acm" ? "ACM-Reference-Format" : "elsarticle-num") + "}");
@@ -433,4 +493,104 @@ function buildProject(S) {
   if (S.templateId === "mit") return buildMit(S);
   if (S.templateId === "generic") return buildGeneric(S);
   return buildJournal(S);
+}
+
+/* Parse pasted spreadsheet/document text into table headers + rows.
+ * Pure function: no DOM, no state. Lines split on \r\n, \r or \n; cells
+ * split on tabs when a line contains tabs, otherwise on commas; cells are
+ * trimmed. Blank lines are skipped. Ragged rows are padded with "" to the
+ * widest row. When firstRowIsHeader is true the first row becomes headers;
+ * otherwise headers are "Column 1..N" and every row is data. */
+function parsePastedTable(text, firstRowIsHeader) {
+  const lines = String(text || "").split(/\r\n|\r|\n/).filter(l => l.trim().length > 0);
+  if (!lines.length) return { headers: [], rows: [] };
+  const splitRow = line => (line.indexOf("\t") !== -1 ? line.split("\t") : line.split(",")).map(c => c.trim());
+  const grid = lines.map(splitRow);
+  const cols = Math.max.apply(null, grid.map(r => r.length));
+  const pad = r => Array.from({ length: cols }, (_, i) => (r[i] === undefined ? "" : r[i]));
+  if (firstRowIsHeader) {
+    return { headers: pad(grid[0]), rows: grid.slice(1).map(pad) };
+  }
+  return { headers: Array.from({ length: cols }, (_, i) => "Column " + (i + 1)), rows: grid.map(pad) };
+}
+
+/* Parse pasted BibTeX into ref objects. Returns an array of
+ * {key, type, author, title, year, journal, volume, pages, booktitle,
+ * publisher, school}; the array also carries a `.skipped` count of
+ * entries that looked like BibTeX entries but were malformed or of an
+ * unsupported type and were not added. Unknown fields are ignored.
+ * Values may be braced (with nesting, e.g. {A {Nested} Title}), quoted,
+ * or bare (e.g. year = 2024); commas inside values are handled. */
+function parseBibtex(text) {
+  const s = String(text || "");
+  const KNOWN = ["author", "title", "year", "journal", "volume", "pages", "booktitle", "publisher", "school"];
+  const TYPES = ["article", "book", "inproceedings", "phdthesis", "mastersthesis"];
+  const entries = [];
+  let skipped = 0;
+  let i = 0;
+  while (i < s.length) {
+    const at = s.indexOf("@", i);
+    if (at === -1) break;
+    const m = /^@\s*([A-Za-z]+)\s*\{/.exec(s.slice(at));
+    if (!m) { i = at + 1; continue; } // "@" that is not an entry start; not counted
+    const rawType = m[1].toLowerCase();
+    let j = at + m[0].length; // just past the entry's opening brace
+    const comma = s.indexOf(",", j);
+    if (comma === -1) { skipped++; break; }
+    const key = s.slice(j, comma).trim();
+    j = comma + 1;
+    const fields = {};
+    let ok = true;
+    while (j < s.length) {
+      while (j < s.length && /[\s,]/.test(s[j])) j++;
+      if (j >= s.length) { ok = false; break; }
+      if (s[j] === "}") { j++; break; }
+      const fm = /^[A-Za-z][A-Za-z0-9_-]*\s*=/.exec(s.slice(j));
+      if (!fm) { ok = false; break; }
+      const name = fm[0].replace(/\s*=$/, "").toLowerCase();
+      j += fm[0].length;
+      while (j < s.length && /\s/.test(s[j])) j++;
+      let value = "";
+      if (s[j] === "{") {
+        let depth = 0, k = j;
+        do {
+          if (s[k] === "\\") { k += 2; continue; }
+          if (s[k] === "{") depth++;
+          else if (s[k] === "}") depth--;
+          k++;
+        } while (k < s.length && depth > 0);
+        if (depth !== 0) { ok = false; break; }
+        value = s.slice(j + 1, k - 1);
+        j = k;
+      } else if (s[j] === '"') {
+        let k = j + 1, depth = 0;
+        while (k < s.length) {
+          if (s[k] === "\\") { k += 2; continue; }
+          if (s[k] === "{") depth++;
+          else if (s[k] === "}") depth--;
+          else if (s[k] === '"' && depth === 0) break;
+          k++;
+        }
+        if (k >= s.length) { ok = false; break; }
+        value = s.slice(j + 1, k);
+        j = k + 1;
+      } else {
+        let k = j;
+        while (k < s.length && s[k] !== "," && s[k] !== "}") k++;
+        value = s.slice(j, k).trim();
+        j = k;
+      }
+      if (KNOWN.includes(name)) fields[name] = value.trim();
+    }
+    if (ok && key && TYPES.includes(rawType)) {
+      entries.push(Object.assign(
+        { key: "", type: rawType, author: "", title: "", year: "", journal: "", volume: "", pages: "", booktitle: "", publisher: "", school: "" },
+        fields, { key, type: rawType }));
+    } else {
+      skipped++;
+    }
+    i = j > at ? j : at + 1;
+  }
+  entries.skipped = skipped;
+  return entries;
 }
