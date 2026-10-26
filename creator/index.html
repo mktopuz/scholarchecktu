@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scholarly Creator — Build your thesis, dissertation, or journal paper for Overleaf</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <h1>Scholarly Creator</h1>
+    <p class="tagline">Build your thesis, dissertation, or journal paper for Overleaf — no LaTeX experience needed.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="privacy-banner">
+    <strong>Private by design.</strong> Everything you type stays in this browser tab.
+    Nothing is uploaded anywhere — the finished project is a .zip file you download and open in Overleaf yourself.
+  </div>
+
+  <nav class="steps" id="stepNav" aria-label="Builder steps"></nav>
+
+  <!-- STEP 1: what + template -->
+  <section class="card" data-step="1">
+    <h2><span class="step">1</span> What are you writing?</h2>
+    <p class="note">Pick the kind of document first — the template choices follow from it. You can change this later; nothing you type is lost.</p>
+    <div class="grid-3" role="group" aria-label="Document kind">
+      <button type="button" class="choice" data-kind="thesis">Master's thesis</button>
+      <button type="button" class="choice" data-kind="dissertation">Doctoral dissertation</button>
+      <button type="button" class="choice" data-kind="article">Journal article</button>
+    </div>
+    <h3>Template</h3>
+    <p class="note" id="templateNote"></p>
+    <select id="templateSelect" aria-label="Template"></select>
+    <p class="note" id="templateDesc"></p>
+    <p class="note"><strong>New to Overleaf?</strong> Overleaf is a free online editor for LaTeX documents — the typesetting system most universities and journals use for theses and papers. You don't write code here: fill in the boxes, and this app writes the LaTeX for you. At the end you get a .zip to open in Overleaf, where you press one button to build your PDF.</p>
+  </section>
+
+  <!-- STEP 2: details -->
+  <section class="card" data-step="2" hidden>
+    <h2><span class="step">2</span> Your details</h2>
+    <div id="thesisFields">
+      <div class="grid-2">
+        <label>Title <input type="text" id="f-title" placeholder="e.g. The Effects of…"></label>
+        <label>Your full name <input type="text" id="f-author" placeholder="e.g. Jane A. Doe"></label>
+        <label>Department / program <input type="text" id="f-dept" placeholder="e.g. Computer Science"></label>
+        <label>Degree <input type="text" id="f-degree" placeholder="e.g. Master of Science"></label>
+        <label>Advisor <input type="text" id="f-advisor" placeholder="e.g. Prof. I. M. Brilliant"></label>
+        <label>Submission year <input type="number" id="f-year" value="2026"></label>
+      </div>
+      <label>Committee members (one per line; advisor counts separately)
+        <textarea id="f-committee" rows="3" placeholder="Second Member&#10;Third Member"></textarea></label>
+      <label id="f-pages-wrap">Expected page count (prints on the abstract page — update it after your first compile)
+        <input type="number" id="f-pages" value="60"></label>
+    </div>
+    <div id="articleFields" hidden>
+      <label>Paper title <input type="text" id="f-atitle" placeholder="e.g. A Study of…"></label>
+      <label>Authors (one per line: Name — Affiliation — email)
+        <textarea id="f-authors" rows="3" placeholder="Jane A. Doe — University of Tulsa — jane@example.edu&#10;John Smith — University of Tulsa"></textarea></label>
+      <label>Keywords (comma separated) <input type="text" id="f-keywords" placeholder="e.g. machine learning, optimization"></label>
+    </div>
+  </section>
+
+  <!-- STEP 3: front matter -->
+  <section class="card" data-step="3" hidden>
+    <h2><span class="step">3</span> Front matter</h2>
+    <div id="abstractWrap">
+      <label>Abstract <span class="note" id="abstractCount"></span>
+        <textarea id="f-abstract" rows="7" placeholder="Write your abstract here. For the University of Tulsa: a thesis abstract is at most 150 words, a dissertation abstract at most 350."></textarea></label>
+    </div>
+    <label>Acknowledgements (theses and dissertations)
+      <textarea id="f-ack" rows="4" placeholder="Thank your advisor, committee, family, funders…"></textarea></label>
+    <label>Dedication (optional)
+      <input type="text" id="f-dedication" placeholder="e.g. To my parents"></label>
+  </section>
+
+  <!-- STEP 4: chapters / sections -->
+  <section class="card" data-step="4" hidden>
+    <h2><span class="step">4</span> Chapters / sections</h2>
+    <p class="note">Write in plain text. A blank line starts a new paragraph. <strong>bold</strong> and <em>italic</em> markup work, and $...$ passes through as math. To cite a reference, type <code>\cite{key}</code> with the key you give it in step 6.</p>
+    <div id="chapterList"></div>
+    <button type="button" id="addChapter">+ Add a chapter / section</button>
+  </section>
+
+  <!-- STEP 5: figures, tables, equations -->
+  <section class="card" data-step="5" hidden>
+    <h2><span class="step">5</span> Figures, tables &amp; equations</h2>
+    <h3>Figures</h3>
+    <p class="note">Upload an image and it travels inside your .zip — Overleaf will show it in your document.</p>
+    <input type="file" id="figUpload" accept="image/*" multiple>
+    <div id="figureList"></div>
+    <h3>Tables</h3>
+    <div id="tableList"></div>
+    <button type="button" id="addTable">+ Add a table</button>
+    <h3>Equations</h3>
+    <p class="note">Type LaTeX math (without the $ signs) or tap a snippet to insert it. Equations are numbered automatically.</p>
+    <div id="eqList"></div>
+    <button type="button" id="addEq">+ Add an equation</button>
+  </section>
+
+  <!-- STEP 6: references -->
+  <section class="card" data-step="6" hidden>
+    <h2><span class="step">6</span> References</h2>
+    <p class="note">Each reference gets a short key (like <code>smith2024</code>) that you cite in your text with <code>\cite{smith2024}</code>. The app writes the bibliography file for you.</p>
+    <div id="refList"></div>
+    <button type="button" id="addRef">+ Add a reference</button>
+  </section>
+
+  <!-- STEP 7: review + download -->
+  <section class="card" data-step="7" hidden>
+    <h2><span class="step">7</span> Review &amp; download</h2>
+    <p class="note" id="fileList"></p>
+    <pre id="texPreview" class="tex-preview" aria-label="Generated LaTeX preview"></pre>
+    <div class="report-actions">
+      <button type="button" class="primary" id="downloadZip">Download Overleaf .zip</button>
+      <button type="button" id="copyTex">Copy main.tex</button>
+    </div>
+    <h3>Open it in Overleaf (3 steps)</h3>
+    <ol class="howto">
+      <li>Go to <a href="https://www.overleaf.com" target="_blank" rel="noopener">overleaf.com</a> and sign in (a free account is enough).</li>
+      <li>Click <strong>New Project → Upload Project</strong> and choose the .zip you just downloaded.</li>
+      <li>Press <strong>Recompile</strong>. Your PDF appears — edit the text in Overleaf from there.</li>
+    </ol>
+    <p class="note" id="overleafNote"></p>
+  </section>
+
+  <div class="nav-row">
+    <button type="button" id="prevBtn">← Back</button>
+    <button type="button" class="primary" id="nextBtn">Next →</button>
+  </div>
+</main>
+
+<footer class="wrap site-footer">
+  <p>Scholarly Creator — companion to the Scholarly format checker. Templates: University of Tulsa (official TU LaTeX package, style file bundled), MIT Thesis Template (official, via Overleaf's gallery / TeX Live), a generic thesis template, and IEEE, ACM and Elsevier journal templates (official classes, included in Overleaf's TeX Live). Always confirm your school's current guidelines before submitting.</p>
+</footer>
+
+<script src="js/templates.js"></script>
+<script src="js/latex.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
