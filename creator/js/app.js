@@ -6,7 +6,7 @@ const S = {
   committee: [], year: 2026, pages: 60,
   authorsText: "", keywords: "",
   abstract: "", acknowledgements: "", dedication: "",
-  chapters: [{ title: "Introduction", body: "", appendix: false }],
+  chapters: [{ title: "Introduction", body: "", appendix: false, sections: [] }],
   figures: [], tables: [], equations: [], references: [],
   ieeeMode: "conference", acmMode: "sigconf"
 };
@@ -66,6 +66,8 @@ function renderSteps() {
   document.querySelectorAll("[data-step]").forEach(el => { el.hidden = +el.dataset.step !== step; });
   $("prevBtn").disabled = step === 1;
   $("nextBtn").textContent = step === 7 ? "Done — review above" : "Next →";
+  if (step === 5) { renderFigures(); renderTables(); renderEquations(); }
+  if (step === 6) renderRefs();
   if (step === 7) refreshReview();
   if (step === 2) {
     $("thesisFields").hidden = S.kind === "article";
@@ -89,9 +91,59 @@ function readForm() {
   S.dedication = $("f-dedication").value;
 }
 
+/* Placement options for figures/tables/equations. Values are strings:
+ * "c" for a whole chapter/section, "c:s" for subsection s of chapter c.
+ * Labels use the chapter title (or "Chapter N"/"Section N" fallback), with
+ * subsections shown as "<chapter> › <subsection title>". */
 function chapterOptions(selected) {
-  return S.chapters.map((c, i) =>
-    `<option value="${i}" ${i === selected ? "selected" : ""}>${escHtml(c.title || ("Chapter " + (i + 1)))}</option>`).join("");
+  const sel = String(selected ?? "0");
+  const out = [];
+  S.chapters.forEach((c, i) => {
+    const base = S.kind === "article" ? "Section " : "Chapter ";
+    const chLabel = c.title || (base + (i + 1));
+    out.push(`<option value="${i}" ${sel === String(i) ? "selected" : ""}>${escHtml(chLabel)}</option>`);
+    (c.sections || []).forEach((s, j) => {
+      const v = i + ":" + j;
+      const subLabel = s.title || ("Subsection " + (j + 1));
+      out.push(`<option value="${v}" ${sel === v ? "selected" : ""}>${escHtml(chLabel)} › ${escHtml(subLabel)}</option>`);
+    });
+  });
+  return out.join("");
+}
+
+
+/* When a chapter or subsection is deleted, items placed there (or after it)
+   are remapped so nothing silently drops out of the document. */
+function remapPlacesAfterChapterDelete(items, ci) {
+  items.forEach(it => {
+    const p = String(it.place ?? it.chapter ?? "0");
+    const parts = p.split(":");
+    const cn = +parts[0];
+    if (cn === ci) it.place = "0";
+    else if (cn > ci) it.place = parts.length > 1 ? (cn - 1) + ":" + parts[1] : String(cn - 1);
+    else it.place = p;
+  });
+}
+
+function remapPlacesAfterSubsectionDelete(items, ci, si) {
+  items.forEach(it => {
+    const p = String(it.place ?? it.chapter ?? "0");
+    const parts = p.split(":");
+    if (+parts[0] === ci && parts.length > 1) {
+      const sn = +parts[1];
+      if (sn === si) it.place = String(ci);
+      else if (sn > si) it.place = ci + ":" + (sn - 1);
+    }
+  });
+}
+
+/* Refresh the place dropdowns in the figure/table/equation lists without
+   re-rendering them, so no input focus is lost. Call after any change to
+   chapter/subsection structure or titles. */
+function refreshPlaceSelects() {
+  document.querySelectorAll("[data-fig-place]").forEach(el => { const it = S.figures[+el.dataset.figPlace]; if (it) el.innerHTML = chapterOptions(it.place); });
+  document.querySelectorAll("[data-tab-ch]").forEach(el => { const it = S.tables[+el.dataset.tabCh]; if (it) el.innerHTML = chapterOptions(it.place); });
+  document.querySelectorAll("[data-eq-ch]").forEach(el => { const it = S.equations[+el.dataset.eqCh]; if (it) el.innerHTML = chapterOptions(it.place); });
 }
 
 function renderChapters() {
@@ -101,12 +153,24 @@ function renderChapters() {
         <button type="button" class="mini" data-del-ch="${i}">Remove</button></div>
       <label>Title <input type="text" value="${escHtml(ch.title)}" data-ch-title="${i}"></label>
       <label>Text <textarea rows="6" data-ch-body="${i}">${escHtml(ch.body)}</textarea></label>
+      ${(ch.sections || []).map((sec, j) => `
+      <div style="margin-left:18px">
+        <div class="block-head"><strong>Subsection ${j + 1}</strong>
+          <button type="button" class="mini" data-del-sec="${i}:${j}">Remove</button></div>
+        <label>Subsection title <input type="text" value="${escHtml(sec.title)}" data-sec-title="${i}:${j}"></label>
+        <label>Text <textarea rows="4" data-sec-body="${i}:${j}">${escHtml(sec.body)}</textarea></label>
+      </div>`).join("")}
+      <button type="button" class="mini" data-add-sec="${i}">+ Add subsection</button>
       ${S.kind !== "article" ? `<label><input type="checkbox" data-ch-app="${i}" ${ch.appendix ? "checked" : ""}> This is an appendix chapter</label>` : ""}
     </div>`).join("");
-  document.querySelectorAll("[data-ch-title]").forEach(el => el.oninput = e => { S.chapters[+e.target.dataset.chTitle].title = e.target.value; });
+  document.querySelectorAll("[data-ch-title]").forEach(el => el.oninput = e => { S.chapters[+e.target.dataset.chTitle].title = e.target.value; refreshPlaceSelects(); });
   document.querySelectorAll("[data-ch-body]").forEach(el => el.oninput = e => { S.chapters[+e.target.dataset.chBody].body = e.target.value; });
   document.querySelectorAll("[data-ch-app]").forEach(el => el.onchange = e => { S.chapters[+e.target.dataset.chApp].appendix = e.target.checked; });
-  document.querySelectorAll("[data-del-ch]").forEach(el => el.onclick = e => { S.chapters.splice(+e.target.dataset.delCh, 1); if (!S.chapters.length) S.chapters.push({ title: "", body: "", appendix: false }); renderChapters(); });
+  document.querySelectorAll("[data-del-ch]").forEach(el => el.onclick = e => { const ci = +e.target.dataset.delCh; remapPlacesAfterChapterDelete(S.figures, ci); remapPlacesAfterChapterDelete(S.tables, ci); remapPlacesAfterChapterDelete(S.equations, ci); S.chapters.splice(ci, 1); if (!S.chapters.length) S.chapters.push({ title: "", body: "", appendix: false, sections: [] }); renderChapters(); refreshPlaceSelects(); });
+  document.querySelectorAll("[data-sec-title]").forEach(el => el.oninput = e => { const [ci, si] = e.target.dataset.secTitle.split(":"); S.chapters[+ci].sections[+si].title = e.target.value; refreshPlaceSelects(); });
+  document.querySelectorAll("[data-sec-body]").forEach(el => el.oninput = e => { const [ci, si] = e.target.dataset.secBody.split(":"); S.chapters[+ci].sections[+si].body = e.target.value; });
+  document.querySelectorAll("[data-add-sec]").forEach(el => el.onclick = e => { const ci = +e.target.dataset.addSec; (S.chapters[ci].sections ||= []).push({ title: "", body: "" }); renderChapters(); refreshPlaceSelects(); });
+  document.querySelectorAll("[data-del-sec]").forEach(el => el.onclick = e => { const [ci, si] = e.target.dataset.delSec.split(":"); remapPlacesAfterSubsectionDelete(S.figures, ci, si); remapPlacesAfterSubsectionDelete(S.tables, ci, si); remapPlacesAfterSubsectionDelete(S.equations, ci, si); S.chapters[+ci].sections.splice(+si, 1); renderChapters(); refreshPlaceSelects(); });
 }
 
 function renderFigures() {
@@ -114,40 +178,93 @@ function renderFigures() {
     <div class="block">
       <div class="block-head"><strong>${escHtml(f.file)}</strong>
         <button type="button" class="mini" data-del-fig="${i}">Remove</button></div>
-      <label>Caption <input type="text" value="${escHtml(f.caption)}" data-fig-cap="${i}"></label>
-      <label>Place after <select data-fig-ch="${i}">${chapterOptions(f.chapter)}</select></label>
+      <label>Caption title (bold) <input type="text" value="${escHtml(f.capTitle || "")}" data-fig-title="${i}"></label>
+      <label>Caption details / explanation <input type="text" value="${escHtml(f.capDetail || "")}" data-fig-detail="${i}"></label>
+      <label>Place after <select data-fig-place="${i}">${chapterOptions(f.place)}</select></label>
     </div>`).join("") || `<p class="note">No figures yet — upload images above.</p>`;
-  document.querySelectorAll("[data-fig-cap]").forEach(el => el.oninput = e => { S.figures[+e.target.dataset.figCap].caption = e.target.value; });
-  document.querySelectorAll("[data-fig-ch]").forEach(el => el.onchange = e => { S.figures[+e.target.dataset.figCh].chapter = +e.target.value; });
+  document.querySelectorAll("[data-fig-title]").forEach(el => el.oninput = e => { S.figures[+e.target.dataset.figTitle].capTitle = e.target.value; });
+  document.querySelectorAll("[data-fig-detail]").forEach(el => el.oninput = e => { S.figures[+e.target.dataset.figDetail].capDetail = e.target.value; });
+  document.querySelectorAll("[data-fig-place]").forEach(el => el.onchange = e => { S.figures[+e.target.dataset.figPlace].place = e.target.value; });
   document.querySelectorAll("[data-del-fig]").forEach(el => el.onclick = e => { S.figures.splice(+e.target.dataset.delFig, 1); renderFigures(); });
 }
 
 function renderTables() {
-  $("tableList").innerHTML = S.tables.map((t, i) => `
+  $("tableList").innerHTML = S.tables.map((t, i) => {
+    // Migrate older table shapes: place is a string ("c" or "c:s");
+    // captions split into a bold title and an explanation detail.
+    if (t.place === undefined) t.place = String(t.chapter ?? 0);
+    if (t.capTitle === undefined) t.capTitle = t.caption || "";
+    if (t.capDetail === undefined) t.capDetail = "";
+    const cols = t.headers.length;
+    return `
     <div class="block">
       <div class="block-head"><strong>Table ${i + 1}</strong>
         <button type="button" class="mini" data-del-tab="${i}">Remove</button></div>
-      <label>Caption <input type="text" value="${escHtml(t.caption)}" data-tab-cap="${i}"></label>
-      <label>Columns
-        <select data-tab-cols="${i}">${[2, 3, 4, 5, 6].map(n => `<option ${n === t.headers.length ? "selected" : ""}>${n}</option>`).join("")}</select></label>
-      <div class="table-grid">
-        ${t.headers.map((h, j) => `<input type="text" placeholder="Header ${j + 1}" value="${escHtml(h)}" data-tab-h="${i}:${j}">`).join("")}
-        ${t.rows.map((r, ri) => r.map((c, j) => `<input type="text" placeholder="Row ${ri + 1}, col ${j + 1}" value="${escHtml(c)}" data-tab-c="${i}:${ri}:${j}">`).join("")).join("")}
+      <label>Caption title (bold) <input type="text" value="${escHtml(t.capTitle)}" data-tab-captitle="${i}" placeholder="e.g. Summary of measurements"></label>
+      <label>Caption details / explanation <input type="text" value="${escHtml(t.capDetail)}" data-tab-capdetail="${i}" placeholder="e.g. Means across three trials; see Methods for the setup."></label>
+      <div class="table-dims">
+        <label>Columns
+          <select data-tab-cols="${i}">${[2, 3, 4, 5, 6].map(n => `<option ${n === cols ? "selected" : ""}>${n}</option>`).join("")}</select></label>
+        <label>Rows
+          <input type="number" min="1" max="30" value="${t.rows.length}" data-tab-rows="${i}"></label>
+      </div>
+      <div class="table-grid" style="grid-template-columns: repeat(${cols}, 1fr) auto;">
+        ${t.headers.map((h, j) => `<input type="text" placeholder="Header ${j + 1}" value="${escHtml(h)}" data-tab-h="${i}:${j}">`).join("")}<span></span>
+        ${t.rows.map((r, ri) => r.map((c, j) => `<input type="text" placeholder="Row ${ri + 1}, col ${j + 1}" value="${escHtml(c)}" data-tab-c="${i}:${ri}:${j}">`).join("") + `<button type="button" class="mini" data-tab-delrow="${i}:${ri}" title="Remove row ${ri + 1}">×</button>`).join("")}
       </div>
       <button type="button" class="mini" data-tab-row="${i}">+ Add row</button>
-      <label>Place after <select data-tab-ch="${i}">${chapterOptions(t.chapter)}</select></label>
-    </div>`).join("") || `<p class="note">No tables yet.</p>`;
-  document.querySelectorAll("[data-tab-cap]").forEach(el => el.oninput = e => { S.tables[+e.target.dataset.tabCap].caption = e.target.value; });
+      <div class="paste-area">
+        <label>Paste a table (from a spreadsheet or document)
+          <textarea rows="4" placeholder="Paste rows here — tabs or commas separate columns" data-tab-paste="${i}"></textarea></label>
+        <label class="paste-check"><input type="checkbox" checked data-tab-paste-hdr="${i}"> First row is header</label>
+        <button type="button" class="mini" data-tab-paste-btn="${i}">Fill table from pasted text</button>
+      </div>
+      <label>Place after <select data-tab-ch="${i}">${chapterOptions(t.place)}</select></label>
+    </div>`;
+  }).join("") || `<p class="note">No tables yet.</p>`;
+  document.querySelectorAll("[data-tab-captitle]").forEach(el => el.oninput = e => {
+    const t = S.tables[+e.target.dataset.tabCaptitle];
+    t.capTitle = e.target.value;
+  });
+  document.querySelectorAll("[data-tab-capdetail]").forEach(el => el.oninput = e => { S.tables[+e.target.dataset.tabCapdetail].capDetail = e.target.value; });
   document.querySelectorAll("[data-tab-cols]").forEach(el => el.onchange = e => {
     const t = S.tables[+e.target.dataset.tabCols], n = +e.target.value;
     t.headers = Array.from({ length: n }, (_, j) => t.headers[j] || "");
     t.rows = t.rows.map(r => Array.from({ length: n }, (_, j) => r[j] || ""));
     renderTables();
   });
+  document.querySelectorAll("[data-tab-rows]").forEach(el => el.onchange = e => {
+    const t = S.tables[+e.target.dataset.tabRows];
+    let n = parseInt(e.target.value, 10);
+    if (Number.isNaN(n)) n = t.rows.length;
+    n = Math.max(1, Math.min(30, n));
+    while (t.rows.length < n) t.rows.push(Array(t.headers.length).fill(""));
+    if (t.rows.length > n) t.rows.length = n;
+    renderTables();
+  });
   document.querySelectorAll("[data-tab-h]").forEach(el => el.oninput = e => { const [i, j] = e.target.dataset.tabH.split(":"); S.tables[+i].headers[+j] = e.target.value; });
   document.querySelectorAll("[data-tab-c]").forEach(el => el.oninput = e => { const [i, ri, j] = e.target.dataset.tabC.split(":"); S.tables[+i].rows[+ri][+j] = e.target.value; });
   document.querySelectorAll("[data-tab-row]").forEach(el => el.onclick = e => { const t = S.tables[+e.target.dataset.tabRow]; t.rows.push(Array(t.headers.length).fill("")); renderTables(); });
-  document.querySelectorAll("[data-tab-ch]").forEach(el => el.onchange = e => { S.tables[+e.target.dataset.tabCh].chapter = +e.target.value; });
+  document.querySelectorAll("[data-tab-delrow]").forEach(el => el.onclick = e => {
+    const [i, ri] = e.target.dataset.tabDelrow.split(":");
+    const t = S.tables[+i];
+    t.rows.splice(+ri, 1);
+    if (!t.rows.length) t.rows.push(Array(t.headers.length).fill(""));
+    renderTables();
+  });
+  document.querySelectorAll("[data-tab-paste-btn]").forEach(el => el.onclick = e => {
+    const i = +e.target.dataset.tabPasteBtn;
+    const area = document.querySelector(`[data-tab-paste="${i}"]`);
+    const hdr = document.querySelector(`[data-tab-paste-hdr="${i}"]`);
+    const text = area ? area.value : "";
+    if (!text.trim()) return;
+    const parsed = parsePastedTable(text, hdr ? hdr.checked : true);
+    if (!parsed.headers.length && !parsed.rows.length) return;
+    S.tables[i].headers = parsed.headers;
+    S.tables[i].rows = parsed.rows;
+    renderTables();
+  });
+  document.querySelectorAll("[data-tab-ch]").forEach(el => el.onchange = e => { S.tables[+e.target.dataset.tabCh].place = e.target.value; });
   document.querySelectorAll("[data-del-tab]").forEach(el => el.onclick = e => { S.tables.splice(+e.target.dataset.delTab, 1); renderTables(); });
 }
 
@@ -160,10 +277,10 @@ function renderEquations() {
         <button type="button" class="mini" data-del-eq="${i}">Remove</button></div>
       <div class="snippet-row">${SNIPPETS.map(s => `<button type="button" class="mini" data-snip="${i}" data-s="${escHtml(s)}">${escHtml(s)}</button>`).join("")}</div>
       <label>LaTeX math (no $ signs) <input type="text" value="${escHtml(eq.tex)}" data-eq-tex="${i}" placeholder="e.g. E = mc^2"></label>
-      <label>Place after <select data-eq-ch="${i}">${chapterOptions(eq.chapter)}</select></label>
+      <label>Place after <select data-eq-ch="${i}">${chapterOptions(eq.place)}</select></label>
     </div>`).join("") || `<p class="note">No equations yet.</p>`;
   document.querySelectorAll("[data-eq-tex]").forEach(el => el.oninput = e => { S.equations[+e.target.dataset.eqTex].tex = e.target.value; });
-  document.querySelectorAll("[data-eq-ch]").forEach(el => el.onchange = e => { S.equations[+e.target.dataset.eqCh].chapter = +e.target.value; });
+  document.querySelectorAll("[data-eq-ch]").forEach(el => el.onchange = e => { S.equations[+e.target.dataset.eqCh].place = e.target.value; });
   document.querySelectorAll("[data-del-eq]").forEach(el => el.onclick = e => { S.equations.splice(+e.target.dataset.delEq, 1); renderEquations(); });
   document.querySelectorAll("[data-snip]").forEach(el => el.onclick = e => {
     const i = +e.target.dataset.snip;
@@ -173,7 +290,21 @@ function renderEquations() {
   });
 }
 
+/* Extra fields shown per reference type, as [field, label, placeholder].
+ * Common fields (key, type, author, title, year) are always shown. */
+function refExtraFields(r) {
+  if (r.type === "article") return [["journal", "Journal", "e.g. Nature"], ["volume", "Volume", "e.g. 12"], ["pages", "Pages", "e.g. 123–145"]];
+  if (r.type === "inproceedings") return [["booktitle", "Proceedings / book title", "e.g. Proc. ACM Conf."], ["pages", "Pages", "e.g. 123–130"]];
+  if (r.type === "book") return [["publisher", "Publisher", "e.g. Oxford University Press"]];
+  if (r.type === "phdthesis" || r.type === "mastersthesis") return [["school", "School", "e.g. University of Tulsa"]];
+  return [];
+}
+
 function renderRefs() {
+  const pasteEl = $("bibPaste");
+  const savedPaste = pasteEl ? pasteEl.value : "";
+  const statusEl = $("bibPasteStatus");
+  const savedStatus = statusEl ? statusEl.textContent : "";
   $("refList").innerHTML = S.references.map((r, i) => `
     <div class="block">
       <div class="block-head"><strong>Reference ${i + 1}</strong>
@@ -190,13 +321,30 @@ function renderRefs() {
         <label>Author(s) <input type="text" value="${escHtml(r.author)}" data-ref-f="${i}:author"></label>
         <label>Title <input type="text" value="${escHtml(r.title)}" data-ref-f="${i}:title"></label>
         <label>Year <input type="text" value="${escHtml(r.year)}" data-ref-f="${i}:year"></label>
-        <label>Journal / book / school <input type="text" value="${escHtml(r.journal)}" data-ref-f="${i}:journal" placeholder="Journal, proceedings, publisher, or school"></label>
+        ${refExtraFields(r).map(([f, label, ph]) => `<label>${label} <input type="text" value="${escHtml(r[f] || "")}" data-ref-f="${i}:${f}" placeholder="${ph}"></label>`).join("")}
       </div>
     </div>`).join("") || `<p class="note">No references yet.</p>`;
+  $("refList").innerHTML += `
+    <div class="block">
+      <div class="block-head"><strong>Paste BibTeX</strong></div>
+      <p class="note">Have a reference list already? Paste whole BibTeX entries here (from Google Scholar, a .bib file, or a reference manager) and add them all at once. Pasted entries appear as normal rows below, which you can still edit.</p>
+      <label>Paste BibTeX entries <textarea id="bibPaste" rows="6" placeholder="@article{smith2024,&#10;  author = {Smith, J.},&#10;  title = {A Paper},&#10;  journal = {J. Testing},&#10;  year = {2024}&#10;}"></textarea></label>
+      <button type="button" id="addPasted">Add pasted references</button>
+      <p class="note" id="bibPasteStatus"></p>
+    </div>`;
   document.querySelectorAll("[data-ref-key]").forEach(el => el.oninput = e => { S.references[+e.target.dataset.refKey].key = e.target.value; });
-  document.querySelectorAll("[data-ref-type]").forEach(el => el.onchange = e => { S.references[+e.target.dataset.refType].type = e.target.value; });
+  document.querySelectorAll("[data-ref-type]").forEach(el => el.onchange = e => { S.references[+e.target.dataset.refType].type = e.target.value; renderRefs(); });
   document.querySelectorAll("[data-ref-f]").forEach(el => el.oninput = e => { const [i, f] = e.target.dataset.refF.split(":"); S.references[+i][f] = e.target.value; });
   document.querySelectorAll("[data-del-ref]").forEach(el => el.onclick = e => { S.references.splice(+e.target.dataset.delRef, 1); renderRefs(); });
+  $("bibPaste").value = savedPaste;
+  $("bibPasteStatus").textContent = savedStatus;
+  $("addPasted").onclick = () => {
+    const parsed = parseBibtex($("bibPaste").value);
+    S.references.push(...parsed);
+    if (parsed.length) $("bibPaste").value = "";
+    $("bibPasteStatus").textContent = "Added " + parsed.length + " references (" + (parsed.skipped || 0) + " skipped).";
+    renderRefs();
+  };
 }
 
 function refreshReview() {
@@ -220,22 +368,23 @@ function init() {
     if (S.kind === "dissertation") S.degree = "Doctor of Philosophy";
     syncTemplateSelect();
     renderSteps();
+    refreshPlaceSelects();
   });
   document.querySelector("[data-kind='thesis']").classList.add("selected");
   $("templateSelect").onchange = e => { S.templateId = e.target.value; syncTemplateSelect(); renderSteps(); };
   $("stepNav").onclick = e => { const b = e.target.closest("[data-goto]"); if (b) goto(+b.dataset.goto); };
   $("prevBtn").onclick = () => goto(step - 1);
   $("nextBtn").onclick = () => { if (step < 7) goto(step + 1); };
-  $("addChapter").onclick = () => { S.chapters.push({ title: "", body: "", appendix: false }); renderChapters(); };
-  $("addTable").onclick = () => { S.tables.push({ id: ++tabCounter, caption: "", headers: ["", ""], rows: [["", ""]], chapter: 0 }); renderTables(); };
-  $("addEq").onclick = () => { S.equations.push({ id: ++eqCounter, tex: "", chapter: 0 }); renderEquations(); };
-  $("addRef").onclick = () => { S.references.push({ key: "", type: "article", author: "", title: "", year: "", journal: "" }); renderRefs(); };
+  $("addChapter").onclick = () => { S.chapters.push({ title: "", body: "", appendix: false, sections: [] }); renderChapters(); refreshPlaceSelects(); };
+  $("addTable").onclick = () => { S.tables.push({ id: ++tabCounter, capTitle: "", capDetail: "", headers: ["", ""], rows: [["", ""]], place: "0" }); renderTables(); };
+  $("addEq").onclick = () => { S.equations.push({ id: ++eqCounter, tex: "", place: "0" }); renderEquations(); };
+  $("addRef").onclick = () => { S.references.push({ key: "", type: "article", author: "", title: "", year: "", journal: "", volume: "", pages: "", booktitle: "", publisher: "", school: "" }); renderRefs(); };
   $("figUpload").onchange = async e => {
     for (const file of e.target.files) {
       const dataUrl = await new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(file); });
       const ext = (file.type.split("/")[1] || "png").replace("jpeg", "jpg");
       figCounter++;
-      S.figures.push({ id: figCounter, file: "fig" + figCounter + "." + ext, dataUrl, caption: "", chapter: 0 });
+      S.figures.push({ id: figCounter, file: "fig" + figCounter + "." + ext, dataUrl, capTitle: "", capDetail: "", place: "0" });
     }
     e.target.value = "";
     renderFigures();
