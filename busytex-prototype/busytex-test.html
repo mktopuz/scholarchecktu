@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>BusyTeX TU prototype — running</title>
+<style>
+body { font-family: system-ui, sans-serif; margin: 2em; line-height: 1.5; }
+#status { font-size: 1.2em; font-weight: bold; }
+pre { background: #f4f4f4; padding: 1em; white-space: pre-wrap; word-break: break-word; max-height: 60vh; overflow: auto; }
+button, a.btn { font-size: 1.1em; padding: 0.5em 1em; }
+</style>
+</head>
+<body>
+<h1>BusyTeX prototype — TU thesis test (test page only)</h1>
+<p>Engine: TeXlyre BusyTeX (TeX Live 2026, pdfLaTeX) with <b>no preloaded data packages</b> — every TeX Live file is fetched on demand from the live package server <code>https://texlive2026.texlyre.org</code>. Document: the ready TU master's-thesis test zip (subsection, figure + table with two-part captions, 3-member committee, 82-word abstract, 1 reference, appendix).</p>
+<p id="status">STATUS: starting…</p>
+<p id="pdfinfo"></p>
+<p><a id="dl" class="btn" style="display:none">Download PDF</a></p>
+<h2>Log</h2>
+<pre id="log"></pre>
+<script src="test-data.js"></script>
+<script type="module">
+import { BusyTexRunner, PdfLatex } from './wrapper/index.js';
+
+const statusEl = document.getElementById('status');
+const logEl = document.getElementById('log');
+const pdfEl = document.getElementById('pdfinfo');
+function setStatus(s) { statusEl.textContent = 'STATUS: ' + s; logEl.textContent += '[' + new Date().toISOString() + '] ' + s + '\n'; }
+function b64ToBytes(b64) {
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+async function run() {
+  try {
+    setStatus('Creating runner (basePath core/busytex, zero preloaded data packages)…');
+    const runner = new BusyTexRunner({
+      busytexBasePath: 'core/busytex',
+      preloadDataPackages: [],
+      verbose: true,
+      onDownloadProgress: p => { pdfEl.textContent = 'Engine/data download: ' + p.percent + '%'; }
+    });
+    setStatus('Initializing worker (this downloads ~65 MB of engine files on first run)…');
+    await runner.initialize(true);
+    setStatus('Worker initialized. Compiling with pdfLaTeX (bibtex + rerun, remote endpoint texlive2026.texlyre.org)…');
+    const pdflatex = new PdfLatex(runner);
+    const result = await pdflatex.compile({
+      input: MAIN_TEX,
+      additionalFiles: [
+        { path: 'TUthesis_2026.sty', content: TU_STY },
+        { path: 'references.bib', content: REF_BIB },
+        { path: 'figures/fig1.png', content: b64ToBytes(FIG1_B64) }
+      ],
+      bibtex: true,
+      rerun: true,
+      remoteEndpoint: 'https://texlive2026.texlyre.org',
+      verbose: 'info'
+    });
+    const pdfBytes = result.pdf ? result.pdf.length : 0;
+    const pdfHead = result.pdf ? Array.from(result.pdf.slice(0, 5)).map(c => String.fromCharCode(c)).join('') : '(none)';
+    setStatus(result.success ? 'COMPILE OK' : 'COMPILE FAILED');
+    document.title = result.success ? 'BUSYTEX PASS' : 'BUSYTEX FAIL';
+    pdfEl.textContent = 'RESULT success=' + result.success + ' exitCode=' + result.exitCode +
+      ' pdfBytes=' + pdfBytes + ' pdfHead=' + pdfHead;
+    setStatus('Full log:\n' + (result.log || '(empty log)'));
+    if (result.logs) {
+      result.logs.forEach((l, i) => setStatus('Pass ' + i + ': cmd=' + l.cmd + ' exit_code=' + l.exit_code));
+    }
+    if (result.success && result.pdf) {
+      const blob = new Blob([result.pdf], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.getElementById('dl');
+      a.href = url; a.download = 'busytex-tu-test.pdf'; a.style.display = 'inline-block';
+      a.textContent = 'Download PDF (' + pdfBytes + ' bytes)';
+    }
+  } catch (e) {
+    document.title = 'BUSYTEX FAIL';
+    setStatus('ERROR: ' + (e && e.message ? e.message : e) + '\n' + (e && e.stack ? e.stack : ''));
+  }
+}
+run();
+</script>
+</body>
+</html>
