@@ -1,0 +1,1260 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Foundations of Analytics — The Analytics Quest | QM 7073</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+      :root{
+        --bg:#f5efe1;
+        --bg-soft:#efe6d0;
+        --surface:#fffdf6;
+        --surface-2:#fdf6e3;
+        --ink:#1c2340;
+        --muted:#5b6378;
+        --line:#ddd2b8;
+        --navy:#1a2150;
+        --navy-deep:#12173c;
+        --gold:#d98e04;
+        --gold-bright:#f2b33d;
+        --gold-soft:#fbeecd;
+        --teal:#0d9488;
+        --teal-soft:#d7f2ec;
+        --red:#cf3f3f;
+        --red-soft:#fbe3e1;
+        --green:#1d9e62;
+        --green-soft:#dcf4e5;
+        --shadow:0 10px 30px rgba(28,35,64,.10);
+        --radius:18px;
+      }
+      @media (prefers-color-scheme: dark){
+        :root{
+          --bg:#0e1230;
+          --bg-soft:#12173c;
+          --surface:#181f4a;
+          --surface-2:#1d2657;
+          --ink:#f4edd9;
+          --muted:#a9b0cc;
+          --line:#2e3768;
+          --navy:#232c66;
+          --navy-deep:#0e1230;
+          --gold:#f2b33d;
+          --gold-bright:#ffc95e;
+          --gold-soft:#33305e;
+          --teal:#2dd4bf;
+          --teal-soft:#173f42;
+          --red:#f08080;
+          --red-soft:#4a2438;
+          --green:#4ade80;
+          --green-soft:#1d4038;
+          --shadow:0 10px 30px rgba(0,0,0,.35);
+        }
+      }
+      *{box-sizing:border-box}
+      html{scroll-behavior:smooth}
+      body{
+        margin:0;background:var(--bg);color:var(--ink);
+        font-family:"Public Sans",system-ui,sans-serif;
+        font-size:16.5px;line-height:1.6;
+        -webkit-font-smoothing:antialiased;
+      }
+      h1,h2,h3,.display{font-family:"Bricolage Grotesque","Public Sans",sans-serif;line-height:1.12;margin:0}
+      .mono{font-family:"Space Mono",monospace}
+      .wrap{max-width:1140px;margin:0 auto;padding:0 20px}
+      a{color:var(--teal)}
+      button{font:inherit;cursor:pointer}
+      :focus-visible{outline:3px solid var(--gold-bright);outline-offset:2px;border-radius:6px}
+
+      /* ---------- HUD ---------- */
+      .hud{
+        position:sticky;top:0;z-index:50;
+        background:color-mix(in srgb, var(--bg) 88%, transparent);
+        backdrop-filter:blur(10px);
+        border-bottom:2px solid var(--line);
+      }
+      .hud-inner{display:flex;align-items:center;gap:14px;padding:10px 0;flex-wrap:wrap}
+      .hud-brand{display:flex;align-items:center;gap:10px;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.02rem;letter-spacing:.01em}
+      .hud-brand .crest{
+        width:34px;height:34px;border-radius:10px;background:var(--navy);color:var(--gold-bright);
+        display:grid;place-items:center;flex:none;
+      }
+      .hud-brand small{display:block;font-family:"Space Mono",monospace;font-weight:400;font-size:.62rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+      .hud-stats{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+      .chip{
+        display:inline-flex;align-items:center;gap:7px;
+        background:var(--surface);border:2px solid var(--line);border-radius:999px;
+        padding:5px 13px;font-family:"Space Mono",monospace;font-size:.82rem;font-weight:700;
+      }
+      .chip svg{flex:none}
+      .chip.xp{border-color:var(--gold);background:var(--gold-soft)}
+      .levelbar{width:110px;height:9px;border-radius:99px;background:var(--line);overflow:hidden}
+      .levelbar i{display:block;height:100%;background:var(--gold-bright);border-radius:99px;transition:width .6s ease}
+
+      /* ---------- Hero ---------- */
+      .hero{padding:44px 0 10px}
+      .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:34px;align-items:center}
+      .kicker{
+        display:inline-flex;align-items:center;gap:8px;
+        font-family:"Space Mono",monospace;font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+        background:var(--navy);color:var(--gold-bright);border-radius:999px;padding:6px 14px;
+      }
+      .hero h1{font-size:clamp(2.4rem,5.4vw,3.9rem);font-weight:800;margin:16px 0 6px}
+      .hero h1 .quest{color:var(--gold)}
+      .hero .sub{font-size:1.13rem;color:var(--muted);max-width:34rem;margin:10px 0 0}
+      .hero .sub strong{color:var(--ink)}
+      .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+      .btn{
+        display:inline-flex;align-items:center;gap:9px;border:none;border-radius:13px;
+        padding:13px 22px;font-weight:700;font-size:1rem;text-decoration:none;
+        transition:transform .15s ease, box-shadow .15s ease;
+      }
+      .btn:active{transform:translateY(1px)}
+      .btn-gold{background:var(--gold-bright);color:#231a02;box-shadow:0 6px 0 #a86e06}
+      .btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 0 #a86e06}
+      .btn-ghost{background:var(--surface);color:var(--ink);border:2px solid var(--line);box-shadow:0 4px 0 var(--line)}
+      .btn-ghost:hover{transform:translateY(-2px)}
+      .hero-facts{display:flex;gap:18px;flex-wrap:wrap;margin-top:22px;font-size:.9rem;color:var(--muted)}
+      .hero-facts span{display:inline-flex;gap:7px;align-items:center}
+      .hero-art{
+        border-radius:22px;overflow:hidden;border:3px solid var(--navy);
+        box-shadow:var(--shadow);line-height:0;background:var(--navy-deep);
+      }
+      .hero-art img{width:100%;height:auto;display:block}
+      .hero-art figcaption{
+        line-height:1.45;background:var(--navy);color:#e9e2cd;font-size:.82rem;
+        padding:10px 16px;font-family:"Space Mono",monospace;letter-spacing:.03em;
+      }
+
+      /* ---------- How it plays ---------- */
+      .howto{padding:38px 0 6px}
+      .howto-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}
+      .how-card{
+        background:var(--surface);border:2px solid var(--line);border-radius:var(--radius);
+        padding:18px;position:relative;
+      }
+      .how-card .stepnum{
+        font-family:"Space Mono",monospace;font-weight:700;font-size:.72rem;letter-spacing:.12em;
+        color:var(--gold);text-transform:uppercase;
+      }
+      .how-card h3{font-size:1.06rem;margin:8px 0 5px}
+      .how-card p{margin:0;color:var(--muted);font-size:.93rem}
+      .how-card .ic{
+        width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:10px;
+        background:var(--gold-soft);color:var(--gold);
+      }
+      .how-card:nth-child(2) .ic{background:var(--teal-soft);color:var(--teal)}
+      .how-card:nth-child(3) .ic{background:var(--gold-soft);color:var(--gold)}
+      .how-card:nth-child(4) .ic{background:var(--red-soft);color:var(--red)}
+
+      .section-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-top:44px}
+      .section-head h2{font-size:clamp(1.6rem,3.4vw,2.2rem);font-weight:800}
+      .section-head p{color:var(--muted);margin:0}
+
+      /* ---------- Episode trail ---------- */
+      .trail{margin-top:22px;display:flex;flex-direction:column;gap:0}
+      .ep{
+        display:grid;grid-template-columns:86px 1fr auto;gap:18px;align-items:center;
+        background:var(--surface);border:2px solid var(--line);border-radius:var(--radius);
+        padding:20px 22px;position:relative;
+      }
+      .ep + .ep{margin-top:14px}
+      .ep::before{
+        content:"";position:absolute;left:64px;top:-16px;height:16px;width:0;
+        border-left:3px dashed var(--line);
+      }
+      .ep:first-child::before{display:none}
+      .boss + .ep::before{display:none}
+      .ep-medal{
+        width:64px;height:64px;border-radius:50%;flex:none;
+        display:grid;place-items:center;text-align:center;
+        background:var(--navy);color:var(--gold-bright);
+        font-family:"Bricolage Grotesque",sans-serif;font-weight:800;
+        border:3px solid var(--gold);
+      }
+      .ep-medal small{display:block;font-family:"Space Mono",monospace;font-weight:400;font-size:.55rem;letter-spacing:.14em;color:#cfd4ea}
+      .ep-medal .n{font-size:1.45rem;line-height:1}
+      .ep.locked .ep-medal{background:var(--bg-soft);color:var(--muted);border-color:var(--line)}
+      .ep.cleared .ep-medal{background:var(--teal);border-color:var(--teal);color:#fff}
+      .ep-body h3{font-size:1.22rem;font-weight:700}
+      .ep-body .chap{font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:700}
+      .ep-body p{margin:5px 0 0;color:var(--muted);font-size:.95rem;max-width:44rem}
+      .ep-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+      .tag{
+        font-size:.74rem;font-weight:600;background:var(--bg-soft);border:1.5px solid var(--line);
+        border-radius:999px;padding:3px 10px;color:var(--muted);
+      }
+      .ep-side{display:flex;flex-direction:column;align-items:flex-end;gap:9px}
+      .ep-xp{font-family:"Space Mono",monospace;font-weight:700;font-size:.85rem;color:var(--gold)}
+      .stars{font-size:1rem;letter-spacing:2px;color:var(--line)}
+      .stars .on{color:var(--gold-bright)}
+      .btn-play{
+        background:var(--navy);color:#fff;border:none;border-radius:11px;padding:11px 20px;
+        font-weight:700;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 0 var(--navy-deep);
+      }
+      .btn-play:hover{transform:translateY(-2px)}
+      .btn-play:disabled{background:var(--bg-soft);color:var(--muted);box-shadow:none;cursor:not-allowed;transform:none}
+      .ep.locked{opacity:.75}
+      .status-pill{
+        font-family:"Space Mono",monospace;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+        border-radius:999px;padding:4px 11px;
+      }
+      .status-pill.now{background:var(--gold-soft);color:var(--gold);border:1.5px solid var(--gold)}
+      .status-pill.done{background:var(--teal-soft);color:var(--teal);border:1.5px solid var(--teal)}
+      .status-pill.lock{background:var(--bg-soft);color:var(--muted);border:1.5px solid var(--line)}
+
+      /* boss cards */
+      .boss{
+        margin-top:14px;border-radius:var(--radius);padding:20px 22px;
+        background:var(--navy);color:#f2ead8;border:3px solid var(--gold);
+        display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;
+      }
+      .boss .bic{
+        width:58px;height:58px;border-radius:16px;background:var(--gold-bright);color:#231a02;
+        display:grid;place-items:center;flex:none;
+      }
+      .boss h3{font-size:1.25rem;color:#fff}
+      .boss .chap{font-family:"Space Mono",monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-bright);font-weight:700}
+      .boss p{margin:4px 0 0;color:#c9cfe6;font-size:.94rem;max-width:40rem}
+      .boss .pts{font-family:"Space Mono",monospace;font-weight:700;text-align:right;color:var(--gold-bright);font-size:1.05rem;white-space:nowrap}
+      .boss .pts small{display:block;color:#c9cfe6;font-weight:400;font-size:.68rem;letter-spacing:.08em}
+
+      /* ---------- Player ---------- */
+      #player{display:none;padding:34px 0 60px}
+      #player.open{display:block}
+      .player-shell{max-width:820px;margin:0 auto}
+      .player-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+      .player-top .chap{font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700}
+      .player-top h2{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800}
+      .btn-exit{
+        margin-left:auto;background:var(--surface);border:2px solid var(--line);color:var(--ink);
+        border-radius:11px;padding:9px 16px;font-weight:700;display:inline-flex;gap:7px;align-items:center;
+      }
+      .dots{display:flex;gap:7px;margin:20px 0 6px;flex-wrap:wrap}
+      .dot{height:10px;flex:1;min-width:26px;border-radius:99px;background:var(--line)}
+      .dot.done{background:var(--teal)}
+      .dot.now{background:var(--gold-bright)}
+      .phase-label{font-family:"Space Mono",monospace;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+      .stage{
+        margin-top:14px;background:var(--surface);border:2px solid var(--line);border-radius:22px;
+        padding:30px;box-shadow:var(--shadow);
+      }
+      .stage .lesson-kicker{display:inline-flex;gap:8px;align-items:center;background:var(--teal-soft);color:var(--teal);font-weight:700;font-size:.78rem;border-radius:999px;padding:5px 13px;letter-spacing:.04em}
+      .stage .quiz-kicker{display:inline-flex;gap:8px;align-items:center;background:var(--gold-soft);color:var(--gold);font-weight:700;font-size:.78rem;border-radius:999px;padding:5px 13px;letter-spacing:.04em}
+      .stage h3{font-size:1.55rem;font-weight:800;margin:14px 0 10px}
+      .stage p{margin:0 0 12px}
+      .stage p:last-of-type{margin-bottom:0}
+      .powerup{
+        margin-top:18px;border-radius:14px;padding:15px 17px;background:var(--surface-2);
+        border:2px dashed var(--gold);font-size:.95rem;
+      }
+      .powerup strong{color:var(--gold);font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:4px}
+      .stage-actions{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;align-items:center}
+      .stage-actions .spacer{flex:1}
+      .xp-pop{font-family:"Space Mono",monospace;font-weight:700;color:var(--gold);font-size:.95rem}
+      .opts{display:grid;gap:11px;margin-top:18px}
+      .opt{
+        text-align:left;background:var(--bg);border:2px solid var(--line);border-radius:14px;
+        padding:15px 17px;font-size:1rem;display:flex;gap:12px;align-items:flex-start;width:100%;
+        transition:border-color .12s ease, background .12s ease;color:var(--ink);
+      }
+      .opt:hover:not(:disabled){border-color:var(--gold)}
+      .opt .letter{
+        font-family:"Space Mono",monospace;font-weight:700;flex:none;width:27px;height:27px;border-radius:8px;
+        background:var(--surface);border:2px solid var(--line);display:grid;place-items:center;font-size:.85rem;
+      }
+      .opt.correct{border-color:var(--green);background:var(--green-soft)}
+      .opt.correct .letter{background:var(--green);border-color:var(--green);color:#fff}
+      .opt.wrong{border-color:var(--red);background:var(--red-soft)}
+      .opt.wrong .letter{background:var(--red);border-color:var(--red);color:#fff}
+      .opt:disabled{cursor:default;opacity:1}
+      .opt.dim{opacity:.55}
+      .feedback{
+        display:none;margin-top:18px;border-radius:14px;padding:15px 17px;font-size:.96rem;
+      }
+      .feedback.show{display:block}
+      .feedback.good{background:var(--green-soft);border:2px solid var(--green)}
+      .feedback.bad{background:var(--red-soft);border:2px solid var(--red)}
+      .feedback strong{display:block;margin-bottom:3px}
+      /* results */
+      .results{text-align:center;padding:8px 0}
+      .results .big-stars{font-size:2.6rem;letter-spacing:8px;color:var(--line);margin:8px 0 2px}
+      .results .big-stars .on{color:var(--gold-bright)}
+      .results h3{font-size:1.9rem}
+      .badge-earned{
+        display:inline-flex;align-items:center;gap:10px;margin-top:16px;
+        background:var(--navy);color:var(--gold-bright);border-radius:999px;padding:10px 20px;
+        font-weight:700;border:2px solid var(--gold);
+      }
+      .score-line{font-family:"Space Mono",monospace;color:var(--muted);margin-top:10px}
+      .confetti{position:fixed;inset:0;pointer-events:none;z-index:99;overflow:hidden}
+      .confetti i{position:absolute;top:-14px;width:10px;height:14px;border-radius:2px;animation:fall linear forwards}
+      @keyframes fall{to{transform:translateY(105vh) rotate(720deg)}}
+      @media (prefers-reduced-motion: reduce){
+        .confetti{display:none}
+        html{scroll-behavior:auto}
+        *{transition:none !important;animation:none !important}
+      }
+
+      /* ---------- HQ / syllabus ---------- */
+      .hq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+      .hq-card{background:var(--surface);border:2px solid var(--line);border-radius:var(--radius);padding:20px}
+      .hq-card h3{font-size:1.05rem;margin:0 0 10px;display:flex;gap:9px;align-items:center}
+      .hq-card h3 .ic{color:var(--gold);display:grid;place-items:center}
+      .hq-card p,.hq-card li{font-size:.94rem;color:var(--muted)}
+      .hq-card p{margin:0 0 8px}
+      .hq-card ul{margin:0;padding-left:18px}
+      .hq-card li{margin-bottom:5px}
+      .hq-card strong{color:var(--ink)}
+      table.grades{width:100%;border-collapse:collapse;font-size:.95rem}
+      table.grades th,table.grades td{padding:9px 10px;text-align:left;border-bottom:1.5px solid var(--line)}
+      table.grades th{font-family:"Space Mono",monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+      table.grades td.num,table.grades th.num{text-align:right;font-family:"Space Mono",monospace}
+      table.grades tr.total td{font-weight:700;border-bottom:none;color:var(--ink)}
+      .scale-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+      .scale-row span{font-family:"Space Mono",monospace;font-size:.8rem;font-weight:700;background:var(--bg-soft);border:1.5px solid var(--line);border-radius:9px;padding:5px 11px}
+      .wide-card{grid-column:1/-1}
+      .assign-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+      .assign-grid div{background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:13px 15px}
+      .assign-grid strong{display:block;color:var(--ink);margin-bottom:2px}
+      .assign-grid p{margin:0}
+
+      footer{margin-top:56px;border-top:2px solid var(--line);padding:26px 0 40px;color:var(--muted);font-size:.88rem}
+      footer .wrap{display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between}
+
+      @media (max-width:960px){
+        .hero-grid{grid-template-columns:1fr}
+        .howto-grid{grid-template-columns:repeat(2,1fr)}
+        .hq-grid{grid-template-columns:1fr 1fr}
+      }
+      @media (max-width:640px){
+        body{font-size:16px}
+        .howto-grid{grid-template-columns:1fr}
+        .hq-grid{grid-template-columns:1fr}
+        .assign-grid{grid-template-columns:1fr}
+        .ep{grid-template-columns:60px 1fr;padding:16px}
+        .ep::before{left:45px}
+        .ep-medal{width:48px;height:48px}
+        .ep-medal .n{font-size:1.1rem}
+        .ep-side{grid-column:2;flex-direction:row;align-items:center;justify-content:space-between;width:100%}
+        .boss{grid-template-columns:1fr}
+        .boss .pts{text-align:left}
+        .stage{padding:22px 18px}
+        .levelbar{display:none}
+        table.grades th:nth-child(2),table.grades td:nth-child(2){display:none}
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ================= HUD ================= -->
+    <header class="hud">
+      <div class="wrap hud-inner">
+        <div class="hud-brand">
+          <span class="crest" aria-hidden="true">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-8"/><path d="M22 20H2"/></svg>
+          </span>
+          <span>Foundations of Analytics<small>QM 7073 · The Analytics Quest</small></span>
+        </div>
+        <div class="hud-stats" aria-label="Your progress">
+          <span class="chip" title="Your level">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/></svg>
+            <span id="hud-level">Level 1 · Data Cadet</span>
+            <span class="levelbar" aria-hidden="true"><i id="hud-levelbar" style="width:0%"></i></span>
+          </span>
+          <span class="chip xp" title="Experience points">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4.5 13.5H11L9.5 22 19 10h-6.5z"/></svg>
+            <span id="hud-xp">0 XP</span>
+          </span>
+          <span class="chip" title="Episodes cleared">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 21V4"/><path d="M4 5h13l-2.5 4L17 13H4"/></svg>
+            <span id="hud-cleared">0 / 8 cleared</span>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <main id="home">
+      <!-- ================= HERO ================= -->
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div>
+            <span class="kicker">Season 1 · 8 Episodes · Graduate Course</span>
+            <h1>Foundations of Analytics:<br /><span class="quest">The Analytics Quest</span></h1>
+            <p class="sub">QM 7073 at The University of Tulsa, played like a game. Each episode teaches a core analytics concept in <strong>bite-size micro-lessons</strong>, then challenges you with checkpoint questions before you can move on. Clear all eight episodes, survive two boss battles, and level up from Data Cadet to Analytics Master.</p>
+            <div class="hero-cta">
+              <button class="btn btn-gold" id="btn-start" type="button">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>
+                <span id="btn-start-label">Start Episode 1</span>
+              </button>
+              <a class="btn btn-ghost" href="#hq">Course HQ &amp; Syllabus</a>
+            </div>
+            <div class="hero-facts">
+              <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg> 8-week online course</span>
+              <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V4H6.5A2.5 2.5 0 004 6.5z"/></svg> Evans, <em>Business Analytics</em>, 3rd ed.</span>
+              <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg> Prereq: QM 2013 (C or higher)</span>
+            </div>
+          </div>
+          <figure class="hero-art" style="margin:0">
+            <img src="assets/quest-map.webp" alt="Illustrated quest map: a golden trail winding past bar-chart mountains and a scatter-plot constellation toward a pie-chart sun, with eight checkpoint flags for the eight episodes" width="2352" height="1008" />
+            <figcaption>THE TRAIL AHEAD — 8 CHECKPOINTS FROM FIRST FRAME TO FINAL OPTIMIZATION</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- ================= HOW IT PLAYS ================= -->
+      <section class="howto">
+        <div class="wrap">
+          <div class="section-head" style="margin-top:0">
+            <h2>How the quest works</h2>
+            <p>Learn a little, prove it, earn rewards — repeat.</p>
+          </div>
+          <div class="howto-grid">
+            <div class="how-card">
+              <div class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V4H6.5A2.5 2.5 0 004 6.5z"/><path d="M8 8h8M8 12h5"/></svg></div>
+              <div class="stepnum">Step 1 · Learn</div>
+              <h3>Micro-lessons</h3>
+              <p>Every episode opens with three short, focused lessons — one concept each, with a real business example. No 40-slide decks.</p>
+            </div>
+            <div class="how-card">
+              <div class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.3A2.6 2.6 0 1112 12.5V14"/><circle cx="12" cy="17.4" r=".4" fill="currentColor"/></svg></div>
+              <div class="stepnum">Step 2 · Prove it</div>
+              <h3>Checkpoint questions</h3>
+              <p>Three questions per episode with instant feedback and explanations — the same style as the course Knowledge Checks in MyLab.</p>
+            </div>
+            <div class="how-card">
+              <div class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4.5 13.5H11L9.5 22 19 10h-6.5z"/></svg></div>
+              <div class="stepnum">Step 3 · Level up</div>
+              <h3>XP, stars &amp; badges</h3>
+              <p>Earn XP for every lesson and correct answer, collect a badge per episode, and climb from Data Cadet to Analytics Master.</p>
+            </div>
+            <div class="how-card">
+              <div class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0z"/><path d="M7 6H4a2 2 0 002 4h1M17 6h3a2 2 0 01-2 4h-1"/></svg></div>
+              <div class="stepnum">Step 4 · Boss battles</div>
+              <h3>Midterm &amp; Final</h3>
+              <p>The Midterm guards the trail after Episode 5 (Modules 1–5); the Final waits at the end (Modules 6–8). 150 points each.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= EPISODE MAP ================= -->
+      <section>
+        <div class="wrap">
+          <div class="section-head">
+            <h2>Episode map</h2>
+            <p>Clear an episode to unlock the next checkpoint on the trail.</p>
+          </div>
+          <div class="trail" id="trail"></div>
+        </div>
+      </section>
+
+      <!-- ================= COURSE HQ ================= -->
+      <section id="hq">
+        <div class="wrap">
+          <div class="section-head">
+            <h2>Course HQ</h2>
+            <p>The official details behind the game — from the QM 7073 syllabus.</p>
+          </div>
+          <div class="hq-grid">
+            <div class="hq-card">
+              <h3><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg></span>Your instructor</h3>
+              <p><strong>Kazim Topuz</strong><br />Associate Professor of Business Analytics and Operations Management</p>
+              <p>Email: <a href="mailto:Kazim-topuz@utulsa.edu">Kazim-topuz@utulsa.edu</a><br />Phone: 918-631-2933</p>
+              <p>Replies within 24 hours on weekdays, 48 hours on weekends and holidays. Feedback on major assignments is normally returned within one week.</p>
+            </div>
+            <div class="hq-card">
+              <h3><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span>Course facts</h3>
+              <ul>
+                <li><strong>3 credit hours</strong>, 8-week term</li>
+                <li>Online and asynchronous, with an optional Week 1 Zoom session</li>
+                <li>Prerequisite: <strong>QM 2013</strong> with a grade of C or higher</li>
+                <li>Plan on <strong>20–25 hours per week</strong> of engagement</li>
+                <li>Course content, grades, and announcements live in <strong>Harvey</strong> (TU's LMS)</li>
+                <li>Software: <strong>Excel</strong> and <strong>Orange Data Mining</strong></li>
+              </ul>
+            </div>
+            <div class="hq-card">
+              <h3><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V4H6.5A2.5 2.5 0 004 6.5z"/></svg></span>Textbook &amp; platform</h3>
+              <p><strong>Business Analytics, 3rd Edition</strong><br />James Evans · ISBN-13: 9780135231678</p>
+              <p><strong>Pearson MyLab Statistics</strong> (mandatory) hosts the exams, Learning Practices, and Knowledge Checks for the course.</p>
+              <p>This quest mirrors that structure: episodes pair with the chapters shown on the map, and checkpoint questions work like Knowledge Checks.</p>
+            </div>
+            <div class="hq-card wide-card">
+              <h3><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0z"/><path d="M7 6H4a2 2 0 002 4h1M17 6h3a2 2 0 01-2 4h-1"/></svg></span>How your grade is earned — 1,010 points</h3>
+              <table class="grades">
+                <thead>
+                  <tr><th>Activity</th><th>Count</th><th class="num">Points each</th><th class="num">Total</th><th class="num">Share</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Learning Practices</td><td>8</td><td class="num">50</td><td class="num">400</td><td class="num">40%</td></tr>
+                  <tr><td>Exams (Midterm &amp; Final)</td><td>2</td><td class="num">150</td><td class="num">300</td><td class="num">30%</td></tr>
+                  <tr><td>Decision Labs (group)</td><td>2</td><td class="num">100</td><td class="num">200</td><td class="num">20%</td></tr>
+                  <tr><td>Knowledge Checks</td><td>4</td><td class="num">15</td><td class="num">60</td><td class="num">6%</td></tr>
+                  <tr><td>Discussions</td><td>4</td><td class="num">10</td><td class="num">40</td><td class="num">4%</td></tr>
+                  <tr><td>Attendance Quiz</td><td>1</td><td class="num">10</td><td class="num">10</td><td class="num">1%</td></tr>
+                  <tr class="total"><td>Total possible</td><td></td><td></td><td class="num">1,010</td><td></td></tr>
+                </tbody>
+              </table>
+              <div class="scale-row" aria-label="Grading scale">
+                <span>A · 900+</span><span>B · 800–899</span><span>C · 700–799</span><span>D · 600–699</span>
+              </div>
+            </div>
+            <div class="hq-card wide-card">
+              <h3><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.2"/></svg></span>Beyond the episodes: the graded work</h3>
+              <div class="assign-grid">
+                <div><strong>Learning Practices (40%)</strong><p>Short graded assignments at the end of most modules — analytical problem-solving with data, models, and business scenarios. Most allow multiple attempts, so use them to find gaps before exams.</p></div>
+                <div><strong>Decision Labs (20%)</strong><p>Two small-group projects: analyze a real business analytics problem, use AI tools responsibly to explore alternatives, and submit a mini-project summary with your recommended decision.</p></div>
+                <div><strong>Knowledge Checks (6%)</strong><p>Quick quizzes after each block of module material — they keep you exam-ready. The checkpoint questions in each episode here are your practice arena for them.</p></div>
+                <div><strong>Discussions (4%)</strong><p>Connect course concepts to real-world examples and current events, share articles, and react to classmates — analytics gets more interesting outside the textbook.</p></div>
+              </div>
+            </div>
+            <div class="hq-card wide-card">
+              <h3><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg></span>What you'll be able to do (course learning outcomes)</h3>
+              <div class="assign-grid">
+                <div><strong>CLO 1</strong><p>Explain the role of data analytics in organizational decision-making and identify common analytics tools used in business.</p></div>
+                <div><strong>CLO 2</strong><p>Analyze datasets and apply basic analytical techniques using spreadsheet tools to support business decisions.</p></div>
+                <div><strong>CLO 3</strong><p>Interpret analytic models and communicate data-driven insights through professional reports and presentations.</p></div>
+                <div><strong>CLO 4</strong><p>Apply data analytics methods to evaluate real-world business problems and recommend evidence-based solutions.</p></div>
+              </div>
+            </div>
+            <div class="hq-card wide-card">
+              <h3><span class="ic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 12l2 2 4-4"/><path d="M12 3l7 3v5c0 5-3.2 8.4-7 10-3.8-1.6-7-5-7-10V6z"/></svg></span>Playing fair: AI &amp; academic honesty</h3>
+              <p>Generative AI is part of the modern analytics workflow, and this course treats it that way: use tools like ChatGPT, Gemini, or Copilot to <strong>ask questions, get explanations, and brainstorm approaches</strong> — but never to produce assignment content you submit as your own work, including exam answers. Decision Labs explicitly invite responsible AI use, with the tools you used described in your summary. All submitted work must be your own unless collaboration is explicitly allowed; when in doubt about an AI use, ask first.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <div class="wrap">
+          <span><strong>QM 7073 · Foundations of Analytics</strong> — Collins College of Business, The University of Tulsa</span>
+          <span>Full syllabus, dates, and grades live in Harvey and Pearson MyLab.</span>
+        </div>
+      </footer>
+    </main>
+
+    <!-- ================= PLAYER ================= -->
+    <section id="player" aria-live="polite">
+      <div class="wrap player-shell">
+        <div class="player-top">
+          <div>
+            <div class="chap" id="p-chap"></div>
+            <h2 id="p-title"></h2>
+          </div>
+          <button class="btn-exit" id="btn-exit" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            Exit to map
+          </button>
+        </div>
+        <div class="dots" id="p-dots" aria-hidden="true"></div>
+        <div class="phase-label" id="p-phase"></div>
+        <div class="stage" id="p-stage"></div>
+      </div>
+    </section>
+
+    <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+    <script>
+      /* ============================================================
+         EPISODE DATA — micro-lessons + checkpoint questions
+         ============================================================ */
+      var EPISODES = [
+        {
+          n: 1,
+          title: "Introduction to Business Analytics & Decision Framing",
+          chapter: "Chapter 1",
+          blurb: "Every analytics journey starts with a decision, not a dataset. Learn the three lenses of analytics and how to frame a business problem so the analysis actually matters.",
+          tags: ["Descriptive · Predictive · Prescriptive", "Decision framing", "The analytics loop"],
+          badge: "Framing Badge",
+          lessons: [
+            {
+              h: "The three lenses of analytics",
+              body: [
+                "Business analytics is the scientific process of transforming data into insight to make better decisions. Evans sorts nearly everything analysts do into three lenses. <strong>Descriptive analytics</strong> asks what happened — last quarter's sales by region, this month's churn rate. <strong>Predictive analytics</strong> asks what will happen — a forecast of next quarter's demand. <strong>Prescriptive analytics</strong> asks what we should do about it — the price, route, or staffing plan that produces the best outcome.",
+                "The lenses build on each other. You cannot sensibly prescribe before you can describe, and a prediction that never changes a decision is just trivia. When a manager asks for \"an analytics report,\" the first professional move is figuring out which lens the decision actually needs."
+              ],
+              tip: "In meetings, listen for the verb. \"Show me\" means descriptive. \"Estimate\" means predictive. \"Tell me what to do\" means prescriptive — the highest-value, hardest lens."
+            },
+            {
+              h: "Frame before you calculate",
+              body: [
+                "Most failed analytics projects were doomed before anyone opened a spreadsheet: the team answered the wrong question beautifully. Decision framing means writing down, in plain language, the decision to be made, who owns it, the alternatives on the table, the criteria for a good outcome, and the deadline.",
+                "Framing also sets scope. A framing statement like \"Which of our three delivery promises should we offer in the Tulsa market this fall, judged on margin and on-time rate?\" tells you exactly which data to gather — and, just as importantly, which data to ignore."
+              ],
+              tip: "A useful test: if you cannot state the decision in one sentence with a verb and an owner, you are not ready to touch the data."
+            },
+            {
+              h: "The analytics loop: data → model → decision → action",
+              body: [
+                "Analytics is a loop, not a report. Raw <strong>data</strong> (transactions, sensor readings, survey responses) feeds a <strong>model</strong> — a simplified representation of how the business works. The model produces insight, a human makes a <strong>decision</strong>, the decision triggers <strong>action</strong>, and the action generates new data that starts the loop again.",
+                "Each stage can break the loop. Dirty data corrupts the model. A good model with no decision owner dies in an inbox. Framing (Lesson 2) is what keeps the loop pointed at a real decision from the start."
+              ],
+              tip: "When you read a case this term, trace the loop: where did the data come from, what was the model, who decided, and what changed?"
+            }
+          ],
+          quiz: [
+            {
+              q: "A dashboard shows that customer churn rose to 6.2% last month, broken down by product line. Which lens of analytics is this?",
+              opts: ["Predictive analytics", "Descriptive analytics", "Prescriptive analytics", "Optimization"],
+              a: 1,
+              why: "It summarizes what already happened, with no forecast and no recommended action — the definition of descriptive analytics."
+            },
+            {
+              q: "What is the best first move when a vice president asks you to \"do some analytics on our pricing\"?",
+              opts: ["Download five years of transaction data", "Build a regression model of price vs. volume", "Frame the decision: what pricing choice, owned by whom, judged by which criteria", "Create a dashboard of current prices"],
+              a: 2,
+              why: "Framing comes first. Until the decision, owner, alternatives, and criteria are explicit, data collection and modeling are shots in the dark."
+            },
+            {
+              q: "Which of these is a prescriptive analytics output?",
+              opts: ["A chart of last year's revenue by month", "A forecast that demand will grow 8% next quarter", "A recommended delivery-route plan that minimizes cost while meeting every promised arrival window", "A table of average order values by customer segment"],
+              a: 2,
+              why: "Prescriptive analytics recommends a specific course of action — here, the route plan. The others describe the past or predict the future without recommending what to do."
+            }
+          ]
+        },
+        {
+          n: 2,
+          title: "Working with Data in Excel",
+          chapter: "Chapter 2 · Appendix A1",
+          blurb: "Before insight comes raw material. Classify your data, clean it ruthlessly, and turn Excel into an analysis workbench with tables, lookups, and PivotTables.",
+          tags: ["Scales of measurement", "Data quality", "PivotTables & lookups"],
+          badge: "Data Wrangler Badge",
+          lessons: [
+            {
+              h: "Know your data: types and scales of measurement",
+              body: [
+                "Every variable is either <strong>categorical</strong> (labels: region, product, yes/no) or <strong>numerical</strong> (amounts you can do arithmetic on: revenue, units, minutes). Numerical data splits into discrete (counts) and continuous (measurements).",
+                "Scales of measurement decide which math is legal. <strong>Nominal</strong> data (ZIP codes, jersey numbers) only supports counting. <strong>Ordinal</strong> data (satisfaction ratings) adds ranking but not meaningful gaps. <strong>Interval</strong> data (temperature in °F) has meaningful gaps but no true zero. <strong>Ratio</strong> data (revenue, weight) has a true zero, so \"twice as much\" actually means something."
+              ],
+              tip: "The classic trap: averaging ZIP codes. The number is stored as digits, but it is a nominal label — the average of two ZIP codes is a place that does not exist."
+            },
+            {
+              h: "Clean data, or garbage in forever",
+              body: [
+                "Real business data arrives with missing values, duplicate rows, inconsistent spellings (\"Tulsa\", \"tulsa\", \"TULSA \"), impossible values (an age of 214), and columns quietly mixing units. Analysts routinely spend more time cleaning than modeling — that is not a failure of the process, that <em>is</em> the process.",
+                "Professional cleaning is documented cleaning. Before deleting or imputing anything, ask why the value is missing: a sensor outage, a skipped survey question, and a customer who genuinely has no second address are three different problems with three different fixes."
+              ],
+              tip: "Keep the raw file untouched. Clean in a working copy and log every change — your future self (and your auditor) will thank you."
+            },
+            {
+              h: "Excel power moves: tables, lookups, PivotTables",
+              body: [
+                "Three Excel skills carry most of this course. <strong>Structured Tables</strong> (Insert → Table) make ranges self-expanding and formulas readable. <strong>Lookups and conditional aggregation</strong> — XLOOKUP, SUMIFS, COUNTIFS — pull the right values across sheets without manual copying.",
+                "The <strong>PivotTable</strong> is the descriptive-analytics engine: drag Region to Rows, Revenue to Values, Product to Columns, and a 50,000-row extract becomes a decision-ready summary in seconds. If you master one tool in Module 2, make it this one."
+              ],
+              tip: "Always check a PivotTable's aggregation: Excel happily averages when you wanted a sum. Right-click a value field and verify Sum vs. Count vs. Average."
+            }
+          ],
+          quiz: [
+            {
+              q: "A customer's 5-digit ZIP code is best classified as:",
+              opts: ["Ratio data", "Interval data", "Ordinal data", "Nominal categorical data"],
+              a: 3,
+              why: "ZIP codes are labels. The digits identify a place but carry no quantity, order, or meaningful arithmetic — nominal data stored in numeric clothing."
+            },
+            {
+              q: "You need total revenue by region and product line from a 60,000-row transaction file. The fastest reliable Excel tool is:",
+              opts: ["Sorting the file and adding subtotals by eye", "A PivotTable with Region in Rows, Product in Columns, Revenue in Values", "Copying each region to its own worksheet and using SUM", "A pie chart"],
+              a: 1,
+              why: "PivotTables are built exactly for multi-dimensional summarization: instant, accurate, and easy to re-cut when the question changes."
+            },
+            {
+              q: "You find that 8% of rows are missing the customer's income. What is the professional first step?",
+              opts: ["Delete all 8% of rows immediately", "Replace every missing value with zero", "Investigate why the values are missing and document the handling you choose", "Replace every missing value with the overall average without noting it"],
+              a: 2,
+              why: "Missingness has causes, and the right fix depends on the cause. Silent deletion or imputation can bias every result that follows — investigate and document first."
+            }
+          ]
+        },
+        {
+          n: 3,
+          title: "Exploring Data Through Visualization",
+          chapter: "Chapter 3",
+          blurb: "A chart is an argument. Pick the right visual for the question, strip the chartjunk, and build dashboards that help people decide instead of decorate.",
+          tags: ["Chart selection", "Honest axes", "Dashboards & KPIs"],
+          badge: "Storyteller Badge",
+          lessons: [
+            {
+              h: "Match the chart to the question",
+              body: [
+                "Every chart answers one kind of question well. <strong>Comparison</strong> across categories → bar chart. <strong>Change over time</strong> → line chart. <strong>Part-to-whole</strong> → stacked bar (pie charts only for a handful of slices). <strong>Relationship between two numbers</strong> → scatter plot. <strong>Distribution of one variable</strong> → histogram or box plot.",
+                "Choosing wrong is not a style issue; it hides the answer. A line chart of unordered categories implies a trend that does not exist, and twelve pie slices ask the reader to compare angles — the weakest judgment the human eye makes."
+              ],
+              tip: "Say your question out loud in one sentence (\"how does X relate to Y?\"). The chart type usually names itself."
+            },
+            {
+              h: "Honest charts: axes, scales, and chartjunk",
+              body: [
+                "The fastest way to lie with statistics is a truncated y-axis: start a bar chart at 90 instead of 0 and a 4% difference looks like a collapse. Bar lengths must start at zero because readers judge bars by length. Line charts have more freedom, but the scale still needs a label and a second look.",
+                "Then there is <strong>chartjunk</strong> — 3-D effects, shadows, clip-art, and gridline forests that consume ink without carrying data. Edward Tufte's rule of thumb: maximize the share of ink that represents data. Every decoration you remove makes the remaining signal louder."
+              ],
+              tip: "Before sharing a chart, ask: could a hostile reader accuse this of exaggerating? If yes, fix the axis, not the reader."
+            },
+            {
+              h: "Dashboards that decide",
+              body: [
+                "A dashboard is not a museum of every chart you can make; it is a one-screen answer to \"are we okay, and where should I look?\" Good dashboards start from the decisions of a specific audience, pick a small set of <strong>KPIs</strong> tied to those decisions, and design a visual hierarchy: the number that matters most is the biggest thing on the screen.",
+                "Every KPI on a serious dashboard has an owner, a target, and a refresh cadence. Without those three, it is decoration that happens to contain numbers."
+              ],
+              tip: "Test a dashboard with the 5-second rule: a new viewer should find the headline KPI and whether it is good or bad within five seconds."
+            }
+          ],
+          quiz: [
+            {
+              q: "You want to show whether advertising spend is related to weekly sales across 52 weeks. The right chart is:",
+              opts: ["Pie chart", "Scatter plot", "Stacked bar chart", "Histogram"],
+              a: 1,
+              why: "Relationships between two numerical variables are what scatter plots are for — each week becomes a point, and pattern (or its absence) is immediately visible."
+            },
+            {
+              q: "A vendor's bar chart shows their defect rate at 4% and yours at 5%, but their bars start at 3.5%, making yours look three times worse. The core problem is:",
+              opts: ["Too many categories", "Chartjunk", "A truncated axis that breaks the proportionality of bar lengths", "The wrong chart color"],
+              a: 2,
+              why: "Bars are judged by length, so their lengths must be proportional to the values. Starting the axis at 3.5% destroys that proportionality and manufactures a difference."
+            },
+            {
+              q: "Which dashboard design choice best serves an operations VP who checks in every morning?",
+              opts: ["Fourteen charts covering every available metric", "A single headline KPI with target and status, then a few supporting views she can drill into", "Raw data tables exported from the ERP", "A rotating slide deck of last month's reports"],
+              a: 1,
+              why: "Dashboards serve a decision rhythm. A headline KPI with target and status answers \"are we okay?\" at a glance; supporting views answer \"where do I look?\" — volume for its own sake buries both."
+            }
+          ]
+        },
+        {
+          n: 4,
+          title: "Understanding Data: Patterns, Distributions & Insight",
+          chapter: "Chapter 4",
+          blurb: "Summaries with superpowers: mean vs. median, spread, the normal curve, z-scores, and outliers. Learn to describe a dataset honestly in a handful of numbers.",
+          tags: ["Center & spread", "Normal distribution", "Outliers & box plots"],
+          badge: "Distribution Badge",
+          lessons: [
+            {
+              h: "Center and spread: the two-number story",
+              body: [
+                "The <strong>mean</strong> balances the data; the <strong>median</strong> is the middle value; the <strong>mode</strong> is the most common. They agree on symmetric data and diverge on skewed data — which is exactly when the choice matters. Executive pay pulls a company's mean salary far above what a typical employee earns; the median tells the typical story.",
+                "Center alone is half a story. <strong>Spread</strong> — range, interquartile range (IQR), variance, and standard deviation — tells you whether values cluster tightly or scatter widely. Two product lines can share a mean defect rate while one is metronome-steady and the other is chaos."
+              ],
+              tip: "Rule of thumb: report the median with skewed data (income, home prices, wait times) and always report a spread next to any center."
+            },
+            {
+              h: "The shape of data: normal curves and z-scores",
+              body: [
+                "Plot enough measurements — heights, fill weights, call durations — and a familiar bell emerges. The <strong>normal distribution</strong> is fully described by its mean and standard deviation, and it obeys the <strong>empirical rule</strong>: about 68% of values fall within 1 standard deviation of the mean, 95% within 2, and 99.7% within 3.",
+                "A <strong>z-score</strong> converts any value into \"how many standard deviations from the mean\": z = (x − μ) / σ. A z of +2 is unusually high in any dataset, in any units — which makes z-scores the universal translator for comparing apples to oranges."
+              ],
+              tip: "Skewness check: if the mean sits well above the median, the distribution has a long right tail — a few big values are dragging the average up."
+            },
+            {
+              h: "Outliers, quartiles, and the box plot",
+              body: [
+                "Quartiles split sorted data into quarters: Q1 (25th percentile), the median (Q2), and Q3 (75th percentile). The <strong>IQR</strong> = Q3 − Q1 is the span of the middle half, immune to extreme values. The standard fence rule flags anything below Q1 − 1.5·IQR or above Q3 + 1.5·IQR as a potential <strong>outlier</strong>.",
+                "A <strong>box plot</strong> draws all of this in one glyph — box for the IQR, line for the median, whiskers to the fences, dots for outliers. And an outlier is a question, not a deletion order: it might be a data error, or it might be your most important customer."
+              ],
+              tip: "Never delete an outlier silently. Investigate it, decide, and document — in that order."
+            }
+          ],
+          quiz: [
+            {
+              q: "In a company's salary data the mean is $92,000 and the median is $61,000. The best interpretation is:",
+              opts: ["The data must contain an error", "The distribution is right-skewed: a few high salaries pull the mean above the typical salary", "Most employees earn about $92,000", "The median is unreliable and should not be reported"],
+              a: 1,
+              why: "When the mean greatly exceeds the median, a right tail of large values is dragging the mean up. The median ($61,000) describes the typical employee far better."
+            },
+            {
+              q: "A delivery time has a z-score of −2. What does that tell you?",
+              opts: ["The delivery took 2 minutes less than average", "The delivery time is 2 standard deviations below the mean — unusually fast", "The delivery time is negative", "The delivery is exactly at the 2nd percentile in all cases"],
+              a: 1,
+              why: "A z-score measures distance from the mean in standard-deviation units, sign included. −2 means two SDs below the mean — unusually fast, whatever the units."
+            },
+            {
+              q: "For a roughly normal dataset, about what percentage of values fall within two standard deviations of the mean?",
+              opts: ["50%", "68%", "95%", "99.7%"],
+              a: 2,
+              why: "The empirical rule: roughly 68% within 1 SD, 95% within 2 SDs, and 99.7% within 3 SDs of the mean for normal data."
+            }
+          ]
+        },
+        {
+          n: 5,
+          title: "Building Models for Decisions",
+          chapter: "Chapter 11",
+          blurb: "A model is a decision machine: inputs in, insight out. Learn model anatomy, spreadsheet craft, and the what-if analysis that reveals which numbers actually matter.",
+          tags: ["Model anatomy", "Spreadsheet craft", "What-if & breakeven"],
+          badge: "Model Builder Badge",
+          lessons: [
+            {
+              h: "Model anatomy: inputs, decision variables, outcomes",
+              body: [
+                "A model is a simplified representation of reality built to answer a question. Every model mixes three ingredients: <strong>uncontrollable inputs</strong> (parameters like market size or competitor price — facts of the world), <strong>decision variables</strong> (the levers you control: your price, order quantity, staffing), and a <strong>performance measure</strong> (the outcome you care about: profit, wait time, risk).",
+                "Classifying each number correctly is the whole game. Treat a decision variable as fixed and you have described the world instead of improving it; treat an uncontrollable input as a lever and you have built a fantasy."
+              ],
+              tip: "In any case study, make three columns — World, Levers, Scoreboard — and sort every number into one. The model almost builds itself."
+            },
+            {
+              h: "Spreadsheet modeling craft",
+              body: [
+                "Professional spreadsheet models separate <strong>inputs</strong>, <strong>calculation logic</strong>, and <strong>outputs</strong> into distinct, labeled areas. Every assumption lives in exactly one input cell, and formulas reference that cell — never bury a magic number like 0.08 inside twelve formulas where no one can find or change it.",
+                "This is not tidiness for its own sake. When the CFO asks \"what if the tax rate is 9%?\", a parameterized model answers in one edit; a hard-coded model answers after an afternoon of error-prone surgery. Name your inputs, document your assumptions, and color-code consistently."
+              ],
+              tip: "The audit test: hand your model to a colleague. If they cannot change every assumption within two minutes, the model is not finished."
+            },
+            {
+              h: "What-if, sensitivity, and breakeven",
+              body: [
+                "<strong>What-if analysis</strong> asks how outcomes change as inputs change. <strong>Sensitivity analysis</strong> goes further: it ranks inputs by influence, so you know which estimates deserve research and which can stay rough. Excel's Data Table and Scenario Manager automate both.",
+                "<strong>Breakeven analysis</strong> is the classic special case: profit is zero when volume × (price − variable cost) = fixed cost. The contribution margin (price − variable cost) is the engine — every unit sold contributes that much toward covering fixed costs, then toward profit."
+              ],
+              tip: "Sensitivity results redirect your time: spend research effort on the two or three inputs that swing the answer, and stop polishing the rest."
+            }
+          ],
+          quiz: [
+            {
+              q: "A catering business has fixed costs of $12,000 per month. It sells event packages at $50 each, with a variable cost of $30 per package. How many packages must it sell per month to break even?",
+              opts: ["240", "400", "600", "1,200"],
+              a: 2,
+              why: "Contribution margin = $50 − $30 = $20 per package. Breakeven volume = fixed costs ÷ contribution margin = $12,000 ÷ $20 = 600 packages."
+            },
+            {
+              q: "In a pricing model, competitor prices and your own chosen price are, respectively:",
+              opts: ["Both decision variables", "An uncontrollable input and a decision variable", "A decision variable and an uncontrollable input", "Both performance measures"],
+              a: 1,
+              why: "You cannot set a competitor's price — it is a parameter of the world (uncontrollable input). Your own price is precisely the lever the model exists to help you choose."
+            },
+            {
+              q: "Which spreadsheet practice best prepares a model for what-if analysis?",
+              opts: ["Typing the tax rate directly into every formula that needs it", "Keeping each assumption in a single labeled input cell that all formulas reference", "Protecting the workbook so no one can change values", "Using the final answer as the starting value in each formula"],
+              a: 1,
+              why: "Parameterization — one input cell per assumption, referenced everywhere — means a what-if question is answered by changing one cell, not hunting through formulas."
+            }
+          ]
+        },
+        {
+          n: 6,
+          title: "Regression & the Foundations of Prediction",
+          chapter: "Chapters 8 & 10",
+          blurb: "From describing the past to predicting the future: regression, honest model evaluation, and a first pass through data mining. Includes not fooling yourself with overfit models.",
+          tags: ["Regression & R²", "Train / test discipline", "Data mining basics"],
+          badge: "Forecaster Badge",
+          lessons: [
+            {
+              h: "Regression: the workhorse of prediction",
+              body: [
+                "A simple linear regression fits ŷ = b₀ + b₁x — the line that minimizes the sum of squared errors between predictions and actuals (least squares). The <strong>slope</strong> b₁ is read in plain English: \"for each additional unit of x, we expect y to change by b₁, on average.\" The <strong>intercept</strong> b₀ is the predicted y when x = 0 — meaningful only if x = 0 makes sense in context.",
+                "Multiple regression adds predictors (ŷ = b₀ + b₁x₁ + b₂x₂ + …), letting you estimate each variable's association with y while holding the others constant — the closest thing to a controlled experiment that observational business data usually allows."
+              ],
+              tip: "Interpret slopes out loud with units attached: \"each additional $1,000 of ad spend is associated with about 240 more store visits.\" If the sentence sounds absurd, the model is telling you something."
+            },
+            {
+              h: "Judging a model: R², residuals, and common sense",
+              body: [
+                "<strong>R²</strong> is the share of y's variation the model explains: an R² of 0.72 means the predictors account for about 72% of the variability in the outcome. Higher is better — up to a point. R² mechanically rises whenever you add predictors, which is why <strong>adjusted R²</strong> penalizes freeloaders, and why a suspiciously perfect fit usually means the model memorized noise.",
+                "Always inspect the <strong>residuals</strong> (actual − predicted). Patterns in residuals — curves, funnels, clusters — are the model confessing what it got wrong. And remember the eternal warning: a strong association is not causation; ice cream sales predict drowning because summer drives both."
+              ],
+              tip: "Extrapolation is the silent killer: a regression fit on homes of 1,000–3,000 sq ft has no opinion worth trusting about a 12,000 sq ft mansion."
+            },
+            {
+              h: "Data mining & honest evaluation",
+              body: [
+                "Data mining scales prediction up: many variables, many candidate patterns, algorithms like decision trees and clustering alongside regression. The central discipline is <strong>honest evaluation</strong> — a model must be judged on data it has never seen. Split your data into a <strong>training set</strong> (fit the model) and a <strong>test set</strong> (grade it, once).",
+                "A model that aces training data and flops on test data has <strong>overfit</strong>: it learned the noise along with the signal. Cross-validation — rotating which slice is held out — gives a steadier grade. For classification tasks, a confusion matrix separates the kinds of errors, because a missed fraud and a false alarm rarely cost the same."
+              ],
+              tip: "If a vendor's model shows 99% accuracy, ask one question: \"On which data?\" If the answer is the training data, the number is marketing, not measurement."
+            }
+          ],
+          quiz: [
+            {
+              q: "A regression of monthly unit sales on advertising gives: Units = 1,200 + 4.5 × (Ad spend, in hundreds of dollars). The slope of 4.5 means:",
+              opts: ["Each additional $100 of ad spend is associated with about 4.5 additional units sold, on average", "Each additional $1 of ad spend is associated with 450 additional units sold", "Ad spend causes unit sales to rise by exactly 4.5%", "When ad spend is zero, unit sales are 4.5"],
+              a: 0,
+              why: "A slope is read in the units of y per unit of x: x is measured in hundreds of dollars, so each step of x (one more $100) is associated with 4.5 more units, on average. Note the wording: association, not guaranteed causation — and 1,200, the intercept, is the predicted units at zero spend."
+            },
+            {
+              q: "A model has R² = 0.85 on its training data but R² = 0.31 on fresh test data. The most likely diagnosis is:",
+              opts: ["The test data was collected incorrectly", "Overfitting — the model memorized training noise and does not generalize", "The model is excellent and should be deployed", "R² cannot be computed on test data"],
+              a: 1,
+              why: "A large train–test gap is the signature of overfitting. The model captured idiosyncrasies of the training sample instead of the underlying relationship."
+            },
+            {
+              q: "Why do data miners hold out a test set instead of grading a model on the data used to build it?",
+              opts: ["To make the dataset smaller and faster", "Because grading on training data gives an optimistically biased estimate of real-world performance", "Because regression requires two datasets to run", "To comply with Excel's row limits"],
+              a: 1,
+              why: "A model has already \"seen the answers\" for its training data, so training performance is inflated. Only unseen data estimates how the model will perform in the wild."
+            }
+          ]
+        },
+        {
+          n: 7,
+          title: "Forecasting & the Evolution of Prediction",
+          chapter: "Chapter 9",
+          blurb: "Time itself becomes the variable. Decompose a time series, smooth it, project its trend and seasonality — and measure your forecast errors like a professional.",
+          tags: ["Time series anatomy", "Exponential smoothing", "Forecast error: MAPE"],
+          badge: "Time Traveler Badge",
+          lessons: [
+            {
+              h: "Anatomy of a time series",
+              body: [
+                "A time series is data indexed by time, and it decomposes into up to four components: <strong>level</strong> (the current baseline), <strong>trend</strong> (persistent long-run direction), <strong>seasonality</strong> (regular calendar patterns — December retail spikes, summer AC demand), and <strong>irregular</strong> noise (everything left over, including genuine shocks).",
+                "Diagnosis precedes method. A series with strong seasonality needs a method that models seasons; a stable, trendless series needs almost none. Plot the series first — the human eye is still the best component-detector ever built."
+              ],
+              tip: "Seasonality repeats on a calendar; cycles (like business cycles) repeat on economics. Confusing the two leads to confident, wrong forecasts."
+            },
+            {
+              h: "Smoothing methods: averages that learn",
+              body: [
+                "The <strong>naive forecast</strong> — tomorrow equals today — is the baseline every fancier method must beat. A <strong>moving average</strong> forecasts the mean of the last k periods, trading responsiveness for stability.",
+                "<strong>Exponential smoothing</strong> is smarter: the forecast is a weighted average of all history, with weights decaying by a factor of α (alpha) each period. F<sub>t+1</sub> = α·A<sub>t</sub> + (1−α)·F<sub>t</sub>. A high α (near 1) chases recent data — responsive but jumpy; a low α is calm but slow to notice real change."
+              ],
+              tip: "Every forecast you present should be benchmarked against the naive forecast. If your model cannot beat \"same as last period,\" it earns nothing."
+            },
+            {
+              h: "Trend, seasonality & measuring error",
+              body: [
+                "When trend enters, <strong>Holt's method</strong> adds a trend term to exponential smoothing; <strong>Holt-Winters</strong> adds seasonality too — the standard toolkit for business series with both. The method follows the diagnosis from Lesson 1: components present in the data must be present in the model.",
+                "Forecast quality is measured, not vibes. <strong>MAD</strong> (mean absolute deviation) gives average error in original units; <strong>MAPE</strong> expresses it as a percentage, comparable across products; tracking the <em>signed</em> error exposes bias — a forecaster who is always 8% high has a fixable model, not bad luck."
+              ],
+              tip: "Judge forecasts out-of-sample: fit on history, test on the most recent periods the model never saw. In-sample fit flatters every method."
+            }
+          ],
+          quiz: [
+            {
+              q: "Monthly demand for the last three months was 120, 150, and 180 units. A 3-period moving average forecast for next month is:",
+              opts: ["150 units", "180 units", "135 units", "450 units"],
+              a: 0,
+              why: "(120 + 150 + 180) ÷ 3 = 450 ÷ 3 = 150 units. A moving average simply averages the most recent k observations."
+            },
+            {
+              q: "In exponential smoothing, setting α close to 1 makes the forecast:",
+              opts: ["Depend almost entirely on the oldest data", "React very quickly to the most recent observation, for better and worse", "Become a long-run average of all history", "Ignore the most recent observation entirely"],
+              a: 1,
+              why: "α is the weight on the latest actual value. α near 1 means the forecast nearly equals the last observation — highly responsive, but it also chases noise."
+            },
+            {
+              q: "Over the last 12 months, a forecaster's signed errors (actual − forecast) average −9%, while the MAPE is 11%. The headline problem is:",
+              opts: ["The forecasts are unbiased but noisy", "Systematic bias: the forecasts run chronically about 9% above actuals and the model should be recalibrated", "MAPE and bias cannot both be computed", "The forecast is too accurate to trust"],
+              a: 1,
+              why: "Errors that are consistently one-sided are bias, not noise: actuals keep landing below forecasts, so the model chronically over-forecasts. Bias is often fixable by adjusting the model's level — random noise is not."
+            }
+          ]
+        },
+        {
+          n: 8,
+          title: "Prescriptive Analytics & Optimization for Decision-Making",
+          chapter: "Chapters 13–14",
+          blurb: "The final level: stop predicting the future and start choosing it. Build optimization models, read Solver's sensitivity report, and squeeze the best decision out of real constraints.",
+          tags: ["Linear programming", "Solver & sensitivity", "Shadow prices"],
+          badge: "Optimizer Badge",
+          lessons: [
+            {
+              h: "Optimization anatomy: objective, variables, constraints",
+              body: [
+                "An optimization model has the same skeleton as every model in this course, sharpened into a demand: choose the values of the <strong>decision variables</strong> to maximize or minimize an <strong>objective function</strong> (profit, cost, wait time), subject to <strong>constraints</strong> — the hard limits of the real world: budget, capacity, hours, minimum service levels.",
+                "The set of decisions satisfying every constraint is the <strong>feasible region</strong>. Optimization is the search for the best point inside it. If the feasible region is empty, the model is not broken — it is reporting that your constraints are mutually impossible, which is itself a valuable finding."
+              ],
+              tip: "Write constraints in words before symbols: \"blending hours used cannot exceed blending hours available.\" The algebra then writes itself."
+            },
+            {
+              h: "Linear programming: corners, binding constraints, shadow prices",
+              body: [
+                "When the objective and constraints are all linear, you have a <strong>linear program</strong> (LP) — and a beautiful theorem applies: if an optimal solution exists, one sits at a <strong>corner point</strong> of the feasible region. Solvers exploit this to search efficiently instead of checking infinitely many points.",
+                "At the optimum, some constraints are <strong>binding</strong> (satisfied exactly — the resource is fully used) and others have <strong>slack</strong>. Each binding constraint carries a <strong>shadow price</strong>: how much the objective would improve if that constraint relaxed by one unit. It is the maximum premium worth paying for one more unit of that resource — pure managerial gold."
+              ],
+              tip: "Non-binding constraints have shadow price zero: more of a resource you are not fully using is worth exactly nothing. Obvious — and routinely forgotten in budget meetings."
+            },
+            {
+              h: "Solver, sensitivity reports & beyond LP",
+              body: [
+                "Excel <strong>Solver</strong> turns a well-built spreadsheet model into an optimizer: set the objective cell, declare the decision-variable cells, add constraints, solve. The <strong>sensitivity report</strong> then answers management's real questions: shadow prices for constraints, and allowable ranges showing how far prices or resource levels can move before the optimal plan changes.",
+                "When decisions must be whole or yes/no — trucks, warehouses, projects — you need <strong>integer programming</strong>; when relationships curve, <strong>nonlinear programming</strong>. The modeling discipline is identical; only the solver engine changes. Optimization plus the simulation thinking from modeling is where prescriptive analytics earns its name."
+              ],
+              tip: "Never report an optimal solution without its sensitivity report. A plan that collapses when one estimate wobbles is a risk statement, not a recommendation."
+            }
+          ],
+          quiz: [
+            {
+              q: "In a production-planning model, \"labor hours used ≤ 480 hours available\" is an example of:",
+              opts: ["The objective function", "A decision variable", "A constraint", "A shadow price"],
+              a: 2,
+              why: "It limits the decisions the model may choose — a constraint. The objective would be what the plan maximizes or minimizes (e.g., total profit); decision variables are the production quantities themselves."
+            },
+            {
+              q: "Solver reports a shadow price of $35 for the machine-hours constraint. This means:",
+              opts: ["Machine time costs $35 per hour to buy on the market", "One additional machine hour would improve the optimal objective by about $35, within the allowable range", "The model used 35 machine hours", "Machine hours should be reduced by 35"],
+              a: 1,
+              why: "A shadow price is the marginal value of relaxing a binding constraint by one unit — here, roughly $35 of extra profit per extra machine hour, valid within the sensitivity report's allowable increase."
+            },
+            {
+              q: "At the optimal solution, the warehouse-space constraint has 2,000 sq ft of slack. Its shadow price is:",
+              opts: ["Equal to the rental rate per sq ft", "$0 — extra space has no marginal value when space is not fully used", "Impossible to determine", "The highest of all constraints"],
+              a: 1,
+              why: "Slack means the constraint is not binding: you already have more space than the plan uses, so one more square foot changes nothing. Non-binding constraints always carry a shadow price of zero."
+            }
+          ]
+        }
+      ];
+
+      var BOSSES = {
+        after5: { name: "Midterm Exam", covers: "Modules 1–5", text: "Boss battle #1 guards the trail at the halfway point. The Midterm covers decision framing, Excel data work, visualization, descriptive analytics, and modeling — Episodes 1–5 of this quest, in MyLab.", pts: "150 PTS" },
+        after8: { name: "Final Exam", covers: "Modules 6–8", text: "The final boss. The Final Exam covers regression and data mining, forecasting, and prescriptive optimization — Episodes 6–8. Clear it and the season is yours.", pts: "150 PTS" }
+      };
+
+      var LEVELS = [
+        { xp: 0, name: "Data Cadet" },
+        { xp: 150, name: "Data Scout" },
+        { xp: 350, name: "Pattern Hunter" },
+        { xp: 600, name: "Model Builder" },
+        { xp: 900, name: "Insight Strategist" },
+        { xp: 1250, name: "Analytics Master" }
+      ];
+      var XP_LESSON = 10, XP_QUESTION = 20, XP_BONUS = 30;
+
+      /* ============================================================
+         STATE (session only)
+         ============================================================ */
+      var state = { xp: 0, cleared: {}, stars: {}, awarded: {}, current: -1, step: 0, score: 0, answered: false };
+
+      function $(id){ return document.getElementById(id); }
+      function epMaxXP(ep){ return ep.lessons.length * XP_LESSON + ep.quiz.length * XP_QUESTION + XP_BONUS; }
+      function isUnlocked(i){ return i === 0 || !!state.cleared[i - 1]; }
+      function levelFor(xp){
+        var cur = LEVELS[0], next = null;
+        for (var i = 0; i < LEVELS.length; i++){
+          if (xp >= LEVELS[i].xp){ cur = LEVELS[i]; next = LEVELS[i + 1] || null; }
+        }
+        return { cur: cur, next: next, idx: LEVELS.indexOf(cur) };
+      }
+
+      function updateHUD(){
+        var lv = levelFor(state.xp);
+        $("hud-level").textContent = "Level " + (lv.idx + 1) + " · " + lv.cur.name;
+        var pct = 100;
+        if (lv.next){ pct = Math.round(100 * (state.xp - lv.cur.xp) / (lv.next.xp - lv.cur.xp)); }
+        $("hud-levelbar").style.width = pct + "%";
+        $("hud-xp").textContent = state.xp + " XP";
+        var clearedCount = Object.keys(state.cleared).length;
+        $("hud-cleared").textContent = clearedCount + " / 8 cleared";
+        var firstOpen = EPISODES.findIndex(function(_, i){ return !state.cleared[i]; });
+        $("btn-start-label").textContent = firstOpen === -1 ? "Replay any episode" :
+          (clearedCount === 0 ? "Start Episode 1" : "Continue: Episode " + (firstOpen + 1));
+      }
+
+      /* ============================================================
+         EPISODE MAP
+         ============================================================ */
+      function starString(n){
+        var s = "";
+        for (var i = 0; i < 3; i++){ s += '<span class="' + (i < n ? "on" : "") + '">★</span>'; }
+        return s;
+      }
+      function bossHTML(key){
+        var b = BOSSES[key];
+        return '<div class="boss" role="note">' +
+          '<div class="bic"><svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0z"/><path d="M7 6H4a2 2 0 002 4h1M17 6h3a2 2 0 01-2 4h-1"/></svg></div>' +
+          '<div><div class="chap">Boss Battle · ' + b.covers + '</div><h3>' + b.name + '</h3><p>' + b.text + '</p></div>' +
+          '<div class="pts">' + b.pts + '<small>IN MYLAB</small></div></div>';
+      }
+      function renderTrail(){
+        var html = "";
+        EPISODES.forEach(function(ep, i){
+          var unlocked = isUnlocked(i), cleared = !!state.cleared[i];
+          var status = cleared ? '<span class="status-pill done">Cleared</span>'
+            : unlocked ? '<span class="status-pill now">Now playing</span>'
+            : '<span class="status-pill lock">Locked</span>';
+          html += '<article class="ep ' + (cleared ? "cleared" : unlocked ? "" : "locked") + '">' +
+            '<div class="ep-medal" aria-hidden="true"><span><small>EP</small><span class="n">' + ep.n + '</span></span></div>' +
+            '<div class="ep-body"><div class="chap">' + ep.chapter + ' · ' + status.replace(/<[^>]+>/g, "") + '</div>' +
+            '<h3>' + ep.title + '</h3><p>' + ep.blurb + '</p>' +
+            '<div class="ep-tags">' + ep.tags.map(function(t){ return '<span class="tag">' + t + '</span>'; }).join("") + '</div></div>' +
+            '<div class="ep-side">' + status +
+            '<span class="stars" aria-label="' + (state.stars[i] || 0) + ' of 3 stars earned">' + starString(state.stars[i] || 0) + '</span>' +
+            '<span class="ep-xp">+' + epMaxXP(ep) + ' XP</span>' +
+            (unlocked
+              ? '<button class="btn-play" type="button" data-play="' + i + '">' + (cleared ? "Replay" : "Play") +
+                ' <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></button>'
+              : '<button class="btn-play" type="button" disabled><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg> Locked</button>') +
+            '</div></article>';
+          if (i === 4) html += bossHTML("after5");
+          if (i === 7) html += bossHTML("after8");
+        });
+        $("trail").innerHTML = html;
+        var btns = document.querySelectorAll("[data-play]");
+        for (var j = 0; j < btns.length; j++){
+          btns[j].addEventListener("click", function(){ openEpisode(parseInt(this.getAttribute("data-play"), 10)); });
+        }
+      }
+
+      /* ============================================================
+         PLAYER
+         ============================================================ */
+      function openEpisode(i){
+        state.current = i; state.step = 0; state.score = 0; state.answered = false;
+        var ep = EPISODES[i];
+        $("p-chap").textContent = "Episode " + ep.n + " · " + ep.chapter;
+        $("p-title").textContent = ep.title;
+        $("home").style.display = "none";
+        $("player").classList.add("open");
+        window.scrollTo({ top: 0 });
+        renderStep();
+        $("p-title").setAttribute("tabindex", "-1");
+        $("p-title").focus({ preventScroll: true });
+      }
+      function exitPlayer(){
+        $("player").classList.remove("open");
+        $("home").style.display = "";
+        state.current = -1;
+        renderTrail(); updateHUD();
+        window.scrollTo({ top: 0 });
+      }
+      function totalSteps(ep){ return ep.lessons.length + ep.quiz.length; }
+      function renderDots(){
+        var ep = EPISODES[state.current], html = "";
+        for (var i = 0; i < totalSteps(ep); i++){
+          html += '<span class="dot' + (i < state.step ? " done" : i === state.step ? " now" : "") + '"></span>';
+        }
+        $("p-dots").innerHTML = html;
+      }
+      function renderStep(){
+        var ep = EPISODES[state.current];
+        renderDots();
+        if (state.step < ep.lessons.length) renderLesson(ep, state.step);
+        else if (state.step < totalSteps(ep)) renderQuiz(ep, state.step - ep.lessons.length);
+        else renderResults(ep);
+      }
+      function awardXP(key, amount){
+        if (state.awarded[key]) return;
+        state.awarded[key] = true;
+        state.xp += amount;
+        updateHUD();
+      }
+      function renderLesson(ep, li){
+        var L = ep.lessons[li];
+        var last = li === ep.lessons.length - 1;
+        $("p-phase").textContent = "Phase 1 · Micro-lessons — " + (li + 1) + " of " + ep.lessons.length;
+        $("p-stage").innerHTML =
+          '<span class="lesson-kicker"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V4H6.5A2.5 2.5 0 004 6.5z"/></svg> Micro-lesson ' + (li + 1) + '</span>' +
+          '<h3>' + L.h + '</h3>' +
+          L.body.map(function(p){ return "<p>" + p + "</p>"; }).join("") +
+          '<div class="powerup"><strong>Power-up · Field tip</strong>' + L.tip + '</div>' +
+          '<div class="stage-actions">' +
+            (li > 0 ? '<button class="btn btn-ghost" id="btn-back" type="button">← Back</button>' : "") +
+            '<span class="spacer"></span><span class="xp-pop">' + (state.awarded["L" + state.current + "-" + li] ? "" : "+" + XP_LESSON + " XP") + '</span>' +
+            '<button class="btn btn-gold" id="btn-next" type="button">' + (last ? "Start the checkpoint challenge →" : "Got it — next lesson →") + '</button>' +
+          '</div>';
+        if (li > 0) $("btn-back").addEventListener("click", function(){ state.step--; renderStep(); });
+        $("btn-next").addEventListener("click", function(){
+          awardXP("L" + state.current + "-" + li, XP_LESSON);
+          state.step++; renderStep();
+        });
+      }
+      function renderQuiz(ep, qi){
+        var Q = ep.quiz[qi];
+        state.answered = false;
+        $("p-phase").textContent = "Phase 2 · Checkpoint challenge — question " + (qi + 1) + " of " + ep.quiz.length + " · Score so far: " + state.score;
+        var letters = ["A", "B", "C", "D"];
+        $("p-stage").innerHTML =
+          '<span class="quiz-kicker"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4.5 13.5H11L9.5 22 19 10h-6.5z"/></svg> Checkpoint question ' + (qi + 1) + '</span>' +
+          '<h3>' + Q.q + '</h3>' +
+          '<div class="opts" role="group" aria-label="Answer choices">' +
+          Q.opts.map(function(o, oi){
+            return '<button class="opt" type="button" data-oi="' + oi + '"><span class="letter">' + letters[oi] + '</span><span>' + o + '</span></button>';
+          }).join("") + '</div>' +
+          '<div class="feedback" id="q-feedback"></div>' +
+          '<div class="stage-actions"><span class="spacer"></span>' +
+          '<button class="btn btn-gold" id="btn-qnext" type="button" style="display:none">' +
+          (qi === ep.quiz.length - 1 ? "See my results →" : "Next question →") + '</button></div>';
+        var opts = document.querySelectorAll(".opt");
+        for (var j = 0; j < opts.length; j++){
+          opts[j].addEventListener("click", function(){ answerQuestion(this, Q, ep); });
+        }
+        $("btn-qnext").addEventListener("click", function(){ state.step++; renderStep(); });
+      }
+      function answerQuestion(btn, Q, ep){
+        if (state.answered) return;
+        state.answered = true;
+        var picked = parseInt(btn.getAttribute("data-oi"), 10);
+        var correct = picked === Q.a;
+        var opts = document.querySelectorAll(".opt");
+        for (var j = 0; j < opts.length; j++){
+          opts[j].disabled = true;
+          var oi = parseInt(opts[j].getAttribute("data-oi"), 10);
+          if (oi === Q.a) opts[j].classList.add("correct");
+          else if (oi === picked) opts[j].classList.add("wrong");
+          else opts[j].classList.add("dim");
+        }
+        var fb = $("q-feedback");
+        fb.className = "feedback show " + (correct ? "good" : "bad");
+        if (correct){
+          state.score++;
+          var qi2 = state.step - ep.lessons.length;
+          var gained = !state.awarded["Q" + state.current + "-" + qi2];
+          awardXP("Q" + state.current + "-" + qi2, XP_QUESTION);
+          fb.innerHTML = "<strong>Correct!" + (gained ? " +" + XP_QUESTION + " XP" : "") + "</strong>" + Q.why;
+        } else {
+          fb.innerHTML = "<strong>Not quite — the correct answer is highlighted.</strong>" + Q.why;
+        }
+        $("p-phase").textContent = "Phase 2 · Checkpoint challenge · Score so far: " + state.score;
+        $("btn-qnext").style.display = "";
+        $("btn-qnext").focus();
+      }
+      function renderResults(ep){
+        var firstClear = !state.cleared[state.current];
+        var stars = state.score === ep.quiz.length ? 3 : state.score >= 1 ? 2 : 1;
+        if (firstClear){
+          state.cleared[state.current] = true;
+          if (state.score === ep.quiz.length) awardXP("B" + state.current, XP_BONUS);
+        }
+        if (!state.stars[state.current] || stars > state.stars[state.current]) state.stars[state.current] = stars;
+        updateHUD();
+        $("p-phase").textContent = "Episode complete";
+        var verdict = state.score === ep.quiz.length ? "Flawless run. The checkpoint never stood a chance."
+          : state.score >= 1 ? "Checkpoint cleared. Review the explanations above any time by replaying the episode."
+          : "Checkpoint cleared — but this boss deserves a rematch. Replay to earn more stars.";
+        $("p-stage").innerHTML =
+          '<div class="results">' +
+          '<span class="quiz-kicker">Episode ' + ep.n + ' cleared</span>' +
+          '<div class="big-stars" aria-label="' + stars + ' of 3 stars">' + starString(stars) + '</div>' +
+          '<h3>' + verdict + '</h3>' +
+          '<div class="score-line">Checkpoint score: ' + state.score + ' / ' + ep.quiz.length + (state.score === ep.quiz.length ? ' · Perfect-run bonus +' + XP_BONUS + ' XP' : '') + '</div>' +
+          '<div><span class="badge-earned"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 14L7 22l5-3 5 3-1.5-8"/></svg> Badge earned: ' + ep.badge + '</span></div>' +
+          '<div class="stage-actions" style="justify-content:center">' +
+            '<button class="btn btn-ghost" id="btn-replay" type="button">Replay episode</button>' +
+            '<button class="btn btn-ghost" id="btn-tomap" type="button">Back to map</button>' +
+            (state.current < EPISODES.length - 1 ? '<button class="btn btn-gold" id="btn-nextep" type="button">Next episode →</button>' : "") +
+          '</div></div>';
+        $("btn-replay").addEventListener("click", function(){ openEpisode(state.current); });
+        $("btn-tomap").addEventListener("click", exitPlayer);
+        var nx = $("btn-nextep");
+        if (nx) nx.addEventListener("click", function(){ openEpisode(state.current + 1); });
+        if (firstClear) confetti();
+      }
+      function confetti(){
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        var box = $("confetti"), colors = ["#f2b33d", "#0d9488", "#cf3f3f", "#f4edd9", "#4f6df5"];
+        var html = "";
+        for (var i = 0; i < 60; i++){
+          var left = Math.random() * 100;
+          var delay = (Math.random() * 0.6).toFixed(2);
+          var dur = (1.6 + Math.random() * 1.6).toFixed(2);
+          var col = colors[i % colors.length];
+          html += '<i style="left:' + left + '%;background:' + col + ';animation-delay:' + delay + 's;animation-duration:' + dur + 's"></i>';
+        }
+        box.innerHTML = html;
+        setTimeout(function(){ box.innerHTML = ""; }, 4200);
+      }
+
+      /* ---------- wiring ---------- */
+      $("btn-exit").addEventListener("click", exitPlayer);
+      $("btn-start").addEventListener("click", function(){
+        var firstOpen = EPISODES.findIndex(function(_, i){ return !state.cleared[i] && isUnlocked(i); });
+        if (firstOpen === -1) firstOpen = 0;
+        openEpisode(firstOpen);
+      });
+      renderTrail();
+      updateHUD();
+    </script>
+  </body>
+</html>
