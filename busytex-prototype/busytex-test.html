@@ -37,7 +37,9 @@ async function run() {
   try {
     setStatus('Creating runner (basePath core/busytex, zero preloaded data packages)…');
     const runner = new BusyTexRunner({
-      busytexBasePath: 'core/busytex',
+      // Origin-absolute path: the worker resolves importScripts relative to its own
+      // URL, so a page-relative basePath would double the folder (core/busytex/core/busytex).
+      busytexBasePath: '/scholarchecktu/busytex-prototype/core/busytex',
       preloadDataPackages: [],
       verbose: true,
       onDownloadProgress: p => { pdfEl.textContent = 'Engine/data download: ' + p.percent + '%'; }
