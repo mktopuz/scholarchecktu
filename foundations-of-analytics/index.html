@@ -1118,6 +1118,8 @@
       });
       var _pb = $("btn-cert-print"); if (_pb) _pb.addEventListener("click", function(){ window.print(); });
       var _cb2 = $("btn-cert-close"); if (_cb2) _cb2.addEventListener("click", function(){ $("cert-overlay").classList.remove("open"); });
+      var _ov = $("cert-overlay"); if (_ov) _ov.addEventListener("click", function(e){ if (e.target === this) this.classList.remove("open"); });
+      document.addEventListener("keydown", function(e){ if (e.key === "Escape"){ var o = $("cert-overlay"); if (o) o.classList.remove("open"); } });
       renderTrail();
       updateHUD();
     </script>
