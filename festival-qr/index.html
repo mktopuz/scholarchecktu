@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Festival QR Pay — Demo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  *{box-sizing:border-box} body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:0;background:#f6f3ec;color:#222}
+  header{background:#1e3a8a;color:#fff;padding:18px 16px} header h1{margin:0;font-size:22px} header p{margin:6px 0 0;opacity:.9}
+  .banner{background:#fef3c7;border-bottom:2px solid #f59e0b;padding:10px 16px;font-size:14px}
+  nav{display:flex;gap:8px;padding:12px 16px} nav button{flex:1;padding:12px;border:2px solid #1e3a8a;background:#fff;color:#1e3a8a;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer}
+  nav button.active{background:#1e3a8a;color:#fff}
+  main{padding:0 16px 40px;max-width:720px;margin:0 auto} section{display:none} section.active{display:block}
+  .card{background:#fff;border:1px solid #ddd;border-radius:12px;padding:16px;margin:12px 0}
+  h2{margin:0 0 10px;font-size:19px} label{display:block;margin:12px 0 4px;font-weight:600}
+  input,select{width:100%;padding:12px;font-size:17px;border:1px solid #bbb;border-radius:8px}
+  .row{display:flex;gap:8px;flex-wrap:wrap} .row button{flex:1;min-width:80px;padding:12px;font-size:16px;border-radius:8px;border:1px solid #1e3a8a;background:#eef2ff;color:#1e3a8a;font-weight:700;cursor:pointer}
+  .big{width:100%;padding:15px;font-size:18px;border:0;border-radius:10px;background:#1e3a8a;color:#fff;font-weight:800;cursor:pointer;margin-top:14px}
+  .big.green{background:#15803d} .big:disabled{opacity:.5}
+  .msg{padding:12px;border-radius:8px;margin-top:12px;font-weight:600} .ok{background:#dcfce7} .err{background:#fee2e2} .info{background:#e0e7ff}
+  #qrcode{display:flex;justify-content:center;padding:14px} #qrcode img{width:200px;height:200px}
+  .code{font-size:28px;font-weight:900;letter-spacing:2px;text-align:center}
+  table{width:100%;border-collapse:collapse;font-size:15px} th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
+  .stat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee;font-size:17px}
+  .danger{background:#fff;border:1px solid #fca5a5;color:#b91c1c;border-radius:8px;padding:10px;width:100%;font-weight:700;cursor:pointer}
+  small{color:#555}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎪 Festival QR Pay — Demo</h1>
+  <p>Register collects cash &amp; issues a QR. Vendors scan it on their phone. No cash at stalls.</p>
+</header>
+<div class="banner"><b>DEMO ONLY — no real money, no payment processor, no vendor payouts.</b> In this demo, data lives in <i>this browser only</i>. A real event needs a shared backend so every vendor phone sees the same balances — GitHub Pages alone cannot do that part. See the note at the bottom.</div>
+
+<nav>
+  <button id="tab-register" class="active" onclick="showTab('register')">Register</button>
+  <button id="tab-vendor" onclick="showTab('vendor')">Vendor</button>
+  <button id="tab-admin" onclick="showTab('admin')">Admin</button>
+</nav>
+
+<main>
+  <!-- REGISTER -->
+  <section id="register" class="active">
+    <div class="card">
+      <h2>1. Issue a QR at the register</h2>
+      <p>Take cash at the desk, type the amount here, and hand the guest their QR card.</p>
+      <label>Guest name (optional)</label>
+      <input id="reg-name" placeholder="e.g. Guest 1">
+      <label>Amount collected ($)</label>
+      <div class="row">
+        <button onclick="setAmt('reg-amt',10)">$10</button>
+        <button onclick="setAmt('reg-amt',20)">$20</button>
+        <button onclick="setAmt('reg-amt',30)">$30</button>
+        <button onclick="setAmt('reg-amt',50)">$50</button>
+      </div>
+      <input id="reg-amt" type="number" min="1" step="0.01" placeholder="Custom amount, e.g. 25" style="margin-top:10px">
+      <button class="big" onclick="issueWallet()">Collect cash &amp; issue QR</button>
+      <div id="reg-msg"></div>
+      <div id="reg-result" style="display:none">
+        <div id="qrcode"></div>
+        <div class="code" id="reg-code"></div>
+        <p style="text-align:center" id="reg-balance"></p>
+        <p style="text-align:center"><small>Print this page, or screenshot the QR, to make a card. In the real system this would be a printed card/wristband.</small></p>
+      </div>
+    </div>
+    <div class="card">
+      <h2>2. Top up an existing QR / check balance</h2>
+      <label>QR code</label>
+      <input id="check-code" placeholder="e.g. FST-7K2P">
+      <div class="row" style="margin-top:10px">
+        <button onclick="checkBalance()">Check balance</button>
+        <button onclick="topupWallet()">Top up by amount below</button>
+      </div>
+      <label>Top-up amount ($)</label>
+      <input id="topup-amt" type="number" min="1" step="0.01" placeholder="e.g. 20">
+      <div id="check-msg"></div>
+    </div>
+    <div class="card">
+      <h2>Demo wallets</h2>
+      <p><small>Tap to try the vendor flow without issuing a QR first.</small></p>
+      <button class="big" style="background:#475569" onclick="loadDemo()">Load 3 demo wallets ($50 / $30 / $20)</button>
+      <div id="demo-list"></div>
+    </div>
+  </section>
+
+  <!-- VENDOR -->
+  <section id="vendor">
+    <div class="card">
+      <h2>Vendor: scan &amp; charge</h2>
+      <p><b>Step 1:</b> pick your stall. <b>Step 2:</b> enter the amount. <b>Step 3:</b> scan or type the guest QR. <b>Step 4:</b> show the guest the confirmation screen, then confirm.</p>
+      <label>Your stall</label>
+      <select id="vendor-select"></select>
+      <label>Amount to charge ($)</label>
+      <div class="row">
+        <button onclick="setAmt('vend-amt',5)">$5</button>
+        <button onclick="setAmt('vend-amt',8)">$8</button>
+        <button onclick="setAmt('vend-amt',12)">$12</button>
+        <button onclick="setAmt('vend-amt',15)">$15</button>
+      </div>
+      <input id="vend-amt" type="number" min="0.01" step="0.01" placeholder="Custom amount, e.g. 7.50" style="margin-top:10px">
+      <label>Guest QR code</label>
+      <input id="vend-code" placeholder="Scan, or type e.g. FST-7K2P">
+      <div class="row" style="margin-top:10px">
+        <button onclick="scanQR()">📷 Scan with camera</button>
+        <button onclick="previewCharge()">Preview charge</button>
+      </div>
+      <video id="cam" style="display:none;width:100%;margin-top:12px;border-radius:10px" autoplay playsinline></video>
+      <div id="vend-msg"></div>
+      <div id="vend-confirm" style="display:none">
+        <div class="msg info" id="vend-preview"></div>
+        <button class="big green" onclick="confirmCharge()">✓ Confirm — charge guest</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Your sales today</h2>
+      <div id="vendor-sales"><small>Pick a stall above to see its total.</small></div>
+    </div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="admin">
+    <div class="card">
+      <h2>Organizer dashboard</h2>
+      <p><small>This is the whole point of the system: every vendor's earnings, already totalled, with no cash counting.</small></p>
+      <div class="stat"><span>Collected at register</span><b id="stat-collected">$0.00</b></div>
+      <div class="stat"><span>Spent at vendors</span><b id="stat-spent">$0.00</b></div>
+      <div class="stat"><span>Still on guest QRs</span><b id="stat-left">$0.00</b></div>
+      <div class="stat"><span>Transactions</span><b id="stat-count">0</b></div>
+    </div>
+    <div class="card">
+      <h2>Earnings by vendor</h2>
+      <table><thead><tr><th>Vendor</th><th>Sales</th><th>Total</th></tr></thead><tbody id="vendor-table"></tbody></table>
+    </div>
+    <div class="card">
+      <h2>Add a vendor</h2>
+      <label>Vendor / stall name</label>
+      <input id="new-vendor" placeholder="e.g. Doner Stand">
+      <button class="big" onclick="addVendor()">Add vendor</button>
+    </div>
+    <div class="card">
+      <h2>Transaction log</h2>
+      <table><thead><tr><th>Time</th><th>Vendor</th><th>Guest QR</th><th>Amount</th></tr></thead><tbody id="log-table"></tbody></table>
+      <div class="row" style="margin-top:12px">
+        <button onclick="exportCSV()">⬇ Export CSV</button>
+        <button onclick="resetDemo()" style="background:#fee2e2;border-color:#fca5a5;color:#b91c1c">Reset demo</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>What GitHub Pages can and cannot do</h2>
+      <p><b>Can:</b> host this demo, the vendor screens, and the register screens for free, on any phone, with no app-store install.</p>
+      <p><b>Cannot:</b> share one live balance across many phones. That needs a small backend + database (for example Supabase/Firebase, or a tiny server). The vendor flow, QR format, and ledger in this demo are designed so that backend can be added later without changing how vendors work: same QR code, same amount + scan + confirm steps, but balances checked on the server instead of in the browser.</p>
+      <p><b>Not in this version, by your decision:</b> no payment processor, no online top-up, no vendor payouts. Money is taken only at the register, and vendor totals here are a <i>report</i> — payouts, if any, happen outside the app.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+const KEY='festivalQRDemoV1';
+let db=JSON.parse(localStorage.getItem(KEY)||'null') || {wallets:[], vendors:['Doner Stand','Baklava & Desserts','Turkish Coffee'], tx:[]};
+let pending=null;
+function save(){ localStorage.setItem(KEY, JSON.stringify(db)); renderAll(); }
+function money(c){ return '$'+(c/100).toFixed(2); }
+function msg(id, text, cls){ const el=document.getElementById(id); el.innerHTML='<div class="msg '+cls+'">'+text+'</div>'; }
+function setAmt(id, v){ document.getElementById(id).value=v; }
+function showTab(t){
+  ['register','vendor','admin'].forEach(x=>{
+    document.getElementById(x).classList.toggle('active', x===t);
+    document.getElementById('tab-'+x).classList.toggle('active', x===t);
+  });
+  renderAll();
+}
+function newCode(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s='';
+  for(let i=0;i<4;i++) s+=chars[Math.floor(Math.random()*chars.length)];
+  return 'FST-'+s;
+}
+function renderQR(code){
+  const el=document.getElementById('qrcode'); el.innerHTML='';
+  if(window.QRCode){ new QRCode(el,{text:code,width:200,height:200,correctLevel:QRCode.CorrectLevel.M}); }
+  else { el.innerHTML='<p>QR image needs internet for the QR library — the code below still works by typing it.</p>'; }
+}
+function issueWallet(){
+  const amt=parseFloat(document.getElementById('reg-amt').value);
+  if(!amt || amt<=0){ msg('reg-msg','Enter an amount first.','err'); return; }
+  const code=newCode();
+  const name=document.getElementById('reg-name').value.trim() || 'Guest';
+  db.wallets.push({code, name, balance:Math.round(amt*100)});
+  save();
+  document.getElementById('reg-result').style.display='block';
+  document.getElementById('reg-code').textContent=code;
+  document.getElementById('reg-balance').textContent=name+' — balance '+money(Math.round(amt*100));
+  renderQR(code);
+  msg('reg-msg','Cash collected at register. QR issued: '+code+' — '+money(Math.round(amt*100)),'ok');
+}
+function findWallet(code){ return db.wallets.find(w=>w.code===code.trim().toUpperCase()); }
+function checkBalance(){
+  const w=findWallet(document.getElementById('check-code').value);
+  if(!w){ msg('check-msg','QR not found. Check the code, or issue one above.','err'); return; }
+  msg('check-msg', w.name+' ('+w.code+') — balance: <b>'+money(w.balance)+'</b>','ok');
+}
+function topupWallet(){
+  const w=findWallet(document.getElementById('check-code').value);
+  const amt=parseFloat(document.getElementById('topup-amt').value);
+  if(!w){ msg('check-msg','QR not found.','err'); return; }
+  if(!amt || amt<=0){ msg('check-msg','Enter a top-up amount.','err'); return; }
+  w.balance+=Math.round(amt*100); save();
+  msg('check-msg','Topped up '+money(Math.round(amt*100))+'. New balance: <b>'+money(w.balance)+'</b>','ok');
+}
+function loadDemo(){
+  const demo=[['Demo Guest 1',5000],['Demo Guest 2',3000],['Demo Guest 3',2000]];
+  demo.forEach(([name,bal])=>{ const code=newCode(); db.wallets.push({code,name,balance:bal}); });
+  save(); msg('demo-list','Demo wallets created — see them below, then try them on the Vendor tab.','ok'); renderAll();
+}
+function previewCharge(){
+  const amt=parseFloat(document.getElementById('vend-amt').value);
+  const vendor=document.getElementById('vendor-select').value;
+  const w=findWallet(document.getElementById('vend-code').value);
+  if(!vendor){ msg('vend-msg','Pick your stall first.','err'); return; }
+  if(!amt || amt<=0){ msg('vend-msg','Enter an amount to charge.','err'); return; }
+  if(!w){ msg('vend-msg','QR not found. Type the code, or scan again.','err'); return; }
+  if(w.balance < Math.round(amt*100)){ msg('vend-msg','Insufficient balance: guest has '+money(w.balance)+' but the charge is '+money(Math.round(amt*100))+'. Send them to the register to top up.','err'); document.getElementById('vend-confirm').style.display='none'; return; }
+  pending={vendor, code:w.code, name:w.name, amt:Math.round(amt*100)};
+  document.getElementById('vend-preview').innerHTML='Charge <b>'+money(pending.amt)+'</b> to '+w.name+' ('+w.code+') at <b>'+vendor+'</b><br>Guest balance after: <b>'+money(w.balance-pending.amt)+'</b><br><small>Show this screen to the guest before confirming.</small>';
+  document.getElementById('vend-confirm').style.display='block';
+  document.getElementById('vend-msg').innerHTML='';
+}
+function confirmCharge(){
+  if(!pending) return;
+  const w=findWallet(pending.code);
+  if(!w || w.balance < pending.amt){ msg('vend-msg','Balance changed — charge cancelled. Preview again.','err'); return; }
+  w.balance-=pending.amt;
+  db.tx.push({time:new Date().toLocaleTimeString(), vendor:pending.vendor, code:pending.code, amt:pending.amt});
+  save();
+  msg('vend-msg','✓ Paid '+money(pending.amt)+' at '+pending.vendor+'. Guest balance now '+money(w.balance)+'.','ok');
+  document.getElementById('vend-confirm').style.display='none'; pending=null;
+  document.getElementById('vend-amt').value=''; document.getElementById('vend-code').value='';
+}
+async function scanQR(){
+  const video=document.getElementById('cam');
+  try{
+    if(!('BarcodeDetector' in window)) throw new Error('Camera barcode scanning is not supported in this browser — type the code instead.');
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    video.style.display='block'; video.srcObject=stream; await video.play();
+    const detector=new BarcodeDetector({formats:['qr_code']});
+    const timer=setInterval(async ()=>{
+      try{
+        const codes=await detector.detect(video);
+        if(codes.length){
+          clearInterval(timer); stream.getTracks().forEach(t=>t.stop()); video.style.display='none';
+          document.getElementById('vend-code').value=codes[0].rawValue;
+          msg('vend-msg','Scanned: <b>'+codes[0].rawValue+'</b> — now preview the charge.','ok');
+        }
+      }catch(e){}
+    }, 500);
+    setTimeout(()=>{ clearInterval(timer); try{stream.getTracks().forEach(t=>t.stop());}catch(e){} video.style.display='none'; }, 30000);
+  }catch(e){ msg('vend-msg', e.message, 'err'); }
+}
+function addVendor(){
+  const name=document.getElementById('new-vendor').value.trim();
+  if(!name) return;
+  if(!db.vendors.includes(name)) db.vendors.push(name);
+  document.getElementById('new-vendor').value=''; save();
+}
+function exportCSV(){
+  const rows=[['time','vendor','guest_qr','amount_usd']].concat(db.tx.map(t=>[t.time,t.vendor,t.code,(t.amt/100).toFixed(2)]));
+  const blob=new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='festival-vendor-sales.csv'; a.click();
+}
+function resetDemo(){ if(confirm('Reset all demo wallets and sales?')){ db={wallets:[], vendors:['Doner Stand','Baklava & Desserts','Turkish Coffee'], tx:[]}; save(); } }
+function renderAll(){
+  const sel=document.getElementById('vendor-select');
+  const cur=sel.value; sel.innerHTML=db.vendors.map(v=>'<option>'+v+'</option>').join('');
+  if(db.vendors.includes(cur)) sel.value=cur;
+  const collected=db.wallets.reduce((s,w)=>s+w.balance,0) + db.tx.reduce((s,t)=>s+t.amt,0);
+  // Note: wallets hold current balances; collected = current + spent (top-ups are not separately logged in this demo)
+  const spent=db.tx.reduce((s,t)=>s+t.amt,0);
+  document.getElementById('stat-collected').textContent=money(collected);
+  document.getElementById('stat-spent').textContent=money(spent);
+  document.getElementById('stat-left').textContent=money(db.wallets.reduce((s,w)=>s+w.balance,0));
+  document.getElementById('stat-count').textContent=db.tx.length;
+  document.getElementById('vendor-table').innerHTML=db.vendors.map(v=>{
+    const rows=db.tx.filter(t=>t.vendor===v);
+    return '<tr><td>'+v+'</td><td>'+rows.length+'</td><td><b>'+money(rows.reduce((s,t)=>s+t.amt,0))+'</b></td></tr>';
+  }).join('') || '<tr><td colspan="3">No vendors yet.</td></tr>';
+  document.getElementById('log-table').innerHTML=[...db.tx].reverse().map(t=>'<tr><td>'+t.time+'</td><td>'+t.vendor+'</td><td>'+t.code+'</td><td>'+money(t.amt)+'</td></tr>').join('') || '<tr><td colspan="4">No sales yet.</td></tr>';
+  document.getElementById('demo-list').innerHTML=db.wallets.map(w=>'<div class="stat"><span>'+w.name+' — '+w.code+'</span><b>'+money(w.balance)+'</b></div>').join('');
+  const vsel=document.getElementById('vendor-select').value;
+  if(vsel){
+    const rows=db.tx.filter(t=>t.vendor===vsel);
+    document.getElementById('vendor-sales').innerHTML='<div class="stat"><span>Sales</span><b>'+rows.length+'</b></div><div class="stat"><span>Total</span><b>'+money(rows.reduce((s,t)=>s+t.amt,0))+'</b></div>';
+  }
+  document.getElementById('vendor-select').onchange=renderAll;
+}
+renderAll();
+</script>
+</body>
+</html>
