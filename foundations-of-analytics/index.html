@@ -634,6 +634,25 @@
 
     <div class="confetti" id="confetti" aria-hidden="true"></div>
 
+      <div id="cert-overlay" role="dialog" aria-label="Badge certificate">
+        <div class="cert">
+          <div class="c-kicker">QM 7073 · Foundations of Analytics</div>
+          <h2>Certificate of Achievement</h2>
+          <p>This badge is awarded to</p>
+          <div class="c-name" id="cert-name">A QM 7073 Quest player</div>
+          <p>for completing <strong id="cert-ep">Episode 1</strong></p>
+          <div class="c-badge" id="cert-badge">Framing Badge</div>
+          <p id="cert-score"></p>
+          <p id="cert-bonus"></p>
+          <p id="cert-date"></p>
+          <div class="sig">Dr. K — Dr. Kazim Topuz<br><small>QM 7073 Foundations of Analytics · University of Tulsa</small></div>
+          <p class="c-foot">Practice companion — graded work lives in Harvey and Pearson MyLab.</p>
+        </div>
+        <div class="cert-actions">
+          <button class="btn btn-gold" id="btn-cert-print" type="button">Print / Save as PDF</button>
+          <button class="btn btn-ghost" id="btn-cert-close" type="button">Close</button>
+        </div>
+      </div>
     <script>
       /* ============================================================
          EPISODE DATA — micro-lessons + checkpoint questions
@@ -1097,30 +1116,11 @@
         if (firstOpen === -1) firstOpen = 0;
         openEpisode(firstOpen);
       });
-      $("btn-cert-print").addEventListener("click", function(){ window.print(); });
-      $("btn-cert-close").addEventListener("click", function(){ $("cert-overlay").classList.remove("open"); });
+      var _pb = $("btn-cert-print"); if (_pb) _pb.addEventListener("click", function(){ window.print(); });
+      var _cb2 = $("btn-cert-close"); if (_cb2) _cb2.addEventListener("click", function(){ $("cert-overlay").classList.remove("open"); });
       renderTrail();
       updateHUD();
     </script>
 
-      <div id="cert-overlay" role="dialog" aria-label="Badge certificate">
-        <div class="cert">
-          <div class="c-kicker">QM 7073 · Foundations of Analytics</div>
-          <h2>Certificate of Achievement</h2>
-          <p>This badge is awarded to</p>
-          <div class="c-name" id="cert-name">A QM 7073 Quest player</div>
-          <p>for completing <strong id="cert-ep">Episode 1</strong></p>
-          <div class="c-badge" id="cert-badge">Framing Badge</div>
-          <p id="cert-score"></p>
-          <p id="cert-bonus"></p>
-          <p id="cert-date"></p>
-          <div class="sig">Dr. K — Dr. Kazim Topuz<br><small>QM 7073 Foundations of Analytics · University of Tulsa</small></div>
-          <p class="c-foot">Practice companion — graded work lives in Harvey and Pearson MyLab.</p>
-        </div>
-        <div class="cert-actions">
-          <button class="btn btn-gold" id="btn-cert-print" type="button">Print / Save as PDF</button>
-          <button class="btn btn-ghost" id="btn-cert-close" type="button">Close</button>
-        </div>
-      </div>
   </body>
 </html>
