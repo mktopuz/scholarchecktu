@@ -1,0 +1,1128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Operations Management — The Operations Quest | MBA 7033</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+      :root{
+        --bg:#f5efe1;
+        --bg-soft:#efe6d0;
+        --surface:#fffdf6;
+        --surface-2:#fdf6e3;
+        --ink:#1c2340;
+        --muted:#5b6378;
+        --line:#ddd2b8;
+        --navy:#1a2150;
+        --navy-deep:#12173c;
+        --gold:#d98e04;
+        --gold-bright:#f2b33d;
+        --gold-soft:#fbeecd;
+        --teal:#0d9488;
+        --teal-soft:#d7f2ec;
+        --red:#cf3f3f;
+        --red-soft:#fbe3e1;
+        --green:#1d9e62;
+        --green-soft:#dcf4e5;
+        --shadow:0 10px 30px rgba(28,35,64,.10);
+        --radius:18px;
+      }
+      @media (prefers-color-scheme: dark){
+        :root{
+          --bg:#0e1230;
+          --bg-soft:#12173c;
+          --surface:#181f4a;
+          --surface-2:#1d2657;
+          --ink:#f4edd9;
+          --muted:#a9b0cc;
+          --line:#2e3768;
+          --navy:#232c66;
+          --navy-deep:#0e1230;
+          --gold:#f2b33d;
+          --gold-bright:#ffc95e;
+          --gold-soft:#33305e;
+          --teal:#2dd4bf;
+          --teal-soft:#173f42;
+          --red:#f08080;
+          --red-soft:#4a2438;
+          --green:#4ade80;
+          --green-soft:#1d4038;
+          --shadow:0 10px 30px rgba(0,0,0,.35);
+        }
+      }
+      *{box-sizing:border-box}
+      html{scroll-behavior:smooth}
+      body{
+        margin:0;background:var(--bg);color:var(--ink);
+        font-family:"Public Sans",system-ui,sans-serif;
+        font-size:16.5px;line-height:1.6;
+        -webkit-font-smoothing:antialiased;
+      }
+      h1,h2,h3,.display{font-family:"Bricolage Grotesque","Public Sans",sans-serif;line-height:1.12;margin:0}
+      .mono{font-family:"Space Mono",monospace}
+      .wrap{max-width:1140px;margin:0 auto;padding:0 20px}
+      a{color:var(--teal)}
+      button{font:inherit;cursor:pointer}
+      :focus-visible{outline:3px solid var(--gold-bright);outline-offset:2px;border-radius:6px}
+
+      /* ---------- HUD ---------- */
+      .hud{
+        position:sticky;top:0;z-index:50;
+        background:color-mix(in srgb, var(--bg) 88%, transparent);
+        backdrop-filter:blur(10px);
+        border-bottom:2px solid var(--line);
+      }
+      .hud-inner{display:flex;align-items:center;gap:14px;padding:10px 0;flex-wrap:wrap}
+      .hud-brand{display:flex;align-items:center;gap:10px;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.02rem;letter-spacing:.01em}
+      .hud-brand .crest{
+        width:34px;height:34px;border-radius:10px;background:var(--navy);color:var(--gold-bright);
+        display:grid;place-items:center;flex:none;
+      }
+      .hud-brand small{display:block;font-family:"Space Mono",monospace;font-weight:400;font-size:.62rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+      .hud-stats{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+      .chip{
+        display:inline-flex;align-items:center;gap:7px;
+        background:var(--surface);border:2px solid var(--line);border-radius:999px;
+        padding:5px 13px;font-family:"Space Mono",monospace;font-size:.82rem;font-weight:700;
+      }
+      .chip svg{flex:none}
+      .chip.xp{border-color:var(--gold);background:var(--gold-soft)}
+      .levelbar{width:110px;height:9px;border-radius:99px;background:var(--line);overflow:hidden}
+      .levelbar i{display:block;height:100%;background:var(--gold-bright);border-radius:99px;transition:width .6s ease}
+
+      /* ---------- Hero ---------- */
+      .hero{padding:44px 0 10px}
+      .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:34px;align-items:center}
+      .kicker{
+        display:inline-flex;align-items:center;gap:8px;
+        font-family:"Space Mono",monospace;font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+        background:var(--navy);color:var(--gold-bright);border-radius:999px;padding:6px 14px;
+      }
+      .hero h1{font-size:clamp(2.4rem,5.4vw,3.9rem);font-weight:800;margin:16px 0 6px}
+      .hero h1 .quest{color:var(--gold)}
+      .hero .sub{font-size:1.13rem;color:var(--muted);max-width:34rem;margin:10px 0 0}
+      .hero .sub strong{color:var(--ink)}
+      .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+      .btn{
+        display:inline-flex;align-items:center;gap:9px;border:none;border-radius:13px;
+        padding:13px 22px;font-weight:700;font-size:1rem;text-decoration:none;
+        transition:transform .15s ease, box-shadow .15s ease;
+      }
+      .btn:active{transform:translateY(1px)}
+      .btn-gold{background:var(--gold-bright);color:#231a02;box-shadow:0 6px 0 #a86e06}
+      .btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 0 #a86e06}
+      .btn-ghost{background:var(--surface);color:var(--ink);border:2px solid var(--line);box-shadow:0 4px 0 var(--line)}
+      .btn-ghost:hover{transform:translateY(-2px)}
+      .hero-facts{display:flex;gap:18px;flex-wrap:wrap;margin-top:22px;font-size:.9rem;color:var(--muted)}
+      .hero-facts span{display:inline-flex;gap:7px;align-items:center}
+      .hero-art{
+        border-radius:22px;overflow:hidden;border:3px solid var(--navy);
+        box-shadow:var(--shadow);line-height:0;background:var(--navy-deep);
+      }
+      .hero-art img{width:100%;height:auto;display:block}
+      .hero-art figcaption{
+        line-height:1.45;background:var(--navy);color:#e9e2cd;font-size:.82rem;
+        padding:10px 16px;font-family:"Space Mono",monospace;letter-spacing:.03em;
+      }
+
+      /* ---------- How it plays ---------- */
+      .howto{padding:38px 0 6px}
+      .howto-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}
+      .how-card{
+        background:var(--surface);border:2px solid var(--line);border-radius:var(--radius);
+        padding:18px;position:relative;
+      }
+      .how-card .stepnum{
+        font-family:"Space Mono",monospace;font-weight:700;font-size:.72rem;letter-spacing:.12em;
+        color:var(--gold);text-transform:uppercase;
+      }
+      .how-card h3{font-size:1.06rem;margin:8px 0 5px}
+      .how-card p{margin:0;color:var(--muted);font-size:.93rem}
+      .how-card .ic{
+        width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:10px;
+        background:var(--gold-soft);color:var(--gold);
+      }
+      .how-card:nth-child(2) .ic{background:var(--teal-soft);color:var(--teal)}
+      .how-card:nth-child(3) .ic{background:var(--gold-soft);color:var(--gold)}
+      .how-card:nth-child(4) .ic{background:var(--red-soft);color:var(--red)}
+
+      .section-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-top:44px}
+      .section-head h2{font-size:clamp(1.6rem,3.4vw,2.2rem);font-weight:800}
+      .section-head p{color:var(--muted);margin:0}
+
+      /* ---------- Episode trail ---------- */
+      .trail{margin-top:22px;display:flex;flex-direction:column;gap:0}
+      .ep{
+        display:grid;grid-template-columns:86px 1fr auto;gap:18px;align-items:center;
+        background:var(--surface);border:2px solid var(--line);border-radius:var(--radius);
+        padding:20px 22px;position:relative;
+      }
+      .ep + .ep{margin-top:14px}
+      .ep::before{
+        content:"";position:absolute;left:64px;top:-16px;height:16px;width:0;
+        border-left:3px dashed var(--line);
+      }
+      .ep:first-child::before{display:none}
+      .boss + .ep::before{display:none}
+      .ep-medal{
+        width:64px;height:64px;border-radius:50%;flex:none;
+        display:grid;place-items:center;text-align:center;
+        background:var(--navy);color:var(--gold-bright);
+        font-family:"Bricolage Grotesque",sans-serif;font-weight:800;
+        border:3px solid var(--gold);
+      }
+      .ep-medal small{display:block;font-family:"Space Mono",monospace;font-weight:400;font-size:.55rem;letter-spacing:.14em;color:#cfd4ea}
+      .ep-medal .n{font-size:1.45rem;line-height:1}
+      .ep.locked .ep-medal{background:var(--bg-soft);color:var(--muted);border-color:var(--line)}
+      .ep.cleared .ep-medal{background:var(--teal);border-color:var(--teal);color:#fff}
+      .ep-body h3{font-size:1.22rem;font-weight:700}
+      .ep-body .chap{font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:700}
+      .ep-body p{margin:5px 0 0;color:var(--muted);font-size:.95rem;max-width:44rem}
+      .ep-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+      .tag{
+        font-size:.74rem;font-weight:600;background:var(--bg-soft);border:1.5px solid var(--line);
+        border-radius:999px;padding:3px 10px;color:var(--muted);
+      }
+      .ep-side{display:flex;flex-direction:column;align-items:flex-end;gap:9px}
+      .ep-xp{font-family:"Space Mono",monospace;font-weight:700;font-size:.85rem;color:var(--gold)}
+      .stars{font-size:1rem;letter-spacing:2px;color:var(--line)}
+      .stars .on{color:var(--gold-bright)}
+      .btn-play{
+        background:var(--navy);color:#fff;border:none;border-radius:11px;padding:11px 20px;
+        font-weight:700;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 0 var(--navy-deep);
+      }
+      .btn-play:hover{transform:translateY(-2px)}
+      .btn-play:disabled{background:var(--bg-soft);color:var(--muted);box-shadow:none;cursor:not-allowed;transform:none}
+      .ep.locked{opacity:.75}
+      .status-pill{
+        font-family:"Space Mono",monospace;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+        border-radius:999px;padding:4px 11px;
+      }
+      .status-pill.now{background:var(--gold-soft);color:var(--gold);border:1.5px solid var(--gold)}
+      .status-pill.done{background:var(--teal-soft);color:var(--teal);border:1.5px solid var(--teal)}
+      .status-pill.lock{background:var(--bg-soft);color:var(--muted);border:1.5px solid var(--line)}
+
+      /* boss cards */
+      .boss{
+        margin-top:14px;border-radius:var(--radius);padding:20px 22px;
+        background:var(--navy);color:#f2ead8;border:3px solid var(--gold);
+        display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;
+      }
+      .boss .bic{
+        width:58px;height:58px;border-radius:16px;background:var(--gold-bright);color:#231a02;
+        display:grid;place-items:center;flex:none;
+      }
+      .boss h3{font-size:1.25rem;color:#fff}
+      .boss .chap{font-family:"Space Mono",monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-bright);font-weight:700}
+      .boss p{margin:4px 0 0;color:#c9cfe6;font-size:.94rem;max-width:40rem}
+      .boss .pts{font-family:"Space Mono",monospace;font-weight:700;text-align:right;color:var(--gold-bright);font-size:1.05rem;white-space:nowrap}
+      .boss .pts small{display:block;color:#c9cfe6;font-weight:400;font-size:.68rem;letter-spacing:.08em}
+
+      /* ---------- Player ---------- */
+      #player{display:none;padding:34px 0 60px}
+      #player.open{display:block}
+      .player-shell{max-width:820px;margin:0 auto}
+      .player-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+      .player-top .chap{font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700}
+      .player-top h2{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800}
+      .btn-exit{
+        margin-left:auto;background:var(--surface);border:2px solid var(--line);color:var(--ink);
+        border-radius:11px;padding:9px 16px;font-weight:700;display:inline-flex;gap:7px;align-items:center;
+      }
+      .dots{display:flex;gap:7px;margin:20px 0 6px;flex-wrap:wrap}
+      .dot{height:10px;flex:1;min-width:26px;border-radius:99px;background:var(--line)}
+      .dot.done{background:var(--teal)}
+      .dot.now{background:var(--gold-bright)}
+      .phase-label{font-family:"Space Mono",monospace;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+      .stage{
+        margin-top:14px;background:var(--surface);border:2px solid var(--line);border-radius:22px;
+        padding:30px;box-shadow:var(--shadow);
+      }
+      .stage .lesson-kicker{display:inline-flex;gap:8px;align-items:center;background:var(--teal-soft);color:var(--teal);font-weight:700;font-size:.78rem;border-radius:999px;padding:5px 13px;letter-spacing:.04em}
+      .stage .quiz-kicker{display:inline-flex;gap:8px;align-items:center;background:var(--gold-soft);color:var(--gold);font-weight:700;font-size:.78rem;border-radius:999px;padding:5px 13px;letter-spacing:.04em}
+      .stage h3{font-size:1.55rem;font-weight:800;margin:14px 0 10px}
+      .stage p{margin:0 0 12px}
+      .stage p:last-of-type{margin-bottom:0}
+      .powerup{
+        margin-top:18px;border-radius:14px;padding:15px 17px;background:var(--surface-2);
+        border:2px dashed var(--gold);font-size:.95rem;
+      }
+      .powerup strong{color:var(--gold);font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:4px}
+      .stage-actions{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;align-items:center}
+      .stage-actions .spacer{flex:1}
+      .xp-pop{font-family:"Space Mono",monospace;font-weight:700;color:var(--gold);font-size:.95rem}
+      .opts{display:grid;gap:11px;margin-top:18px}
+      .opt{
+        text-align:left;background:var(--bg);border:2px solid var(--line);border-radius:14px;
+        padding:15px 17px;font-size:1rem;display:flex;gap:12px;align-items:flex-start;width:100%;
+        transition:border-color .12s ease, background .12s ease;color:var(--ink);
+      }
+      .opt:hover:not(:disabled){border-color:var(--gold)}
+      .opt .letter{
+        font-family:"Space Mono",monospace;font-weight:700;flex:none;width:27px;height:27px;border-radius:8px;
+        background:var(--surface);border:2px solid var(--line);display:grid;place-items:center;font-size:.85rem;
+      }
+      .opt.correct{border-color:var(--green);background:var(--green-soft)}
+      .opt.correct .letter{background:var(--green);border-color:var(--green);color:#fff}
+      .opt.wrong{border-color:var(--red);background:var(--red-soft)}
+      .opt.wrong .letter{background:var(--red);border-color:var(--red);color:#fff}
+      .opt:disabled{cursor:default;opacity:1}
+      .opt.dim{opacity:.55}
+      .feedback{
+        display:none;margin-top:18px;border-radius:14px;padding:15px 17px;font-size:.96rem;
+      }
+      .feedback.show{display:block}
+      .feedback.good{background:var(--green-soft);border:2px solid var(--green)}
+      .feedback.bad{background:var(--red-soft);border:2px solid var(--red)}
+      .feedback strong{display:block;margin-bottom:3px}
+      /* results */
+      .results{text-align:center;padding:8px 0}
+      .results .big-stars{font-size:2.6rem;letter-spacing:8px;color:var(--line);margin:8px 0 2px}
+      .results .big-stars .on{color:var(--gold-bright)}
+      .results h3{font-size:1.9rem}
+      .badge-earned{
+        display:inline-flex;align-items:center;gap:10px;margin-top:16px;
+        background:var(--navy);color:var(--gold-bright);border-radius:999px;padding:10px 20px;
+        font-weight:700;border:2px solid var(--gold);
+      }
+      .score-line{font-family:"Space Mono",monospace;color:var(--muted);margin-top:10px}
+      .confetti{position:fixed;inset:0;pointer-events:none;z-index:99;overflow:hidden}
+      .confetti i{position:absolute;top:-14px;width:10px;height:14px;border-radius:2px;animation:fall linear forwards}
+      @keyframes fall{to{transform:translateY(105vh) rotate(720deg)}}
+      @media (prefers-reduced-motion: reduce){
+        .confetti{display:none}
+        html{scroll-behavior:auto}
+        *{transition:none !important;animation:none !important}
+      }
+
+      /* ---------- HQ / syllabus ---------- */
+      .hq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+      .hq-card{background:var(--surface);border:2px solid var(--line);border-radius:var(--radius);padding:20px}
+      .hq-card h3{font-size:1.05rem;margin:0 0 10px;display:flex;gap:9px;align-items:center}
+      .hq-card h3 .ic{color:var(--gold);display:grid;place-items:center}
+      .hq-card p,.hq-card li{font-size:.94rem;color:var(--muted)}
+      .hq-card p{margin:0 0 8px}
+      .hq-card ul{margin:0;padding-left:18px}
+      .hq-card li{margin-bottom:5px}
+      .hq-card strong{color:var(--ink)}
+      table.grades{width:100%;border-collapse:collapse;font-size:.95rem}
+      table.grades th,table.grades td{padding:9px 10px;text-align:left;border-bottom:1.5px solid var(--line)}
+      table.grades th{font-family:"Space Mono",monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+      table.grades td.num,table.grades th.num{text-align:right;font-family:"Space Mono",monospace}
+      table.grades tr.total td{font-weight:700;border-bottom:none;color:var(--ink)}
+      .scale-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+      .scale-row span{font-family:"Space Mono",monospace;font-size:.8rem;font-weight:700;background:var(--bg-soft);border:1.5px solid var(--line);border-radius:9px;padding:5px 11px}
+      .wide-card{grid-column:1/-1}
+      .assign-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+      .assign-grid div{background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:13px 15px}
+      .assign-grid strong{display:block;color:var(--ink);margin-bottom:2px}
+      .assign-grid p{margin:0}
+
+      footer{margin-top:56px;border-top:2px solid var(--line);padding:26px 0 40px;color:var(--muted);font-size:.88rem}
+      footer .wrap{display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between}
+
+      @media (max-width:960px){
+        .hero-grid{grid-template-columns:1fr}
+        .howto-grid{grid-template-columns:repeat(2,1fr)}
+        .hq-grid{grid-template-columns:1fr 1fr}
+      }
+      @media (max-width:640px){
+        body{font-size:16px}
+        .howto-grid{grid-template-columns:1fr}
+        .hq-grid{grid-template-columns:1fr}
+        .assign-grid{grid-template-columns:1fr}
+        .ep{grid-template-columns:60px 1fr;padding:16px}
+        .ep::before{left:45px}
+        .ep-medal{width:48px;height:48px}
+        .ep-medal .n{font-size:1.1rem}
+        .ep-side{grid-column:2;flex-direction:row;align-items:center;justify-content:space-between;width:100%}
+        .boss{grid-template-columns:1fr}
+        .boss .pts{text-align:left}
+        .stage{padding:22px 18px}
+        .levelbar{display:none}
+        table.grades th:nth-child(2),table.grades td:nth-child(2){display:none}
+      }
+
+      /* ---------- Episode 1 fun pass: Dr. K, pages, games, badges, certificate ---------- */
+      .drk-intro{background:var(--gold-soft);border:2px solid var(--gold);border-radius:var(--radius);padding:16px 18px;margin-bottom:18px}
+      .drk-intro strong{display:block;color:var(--gold);font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+      .drk-outro{background:var(--teal-soft);border:2px solid var(--teal);border-radius:var(--radius);padding:16px 18px;margin-top:20px;text-align:left}
+      .drk-aside{border-left:4px solid var(--gold);background:var(--gold-soft);padding:12px 16px;border-radius:0 12px 12px 0;font-style:italic;margin-top:14px}
+      .viz{margin-top:16px}
+      .viz-flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+      .viz-step{background:var(--bg-soft);border:2px solid var(--line);border-radius:12px;padding:9px 14px;font-weight:700}
+      .viz-arrow{color:var(--gold);font-weight:700}
+      .viz-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+      .viz-card{background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:13px 14px}
+      .viz-card b{display:block;margin-bottom:3px}
+      .viz-card span{color:var(--muted);font-size:.9rem}
+      .viz-vs{display:flex;gap:8px;flex-wrap:wrap}
+      .viz-v{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:700}
+      .viz-v span{display:block;font-weight:400;color:var(--muted);font-size:.8rem}
+      .viz-v.gold{border-color:var(--gold);background:var(--gold-soft)}
+      .viz-sent{background:var(--surface);border:2px dashed var(--gold);border-radius:12px;padding:14px 16px}
+      .game{margin-top:20px;background:var(--bg-soft);border:2px solid var(--line);border-radius:var(--radius);padding:18px}
+      .game h4{margin:0 0 6px}
+      .game .gintro{color:var(--muted);margin:0 0 14px}
+      .gitem{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+      .gitem>span:first-child{flex:1;min-width:200px}
+      .gbtn{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:6px 13px;font-weight:700;cursor:pointer}
+      .gbtn:hover{border-color:var(--gold)}
+      .gbtn.sel{background:var(--gold);color:#231a02;border-color:var(--gold)}
+      .gbtn:disabled{cursor:default;opacity:1}
+      .gitem.ok{border-color:var(--green);background:var(--green-soft)}
+      .gitem.no{border-color:var(--red)}
+      .gwhy{font-size:.9rem;color:var(--muted);width:100%}
+      .ggroup{margin-bottom:12px}
+      .ggroup>strong{display:block;margin-bottom:6px}
+      .ggroup.ok>strong{color:var(--green)}
+      .gdone{background:var(--green-soft);border:2px solid var(--green);border-radius:12px;padding:12px 14px;margin-top:12px;font-weight:700}
+      .badge-shelf{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+      .badge-chip{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:8px 16px;font-weight:700}
+      .badge-chip.got{border-color:var(--gold);background:var(--gold-soft)}
+      .badge-chip.miss{opacity:.55}
+      .badge-chip small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+      .cert-row{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
+      .cert-row label{font-weight:700}
+      .cert-row input{padding:9px 12px;border:2px solid var(--line);border-radius:10px;font-size:1rem;max-width:280px;width:100%}
+      .shelf{text-align:left;max-width:640px;margin:22px auto 0;background:var(--surface);border:2px solid var(--line);border-radius:var(--radius);padding:18px 20px}
+      .shelf h4{margin:0 0 4px}
+      .shelf .snote{color:var(--muted);font-size:.9rem;margin:0 0 6px}
+      .shelf a{display:block;text-decoration:none;color:var(--ink);border-top:1.5px solid var(--line);padding:10px 0}
+      .shelf a:hover{color:var(--gold)}
+      .shelf a b{display:block}
+      .shelf a span{color:var(--muted);font-size:.88rem}
+      .shelf .kind{font-family:"Space Mono",monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+      .ep-badge{font-family:"Space Mono",monospace;font-size:.72rem;color:var(--gold);letter-spacing:.06em;text-transform:uppercase}
+      #cert-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;overflow:auto;padding:24px}
+      #cert-overlay.open{display:block}
+      .cert{background:#fff;color:#111;max-width:720px;margin:24px auto;padding:44px 48px;border-radius:8px;text-align:center}
+      .cert .c-kicker{font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:#666}
+      .cert h2{font-size:2rem;margin:10px 0}
+      .cert .c-name{font-size:1.6rem;font-weight:700;margin:8px 0}
+      .cert .c-badge{display:inline-block;border:3px solid #b8860b;color:#7a5b00;border-radius:999px;padding:8px 22px;font-weight:700;margin:12px 0}
+      .cert .sig{margin-top:30px;border-top:2px solid #111;padding-top:10px}
+      .cert .c-foot{color:#666;font-size:.85rem;margin-top:18px}
+      .cert-actions{display:flex;gap:10px;justify-content:center;margin-top:16px}
+      @media print{
+        body *{visibility:hidden}
+        #cert-overlay,#cert-overlay *{visibility:visible}
+        #cert-overlay{position:absolute;inset:0;background:#fff;padding:0}
+        .cert{margin:0;max-width:none;box-shadow:none}
+        .cert-actions{display:none !important}
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ================= HUD ================= -->
+    <header class="hud">
+      <div class="wrap hud-inner">
+        <div class="hud-brand">
+          <span class="crest" aria-hidden="true">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-8"/><path d="M22 20H2"/></svg>
+          </span>
+          <span>Operations Management<small>MBA 7033 · The Operations Quest</small></span>
+        </div>
+        <div class="hud-stats" aria-label="Your progress">
+          <span class="chip" title="Your level">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/></svg>
+            <span id="hud-level">Level 1 · Ops Rookie</span>
+            <span class="levelbar" aria-hidden="true"><i id="hud-levelbar" style="width:0%"></i></span>
+          </span>
+          <span class="chip xp" title="Experience points">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4.5 13.5H11L9.5 22 19 10h-6.5z"/></svg>
+            <span id="hud-xp">0 XP</span>
+          </span>
+          <span class="chip" title="Episodes cleared">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 21V4"/><path d="M4 5h13l-2.5 4L17 13H4"/></svg>
+            <span id="hud-cleared">0 / 8 cleared</span>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <main id="home">
+      <!-- ================= HERO ================= -->
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div>
+            <span class="kicker">8 Modules · 8 Episodes · Graduate Course</span>
+            <h1>Operations Management:<br /><span class="quest">The Operations Quest</span></h1>
+            <p class="sub">MBA 7033 at The University of Tulsa, played like a game. Each episode teaches a core operations concept in <strong>bite-size micro-lessons</strong>, then challenges you with checkpoint questions before you can move on. Clear all eight episodes, survive two boss battles, and level up from Ops Rookie to Operations Master.</p>
+            <div class="hero-cta">
+              <button class="btn btn-gold" id="btn-start" type="button">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>
+                <span id="btn-start-label">Start Episode 1</span>
+              </button>
+              <a class="btn btn-ghost" href="#hq">Course HQ &amp; Syllabus</a>
+            </div>
+            <div class="hero-facts">
+              <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg> 8 modules · play by module, not by week</span>
+              <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V4H6.5A2.5 2.5 0 004 6.5z"/></svg> McGraw-Hill Connect · Cachon, Operations Management</span>
+              <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg> Prereq: none</span>
+            </div>
+          </div>
+          <figure class="hero-art" style="margin:0">
+            <img src="assets/quest-map.webp" alt="Illustrated quest map: a golden trail winding toward a sun, with eight checkpoint flags for the eight episodes" width="2352" height="1008" />
+            <figcaption>THE TRAIL AHEAD — 8 CHECKPOINTS FROM SUPPLY AND DEMAND TO OPTIMIZATION</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- ================= HOW IT PLAYS ================= -->
+      <section class="howto">
+        <div class="wrap">
+          <div class="section-head" style="margin-top:0">
+            <h2>How the quest works</h2>
+            <p>Learn a little, prove it, earn rewards — repeat.</p>
+          </div>
+          <div class="howto-grid">
+            <div class="how-card">
+              <div class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V4H6.5A2.5 2.5 0 004 6.5z"/><path d="M8 8h8M8 12h5"/></svg></div>
+              <div class="stepnum">Step 1 · Learn</div>
+              <h3>Micro-lessons</h3>
+              <p>Every episode opens with three short, focused lessons — one concept each, with a real business example. No 40-slide decks.</p>
+            </div>
+            <div class="how-card">
+              <div class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.3A2.6 2.6 0 1112 12.5V14"/><circle cx="12" cy="17.4" r=".4" fill="currentColor"/></svg></div>
+              <div class="stepnum">Step 2 · Prove it</div>
+              <h3>Checkpoint questions</h3>
+              <p>Three questions per episode with instant feedback and explanations — the same style as the course Knowledge Checks in Connect.</p>
+            </div>
+            <div class="how-card">
+              <div class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4.5 13.5H11L9.5 22 19 10h-6.5z"/></svg></div>
+              <div class="stepnum">Step 3 · Level up</div>
+              <h3>XP, stars &amp; badges</h3>
+              <p>Earn XP for every lesson and correct answer, collect a badge per episode, and climb from Ops Rookie to Operations Master.</p>
+            </div>
+            <div class="how-card">
+              <div class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0z"/><path d="M7 6H4a2 2 0 002 4h1M17 6h3a2 2 0 01-2 4h-1"/></svg></div>
+              <div class="stepnum">Step 4 · Boss battles</div>
+              <h3>Midterm &amp; Final</h3>
+              <p>The Midterm guards the trail after Episode 5 (Modules 1–5); the Final waits at the end (Modules 6–8). 150 points each.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= EPISODE MAP ================= -->
+      <section>
+        <div class="wrap">
+          <div class="section-head">
+            <h2>Episode map</h2>
+            <p>Clear an episode to unlock the next checkpoint on the trail.</p>
+          </div>
+          <div class="trail" id="trail"></div>
+        </div>
+      </section>
+
+      <!-- ================= COURSE HQ ================= -->
+      <section id="hq">
+        <div class="wrap">
+          <div class="section-head">
+            <h2>Course HQ</h2>
+            <p>The big picture behind the game — the modules, the goals, and how the graded work fits around it.</p>
+          </div>
+          <div class="hq-grid">
+            <div class="hq-card wide-card">
+              <h3>The module map</h3>
+              <p>Eight episodes, one per module, in the order the course travels them. Play them in sequence — each one unlocks the next. This site is organized by module, not by week.</p>
+              <ul>
+                <li><strong>Module 1 — Introduction &amp; Core Process Concepts</strong> · Chapters 1–2</li>
+                <li><strong>Module 2 — Process Analysis &amp; Efficiency</strong> · Chapters 3–4</li>
+                <li><strong>Module 3 — Process Improvement &amp; Multiple Flows</strong> · Chapter 5</li>
+                <li><strong>Module 4 — Quality Management &amp; Control</strong> · Chapter 9</li>
+                <li><strong>★ Midterm</strong> · Covers Modules 1–4 — the boss battle after Episode 4</li>
+                <li><strong>Module 5 — Inventory Management</strong> · Chapters 10–11</li>
+                <li><strong>Module 6 — Forecasting</strong> · Chapter 15</li>
+                <li><strong>Module 7 — Project Management</strong> · Chapter 19</li>
+                <li><strong>Module 8 — Management Science &amp; Optimization</strong> · Hiller, Chapters 3–5</li>
+                <li><strong>★ Final</strong> · Covers Modules 5–8 — the boss battle after Episode 8</li>
+              </ul>
+            </div>
+            <div class="hq-card">
+              <h3>Your instructor</h3>
+              <p><strong>Kazim Topuz</strong><br />Associate Professor of Business Analytics and Operations Management</p>
+              <p>Email: <a href="mailto:Kazim-topuz@utulsa.edu">Kazim-topuz@utulsa.edu</a><br />Phone: 918-631-2933</p>
+              <p>Replies within 24 hours on weekdays, 48 hours on weekends and holidays. Feedback on major assignments is normally returned within one week.</p>
+            </div>
+            <div class="hq-card">
+              <h3>The big idea</h3>
+              <p>Operations management is how organizations transform inputs into outputs efficiently to meet customer needs — and this course is about matching supply with demand on purpose, not by luck.</p>
+              <p>The journey runs from the first question — <strong>what does the customer value?</strong> — through measuring processes, controlling quality, managing inventory, forecasting demand, running projects, and finally optimizing decisions with models. Each episode adds one tool; the exams ask you to use them together.</p>
+            </div>
+            <div class="hq-card">
+              <h3>Course facts</h3>
+              <ul>
+                <li><strong>3 credit hours</strong>, graduate level</li>
+                <li>Online and asynchronous, with optional live support sessions</li>
+                <li>Prerequisites: <strong>none</strong></li>
+                <li>Course content, grades, and announcements live in <strong>Harvey</strong> (TU's LMS)</li>
+                <li>Textbook and practice platform: <strong>McGraw-Hill Connect</strong>, custom Connect site for MBA 7033 (Cachon)</li>
+                <li>Software: <strong>Excel</strong> with the <strong>Solver</strong> add-in enabled — confirm Solver works before Module 8</li>
+              </ul>
+            </div>
+            <div class="hq-card wide-card">
+              <h3>What you'll be able to do</h3>
+              <div class="assign-grid">
+                <div><strong>Core concepts</strong><p>Explain the role of operations management and key process concepts — inventory, flow rate, and flow time, including Little's Law.</p></div>
+                <div><strong>Process analysis</strong><p>Analyze and evaluate processes with flow diagrams, capacity analysis, and bottleneck identification to measure and improve efficiency.</p></div>
+                <div><strong>Quality</strong><p>Apply Statistical Process Control (SPC) and capability analysis to monitor and improve process performance.</p></div>
+                <div><strong>Inventory &amp; forecasting</strong><p>Use EOQ and time-series forecasting models to support data-driven inventory and planning decisions.</p></div>
+                <div><strong>Optimization</strong><p>Develop and interpret linear programming models in spreadsheets to solve real operational problems.</p></div>
+              </div>
+            </div>
+            <div class="hq-card">
+              <h3>Tools of the trade</h3>
+              <p><strong>McGraw-Hill Connect</strong> — where Knowledge Checks, Learning Practices, Exams, and the Game of Operations live.</p>
+              <p><strong>Excel + Solver</strong> — the modeling tool for Module 8 optimization, and for quantitative practice throughout.</p>
+              <p><strong>Harvey</strong> — where collaborative group studies and other course activities are submitted.</p>
+            </div>
+            <div class="hq-card">
+              <h3>How graded work fits around this site</h3>
+              <p>This site is a <strong>practice companion, not the LMS</strong>. Nothing here is graded. Graded work lives in Harvey and Connect: Learning Practices at the end of most modules, two exams (Midterm, Modules 1–4; Final, Modules 5–8), and flexible assignments including the Game of Operations simulations, Knowledge Checks, collaborative group studies, and an AI-certification option.</p>
+              <p>See the current syllabus in Harvey for weights and due dates — this page deliberately does not restate them, so a syllabus revision cannot leave the game showing stale numbers.</p>
+            </div>
+            <div class="hq-card wide-card">
+              <h3>Where it gets tricky — and why that's normal</h3>
+              <div class="assign-grid">
+                <div><strong>Little's Law units</strong><p>Flow rate per hour times flow time in hours gives inventory. Mix minutes and hours and a correct formula gives a wrong answer.</p></div>
+                <div><strong>Improving the wrong step</strong><p>Speeding up a non-bottleneck feels productive and changes output by exactly zero. Find the bottleneck first, every time.</p></div>
+                <div><strong>EOQ is a trade-off, not a magic number</strong><p>It balances ordering against holding cost under steady-demand assumptions. Real demand is lumpier — use it as a disciplined starting point.</p></div>
+                <div><strong>Forecasts lag trends</strong><p>Moving averages trail a rising trend by construction. If actuals keep beating your forecast, your method — not your luck — needs revisiting.</p></div>
+                <div><strong>Optimization without feasibility</strong><p>A Solver answer that breaks a constraint is not an answer. Check feasibility by hand before reporting any optimum.</p></div>
+              </div>
+            </div>
+            <div class="hq-card wide-card">
+              <h3>Playing fair: AI &amp; academic honesty</h3>
+              <p>This course draws a clear line. AI is welcome as <strong>learning support</strong>: explanations, study help, additional practice examples, and general brainstorming. AI is <strong>not allowed</strong> on Knowledge Checks, Learning Practices, and Exams — no generating, solving, checking, revising, or validating answers, and no uploading assessment questions or screenshots. For collaborative group studies, meaningful AI use is <strong>required</strong>, with an AI Use Disclosure, and all AI output must be verified and corrected. Submitted work must be your own unless collaboration is explicitly allowed; when an AI use feels borderline, ask first.</p>
+              <p>Dr. K's advice from Module 1, kept verbatim in spirit: students who use study groups and AI to <em>understand</em> concepts usually do very well; students who use them simply to <em>obtain</em> answers often struggle on the proctored exams, where outside resources are not allowed.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <div class="wrap">
+          <span><strong>MBA 7033 · Operations Management</strong> — Collins College of Business, The University of Tulsa</span>
+          <span>Full syllabus and grades live in Harvey and McGraw-Hill Connect.</span>
+        </div>
+      </footer>
+    </main>
+
+    <!-- ================= PLAYER ================= -->
+    <section id="player" aria-live="polite">
+      <div class="wrap player-shell">
+        <div class="player-top">
+          <div>
+            <div class="chap" id="p-chap"></div>
+            <h2 id="p-title"></h2>
+          </div>
+          <button class="btn-exit" id="btn-exit" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            Exit to map
+          </button>
+        </div>
+        <div class="dots" id="p-dots" aria-hidden="true"></div>
+        <div class="phase-label" id="p-phase"></div>
+        <div class="stage" id="p-stage"></div>
+      </div>
+    </section>
+
+    <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+      <div id="cert-overlay" role="dialog" aria-label="Badge certificate">
+        <div class="cert">
+          <div class="c-kicker">MBA 7033 · Operations Management</div>
+          <h2>Certificate of Achievement</h2>
+          <p>This badge is awarded to</p>
+          <div class="c-name" id="cert-name">An MBA 7033 Quest player</div>
+          <p>for completing <strong id="cert-ep">Episode 1</strong></p>
+          <div class="c-badge" id="cert-badge">Framing Badge</div>
+          <p id="cert-score"></p>
+          <p id="cert-bonus"></p>
+          <p id="cert-date"></p>
+          <div class="sig">Dr. K — Dr. Kazim Topuz<br><small>MBA 7033 Operations Management · University of Tulsa</small></div>
+          <p class="c-foot">Practice companion — graded work lives in Harvey and McGraw-Hill Connect.</p>
+        </div>
+        <div class="cert-actions">
+          <button class="btn btn-gold" id="btn-cert-print" type="button">Print / Save as PDF</button>
+          <button class="btn btn-ghost" id="btn-cert-close" type="button">Close</button>
+        </div>
+      </div>
+    <script>
+      /* ============================================================
+         EPISODE DATA — micro-lessons + checkpoint questions
+         ============================================================ */
+      var EPISODES = [{"n": 1, "title": "Introduction & Core Process Concepts", "chapter": "Chapters 1\u20132", "badge": "Supply\u2013Demand Badge", "blurb": "Operations is matching supply with demand. Learn what customers value, why responsiveness and productivity pull against each other, and the one equation \u2014 Little's Law \u2014 that ties inventory, flow rate, and flow time together.", "tags": ["Supply & demand", "Efficient frontier", "Little's Law"], "lessons": [{"h": "What operations management actually is", "body": ["Operations management is improving the way we \u2014 and others \u2014 do their work, so customers get what they want. Strip it to one sentence and it is this: <strong>matching supply with demand</strong>. Supply is the products or services a business offers; demand is the set of products and services customers want. Every operations problem in this course is a version of that mismatch.", "The work happens in a transformation: inputs go in, something changes them, outputs come out. Inputs are human labor, materials and parts, energy, and machinery. Transformation can be manufacturing, assembly, a location change, an exchange such as retail, or storage in a distribution center. Outputs are a finished product, a service interaction with a customer, customer satisfaction, or increased knowledge.", "Goods and services sit on a continuum, not in two clean boxes. Goods are physical items \u2014 an automobile, a computer, an oven, shampoo. Services are activities that provide some combination of time, location, form, or psychological value \u2014 air travel, education, a haircut, legal counsel. Most real offerings are a mix: a restaurant meal, a home remodel, or retail sales sit between pure goods like automobile assembly and pure services like surgery or teaching."], "tip": "When you meet a new operation, name its inputs, its transformation, and its outputs before you touch any number. If you cannot name the flow unit, you cannot measure it."}, {"h": "What customers value \u2014 and the trade-off you cannot escape", "body": ["Customers do not buy a process; they buy utility \u2014 a measure of their preference for a product or service. The goal of running the business can be described through four dimensions of performance, often called capabilities: how good, how fast, how flexible, and how cheap an operation is. Improve one and you usually strain another.", "That tension has a name: the strategic trade-off between responsiveness and productivity. A call center shows it plainly. Having more representatives on duty answers calls faster, but it also increases the cost incurred per call. Fewer representatives cut cost and make callers wait. There is no free move \u2014 only a chosen position on the trade-off.", "Plot firms on customer utility and a shape appears: the <strong>efficient frontier</strong>, the set of firms that are not dominated by anyone else. A firm is <strong>Pareto dominated</strong> when it is inferior to competitors on all dimensions of the customer utility function \u2014 worse on everything, better on nothing. The gap between a firm and the frontier is its inefficiency. A high-performing operation does not just work harder on the old frontier; it redesigns the process to operate at an improved frontier."], "tip": "If a proposal claims to improve everything at once with no cost, check what it quietly gave up. Real improvement moves the frontier or moves you along it \u2014 it does not repeal the trade-off."}, {"h": "Why matching supply with demand is so hard", "body": ["Mismatches are everywhere, and they are expensive in both directions. Supply exceeds demand and you get waste: the average American throws out more than 400 lbs. of food a year, 30%\u201340% of the total US food supply. Demand exceeds supply and you get waiting, crowding, and lost sales \u2014 or worse, in a hospital emergency room, where delays in treatment or transfer have been linked to death.", "Two textbook cases make the stakes concrete. About 30% of all seats on a specific flight fly empty, yet a 1\u20132% increase in seat utilization can be the difference between profit and loss \u2014 so airlines use dynamic pricing and booking policies. In medical service, staffing to predicted demand and setting priorities is the lever, because doctors, nurses, and infrastructure cannot be stored for later.", "The chain that connects all of this is the <strong>supply chain</strong>: a sequence of activities and organizations involved in producing and delivering a good or service, from suppliers' suppliers through the direct producer to the final distributor and customers. And here is the core process equation of Chapter 2, <strong>Little's Law</strong>: average inventory = flow rate \u00d7 flow time. If 20 customers per hour flow through a shop and each spends 0.5 hours inside on average, then on average 20 \u00d7 0.5 = 10 customers are inside. One equation, three measures \u2014 know two and you know the third."], "tip": "Little's Law only works with matching units: flow rate per hour times flow time in hours gives inventory in units. Mix minutes and hours and the answer is wrong even if the formula is right."}], "quiz": [{"q": "Which of these is closest to a pure service on the goods\u2013service continuum?", "opts": ["Automobile assembly", "Haircut", "Steelmaking", "Retail sales"], "a": 1, "why": "A haircut is an activity that provides time, location, form, or psychological value \u2014 not a physical item you take home. Automobile assembly and steelmaking are goods production; retail sales sits in the middle of the continuum."}, {"q": "A firm that is inferior to its competitors on ALL dimensions of the customer utility function is described as\u2026", "opts": ["Efficient", "Pareto dominated", "On the efficient frontier", "Responsive"], "a": 1, "why": "Pareto dominated means exactly that: worse on every dimension, better on none. Firms on the efficient frontier are not dominated by anyone; the gap to the frontier is inefficiency."}, {"q": "Little's Law: a clinic's flow rate is 12 patients per hour and the average patient spends 2 hours in the system. On average, how many patients are in the system?", "opts": ["6 patients", "14 patients", "24 patients", "10 patients"], "a": 2, "why": "Inventory = flow rate \u00d7 flow time = 12 \u00d7 2 = 24 patients. Units match (per hour \u00d7 hours), so the answer is in patients."}]}, {"n": 2, "title": "Process Analysis & Efficiency", "chapter": "Chapters 3\u20134", "badge": "Bottleneck Badge", "blurb": "Draw the process, find the slowest step, and measure it honestly. Capacity, bottleneck, utilization, and flow time \u2014 the four numbers that tell you whether a process can keep up.", "tags": ["Process flow", "Bottleneck", "Utilization"], "lessons": [{"h": "Draw the process before you judge it", "body": ["A process flow diagram turns a vague complaint ('we are slow') into something you can point at: steps in order, where flow units wait, where they split or join, and what resource each step uses. The flow unit is whatever moves through \u2014 a patient, an order, a part. Name it first; a diagram without a flow unit is just boxes.", "Each step has a capacity: how many flow units it can handle per unit of time. A step's capacity depends on its processing time and how many parallel resources do it. Two identical stations each handling 10 per hour give that step a capacity of 20 per hour, not 10 \u2014 parallel capacity adds."], "tip": "Start at the flow unit, then the steps, then the resources. Capacity questions asked in the wrong order give confident, wrong answers."}, {"h": "The bottleneck sets the pace for everyone", "body": ["The <strong>bottleneck</strong> is the step with the lowest capacity, and the process capacity equals the bottleneck's capacity \u2014 no more, no less. Take steps with capacities of 10, 8, and 12 units per hour. The process cannot do 30, or 12, or 10 per hour. It does 8 per hour, because the 8-per-hour step starves everything downstream and blocks everything upstream.", "That is why improving a non-bottleneck step alone changes nothing about output. Raising the 12-per-hour step to 15 still leaves the process at 8 per hour. Improvement money spent anywhere but the bottleneck buys speed nobody can use \u2014 until the bottleneck moves, and then the next-lowest step becomes the new constraint."], "tip": "Find the bottleneck first, improve it second, then re-find it. Bottlenecks move, and yesterday's fix can become today's idle capacity."}, {"h": "Utilization, flow time, and the waiting trap", "body": ["Utilization measures how hard a resource is working: utilization = flow rate \u00f7 capacity. If flow is 6 units per hour through a step with capacity 8 per hour, utilization is 6 \u00f7 8 = 75%. At 100% utilization there is no slack at all \u2014 any variability in arrivals or processing times turns directly into waiting.", "Flow time is how long a unit spends in the process, waiting included. Cutting processing time helps, but in most real processes waiting dominates flow time. That is the trap: a process can look efficient step by step while units spend most of their lives in queues between steps."], "tip": "Utilization above 100% is not a plan, it is a queue that grows forever. If demand exceeds bottleneck capacity, you need more capacity, less demand, or a different process \u2014 not exhortation."}], "quiz": [{"q": "Steps in a process have capacities of 10, 8, and 12 units per hour. What is the process capacity?", "opts": ["30 units per hour", "12 units per hour", "8 units per hour", "10 units per hour"], "a": 2, "why": "Process capacity equals bottleneck capacity \u2014 the lowest step. The 8-per-hour step limits the whole process, so the answer is 8 units per hour, not the sum or the fastest step."}, {"q": "Flow rate is 6 units per hour and capacity is 8 units per hour. What is utilization?", "opts": ["133%", "75%", "48%", "25%"], "a": 1, "why": "Utilization = flow \u00f7 capacity = 6 \u00f7 8 = 0.75 = 75%. The remaining 25% is idle capacity, not waste to be ashamed of \u2014 it is the slack that absorbs variability."}, {"q": "The bottleneck runs at 8 per hour. You raise a non-bottleneck step from 12 to 15 per hour. What happens to process capacity?", "opts": ["It rises to 15 per hour", "It stays at 8 per hour", "It rises to 10 per hour", "It falls to 7 per hour"], "a": 1, "why": "The bottleneck still limits output, so process capacity stays at 8 per hour. Non-bottleneck improvement only matters after the bottleneck itself is relieved."}]}, {"n": 3, "title": "Process Improvement & Multiple Flows", "chapter": "Chapter 5", "badge": "Flow Master Badge", "blurb": "Real processes serve more than one kind of flow at once. Learn to separate flow units, share resources without starving anyone, and improve the right step in the right order.", "tags": ["Multiple flows", "Improvement levers", "Pooling"], "lessons": [{"h": "One process, many kinds of flow", "body": ["Most real processes do not serve a single identical flow unit. A clinic sees routine check-ups and urgent cases; a factory runs standard and custom orders; a service desk handles quick questions and long investigations. These are <strong>multiple flows</strong>: different flow units that share some steps, skip others, and take different amounts of time at the steps they share.", "The analysis mistake is to average them away. An 'average patient' who takes the average time at every step may not exist, and a process designed for that average serves nobody well. Separate the flows, trace each one's path, and measure each one's flow time and waiting \u2014 then look at how they interfere with each other at shared resources."], "tip": "When a process feels mysteriously slow, ask how many different flows share its bottleneck. The average hides the interference."}, {"h": "The improvement levers, in order", "body": ["Improvement starts at the bottleneck, and the levers are: add capacity at the bottleneck (more parallel resources, longer hours, faster processing), reduce the work the bottleneck must do (move work off it, simplify, eliminate rework), balance the line so work does not pile up unevenly, and cut waiting between steps rather than only cutting processing time inside steps.", "Pooling is a powerful lever: combine separate queues into one shared queue feeding parallel servers, so no server idles while another's queue grows. The same total capacity serves more flow with less waiting, because variability is shared instead of trapped in one line."], "tip": "Before adding capacity, check whether the bottleneck is doing work it should not do. Removing unnecessary work is cheaper than buying capacity for it."}, {"h": "A worked improvement: parallel capacity", "body": ["Suppose a single inspection station handles 10 units per hour and demand is 18 per hour. One station is a bottleneck at 10, and the queue grows. Add a second identical station in parallel and the step's capacity becomes 10 + 10 = 20 per hour \u2014 now above demand, with utilization 18 \u00f7 20 = 90%. Still tight, but no longer hopeless.", "Notice what pooling adds: with one shared queue, a unit goes to whichever inspector frees up first. With two separate queues, one inspector can idle while the other's queue waits. Same people, same speed, less waiting \u2014 that is a process improvement that costs no new equipment."], "tip": "Capacity arithmetic is easy; queue behavior is where the gains hide. Always ask not just 'how much capacity?' but 'how does work find idle capacity?'"}], "quiz": [{"q": "Two parallel stations each handle 10 units per hour. What is their combined capacity?", "opts": ["10 units per hour", "15 units per hour", "20 units per hour", "5 units per hour"], "a": 2, "why": "Parallel capacity adds: 10 + 10 = 20 units per hour. Parallel servers do not average \u2014 they add, as long as work can reach either one."}, {"q": "A process is bottlenecked at one step. Which improvement should come FIRST?", "opts": ["Speed up a non-bottleneck step", "Add capacity at the bottleneck step", "Add inventory everywhere", "Measure the fastest step more precisely"], "a": 1, "why": "Only adding capacity at the bottleneck step changes process capacity. Speeding up anything else leaves output unchanged until the bottleneck moves."}, {"q": "Why do multiple flows make a process harder to manage?", "opts": ["They use no shared resources", "Different flow units share steps but take different paths and times, so they interfere at shared resources", "They always have identical processing times", "They remove all waiting"], "a": 1, "why": "That interference is the point: shared steps must serve different flows fairly, and an average flow unit hides which flow is actually waiting."}]}, {"n": 4, "title": "Quality Management & Control", "chapter": "Chapter 9", "badge": "Quality Guardian Badge", "blurb": "Quality is not inspected in at the end \u2014 it is controlled while the process runs. Statistical process control, common vs. special causes, and capability: can this process actually hit its specs?", "tags": ["SPC", "Control charts", "Capability"], "lessons": [{"h": "What quality means in operations", "body": ["Quality is conformance to what the customer needs, not gold-plating. A process can be fast and cheap and still be a quality failure if its output varies so much that customers cannot rely on it. That is why operations cares about variation, not just averages: an average on target with wild swings still produces defects.", "Two kinds of variation matter. <strong>Common-cause variation</strong> is the everyday noise built into a stable process \u2014 the hum you expect. <strong>Special-cause variation</strong> is a signal that something changed: a new supplier, a worn tool, a skipped step. Treating noise as a signal wastes effort; missing a signal lets a broken process keep producing."], "tip": "Never adjust a stable process because of one ordinary point. Chasing noise makes variation worse, not better."}, {"h": "Statistical process control: watch the process, not just the product", "body": ["A control chart plots a quality measure over time with a center line and upper and lower control limits derived from the process's own variation. A point outside the limits, or a suspicious pattern inside them, signals a special cause: stop and investigate. A process wandering inside its limits is, for control purposes, behaving as itself.", "The discipline is the point. Final inspection sorts good from bad after the cost is spent; SPC catches the process drifting while correction is still cheap. That is also why control limits are not specification limits: control limits describe what the process does, specification limits describe what the customer will accept. Confusing them is a classic error."], "tip": "Control limits come from the process; specification limits come from the customer. A process can be in control and still be incapable of meeting specs."}, {"h": "Capability: can it hit the target?", "body": ["Process capability compares the width of the specification window to the width of the process's variation. The index Cp = (upper specification limit \u2212 lower specification limit) \u00f7 (6\u03c3), where \u03c3 is the process standard deviation. If the spec window is 12 units wide and \u03c3 = 1, then Cp = 12 \u00f7 (6 \u00d7 1) = 2.0 \u2014 the window is twice as wide as the process's natural spread, so the process is comfortably capable, provided it is centered.", "Centering matters, which is why capability also looks at where the mean sits, not just how wide the spread is. A narrow, capable process shifted toward one spec limit still produces defects on that side. Capability without centering is half a diagnosis."], "tip": "Cp above 1 means the spec window is wider than 6\u03c3. Below 1, even a perfectly centered process cannot meet specs \u2014 fix the variation, not the inspection."}], "quiz": [{"q": "Specification limits span 12 units and the process standard deviation \u03c3 = 1. What is Cp?", "opts": ["0.5", "1.0", "2.0", "6.0"], "a": 2, "why": "Cp = (USL \u2212 LSL) \u00f7 (6\u03c3) = 12 \u00f7 (6 \u00d7 1) = 2.0. The spec window is twice the 6\u03c3 spread, so the process is capable if centered."}, {"q": "A point plots outside the control limits on a control chart. What does that most likely signal?", "opts": ["Ordinary common-cause noise", "A special cause worth investigating", "Proof the process meets specifications", "That the chart is broken"], "a": 1, "why": "Points outside control limits are the classic special-cause signal. Common-cause variation stays inside the limits; specs are a separate question from control."}, {"q": "What is the main advantage of SPC over final inspection alone?", "opts": ["It eliminates all variation", "It detects a process drifting while correction is still cheap, instead of sorting defects after the cost is spent", "It widens specification limits", "It replaces the need for specifications"], "a": 1, "why": "SPC watches the process over time, so a process drifting off course is caught while correction is still cheap. Final inspection only sorts what the process already made."}]}, {"n": 5, "title": "Inventory Management", "chapter": "Chapters 10\u201311", "badge": "Inventory Strategist Badge", "blurb": "Inventory is a buffer \u2014 and a bill. Balance ordering cost against holding cost with EOQ, set reorder points from lead-time demand, and stop paying to store problems.", "tags": ["EOQ", "Reorder point", "Holding vs. ordering"], "lessons": [{"h": "Why hold inventory at all \u2014 and why it hurts", "body": ["Inventory buffers uncertainty: demand varies, supply is delayed, and production runs in batches. Raw materials, work in process, and finished goods each buffer a different gap. Without any buffer, the smallest hiccup stops everything downstream.", "But inventory is not free. Holding cost includes storage, insurance, obsolescence, and the capital tied up in stock that could be doing something else. Ordering cost includes placing, receiving, and setting up each order. The tension between them is the whole inventory problem: order rarely and you hold a lot; order often and you pay to order a lot."], "tip": "Every unit in stock is a decision you already made. Ask what uncertainty it buffers \u2014 if the answer is 'none we can name', it is probably excess."}, {"h": "EOQ: the order size that balances the two costs", "body": ["The Economic Order Quantity balances ordering and holding cost: EOQ = \u221a(2DS \u00f7 H), where D is annual demand, S is the cost per order, and H is the annual holding cost per unit. Total cost falls as orders get larger (fewer orders) but rises as average inventory grows \u2014 EOQ sits at the bottom of that U-shape.", "Worked example: D = 1,200 units per year, S = $50 per order, H = $2 per unit per year. Then EOQ = \u221a(2 \u00d7 1,200 \u00d7 50 \u00f7 2) = \u221a60,000 \u2248 245 units per order. At that size the firm places about 1,200 \u00f7 245 \u2248 5 orders per year. The square root matters: doubling demand does not double EOQ, it multiplies it by about 1.41."], "tip": "EOQ assumes steady demand and known costs. Use it as a disciplined starting point, then adjust for real-world lumpiness \u2014 not as a number to defend to the decimal."}, {"h": "When to order: the reorder point", "body": ["The reorder point answers 'when', while EOQ answers 'how much'. Reorder point = demand during lead time + safety stock. If daily demand is 10 units and replenishment takes 5 days, lead-time demand is 10 \u00d7 5 = 50 units \u2014 order when stock hits 50 (plus safety stock if demand or lead time varies).", "Safety stock is insurance against variability: more variability, or a higher required service level, means more safety stock. The trade-off never disappears \u2014 less safety stock means lower holding cost and more stockouts; more means the reverse. Inventory management is choosing that trade-off on purpose instead of by accident."], "tip": "A reorder point with no safety stock assumes demand and lead time never vary. In a real operation, that assumption is the stockout."}], "quiz": [{"q": "EOQ with D = 1,200/year, S = $50/order, H = $2/unit/year. What is EOQ?", "opts": ["120 units", "600 units", "245 units", "2,450 units"], "a": 2, "why": "EOQ = \u221a(2 \u00d7 1,200 \u00d7 50 \u00f7 2) = \u221a60,000 \u2248 245 units. The square root is essential \u2014 120,000 \u00f7 2 without it would give a wildly wrong 60,000."}, {"q": "If the cost per order (S) rises while demand and holding cost stay the same, what happens to EOQ?", "opts": ["It falls", "It rises", "It stays the same", "It becomes zero"], "a": 1, "why": "EOQ = \u221a(2DS \u00f7 H): S is in the numerator, so when S rises, EOQ rises too \u2014 larger, less frequent orders, because you order more each time to pay the higher ordering cost less often."}, {"q": "Daily demand is 10 units and lead time is 5 days, with no safety stock. What is the reorder point?", "opts": ["2 units", "15 units", "50 units", "500 units"], "a": 2, "why": "Reorder point = demand during lead time = 10 \u00d7 5 = 50 units. Order at 50 so the replenishment arrives just as stock runs out, if demand and lead time behave."}]}, {"n": 6, "title": "Forecasting", "chapter": "Chapter 15", "badge": "Forecaster Badge", "blurb": "You cannot match supply with demand if you cannot see demand coming. Time-series patterns, moving averages, exponential smoothing, and honest forecast error.", "tags": ["Time series", "Moving average", "Exponential smoothing"], "lessons": [{"h": "What a forecast is for", "body": ["A forecast is a prediction of future demand used to plan capacity, staffing, and inventory before demand arrives. Forecasting matters precisely because supply decisions are made before demand is known \u2014 hiring, ordering, and scheduling cannot wait for certainty that will never come.", "Time-series data carries patterns: trend (a long-run rise or fall), seasonality (a repeating pattern within a year), cycles (longer ups and downs), and random noise. The forecaster's job is to separate signal from noise well enough to plan, while remembering that no method removes uncertainty \u2014 it only manages it."], "tip": "A forecast is not a promise. Judge it by its error over time, not by whether one period came in close."}, {"h": "Moving averages: smooth the noise, accept the lag", "body": ["A moving average forecasts the next period as the average of the most recent periods. A 3-period moving average of demands 80, 100, and 120 is (80 + 100 + 120) \u00f7 3 = 100. It smooths one-off spikes, which is the point \u2014 and it lags a real trend, which is the price. When demand is climbing, a moving average always trails below the latest actual.", "Longer windows smooth more and lag more; shorter windows react faster and jump around more. There is no window that does both. Choosing a window is choosing which error you prefer."], "tip": "If actuals keep beating your moving-average forecast period after period, you do not have bad luck \u2014 you have a trend your method is lagging."}, {"h": "Exponential smoothing: weight the recent past most", "body": ["Exponential smoothing updates the forecast with part of the latest error: new forecast = old forecast + \u03b1 \u00d7 (actual \u2212 old forecast), where \u03b1 is between 0 and 1. If the old forecast was 100, actual demand was 120, and \u03b1 = 0.2, the new forecast is 100 + 0.2 \u00d7 (120 \u2212 100) = 104. Only 20% of the surprise is built in; the rest is treated as noise.", "A larger \u03b1 reacts faster to real change and jumps more with noise; a smaller \u03b1 is steadier and slower. Forecast error \u2014 actual minus forecast \u2014 is then tracked over time: bias (errors leaning one way) tells you the method is systematically off, while large absolute errors tell you the method is imprecise even if unbiased."], "tip": "\u03b1 is a judgment, not a constant of nature. Start around 0.1\u20130.3 for stable demand, higher when change is real and fast \u2014 and check the errors, not the elegance."}], "quiz": [{"q": "What is the 3-period moving-average forecast from demands of 80, 100, and 120?", "opts": ["90", "100", "110", "300"], "a": 1, "why": "(80 + 100 + 120) \u00f7 3 = 300 \u00f7 3 = 100. A moving average is a plain average of the window \u2014 the trap answer 300 forgets to divide."}, {"q": "Exponential smoothing: old forecast 100, actual 120, \u03b1 = 0.2. What is the new forecast?", "opts": ["120", "100", "96", "104"], "a": 3, "why": "New forecast = 100 + 0.2 \u00d7 (120 \u2212 100) = 100 + 4 = 104. Only 20% of the 20-unit surprise is built in."}, {"q": "What does a LARGER smoothing constant \u03b1 do?", "opts": ["It makes the forecast smoother and slower to react", "It makes the forecast react faster to the latest actual, with more jumpiness", "It removes all forecast error", "It only affects seasonal patterns"], "a": 1, "why": "Larger \u03b1 puts more weight on the latest error, so the forecast will react faster to the latest actual \u2014 chasing recent actuals, with less smoothing. Smaller \u03b1 is the steadier choice."}]}, {"n": 7, "title": "Project Management", "chapter": "Chapter 19", "badge": "Critical Path Badge", "blurb": "A project is a one-off process with a deadline. Map the precedence, find the critical path, know your slack \u2014 and learn why crashing the wrong activity buys nothing.", "tags": ["CPM", "Critical path", "Slack"], "lessons": [{"h": "Projects are processes with an end date", "body": ["Unlike a repeating operation, a project is a temporary, one-off effort: build the plant, launch the product, implement the system. It still has activities, precedence (what must finish before what can start), and resources \u2014 but the question is not steady-state capacity, it is: when will this finish, and what controls that date?", "The first tool is the network: activities as nodes or arrows, precedence as links. Break the work down (a work breakdown structure) until activities are small enough to estimate honestly. A network built from vague, giant activities gives a precise-looking date that means nothing."], "tip": "If an activity has no predecessor and no successor listed, it is probably missing from the network, not independent."}, {"h": "The critical path method: the longest path rules", "body": ["The Critical Path Method (CPM) finds the longest path through the network. That path's length is the project duration, and its activities are critical: delay any one of them and the whole project slips. Activities off the critical path have <strong>slack</strong> (float) \u2014 time they can slip without moving the project finish date.", "Worked example: path A\u2013B\u2013D takes 3 + 5 + 4 = 12 days; path A\u2013C\u2013D takes 3 + 2 + 4 = 9 days. The critical path is A\u2013B\u2013D at 12 days, so the project takes 12 days. The A\u2013C\u2013D path has 12 \u2212 9 = 3 days of slack: activity C can slip up to 3 days before it becomes critical itself."], "tip": "Slack is not free time to waste \u2014 it is insurance. Spend it carelessly and the next delay has nowhere to go."}, {"h": "Crashing: buying time where it counts", "body": ["Crashing shortens a project by spending more on an activity \u2014 overtime, extra crew, faster delivery \u2014 to cut its duration. It only shortens the project if you crash a critical activity. Shortening a non-critical activity by 2 days when it has 3 days of slack changes nothing about the finish date; it just burns slack and money.", "Sensible crashing picks the cheapest critical activity to shorten first, then re-checks the network, because the critical path can move. Crash, re-find the critical path, repeat \u2014 until the deadline is met or the next day of shortening costs more than the deadline is worth."], "tip": "Before approving crash spending, ask: 'Is this activity on the critical path today?' Yesterday's critical path is not an argument."}], "quiz": [{"q": "Path A\u2013B\u2013D takes 3 + 5 + 4 days; path A\u2013C\u2013D takes 3 + 2 + 4 days. What is the project duration?", "opts": ["9 days", "12 days", "21 days", "7 days"], "a": 1, "why": "Project duration is the longest path: A\u2013B\u2013D = 12 days, versus A\u2013C\u2013D = 9 days. The critical path is A\u2013B\u2013D."}, {"q": "In the same network, how much slack does the A\u2013C\u2013D path have?", "opts": ["0 days", "3 days", "9 days", "12 days"], "a": 1, "why": "Slack = critical-path length \u2212 path length = 12 \u2212 9 = 3 days. C can slip up to 3 days before it becomes critical."}, {"q": "You crash (shorten) a non-critical activity by 2 days. What happens to the project finish date?", "opts": ["It moves earlier by 2 days", "It does not change", "It moves later by 2 days", "It becomes critical immediately"], "a": 1, "why": "Non-critical activities have slack; shortening one only consumes slack, so the project finish date does not change. Only crashing a critical activity shortens the project."}]}, {"n": 8, "title": "Management Science & Optimization", "chapter": "Hiller, Chapters 3\u20135", "badge": "Optimizer Badge", "blurb": "Turn a business problem into a model: decision variables, an objective, and constraints \u2014 then let Excel Solver find the best feasible answer, and know what the answer is really saying.", "tags": ["Linear programming", "Solver", "Shadow prices"], "lessons": [{"h": "A model is a decision, written down", "body": ["Management science turns a messy business choice into a model with three parts: <strong>decision variables</strong> (what you choose \u2014 how much of each product to make), an <strong>objective</strong> (what to maximize or minimize \u2014 profit, cost, time), and <strong>constraints</strong> (what limits you \u2014 machine hours, materials, demand, non-negativity). If it is not in the model, the model will happily ignore it.", "Linear programming (LP) is the workhorse: objective and constraints are linear, so the feasible region \u2014 all choices satisfying every constraint \u2014 is a polygon, and the best feasible choice sits at a corner point of that region. That corner-point property is why Solver can search systematically instead of guessing."], "tip": "Most LP modeling errors are missing constraints, not wrong arithmetic. Check the model against the real limits before you trust the optimum."}, {"h": "Solver in Excel: the optimum, and its price tags", "body": ["Excel Solver takes the objective cell, the changing (variable) cells, and the constraints, and returns the best feasible values. Confirm Solver works on your computer before Module 8 \u2014 the course's own advice \u2014 because discovering an add-in problem on the week you need it is an avoidable crisis.", "Sensitivity analysis then asks what the answer is worth: a <strong>shadow price</strong> is how much the objective would improve per extra unit of a binding constraint's resource. A binding constraint is fully used; a non-binding constraint has slack, so more of that resource adds nothing and its shadow price is zero, regardless of how large the slack is."], "tip": "A shadow price is only valid while the current basis holds \u2014 small changes, not unlimited ones. Treat it as a local price tag, not a permanent rate."}, {"h": "A worked optimum, checked by hand", "body": ["Suppose a plan makes 10 units of product X at $40 profit each and 5 units of product Y at $30 profit each, and that mix satisfies every constraint. Total profit is 10 \u00d7 $40 + 5 \u00d7 $30 = $400 + $150 = $550. That arithmetic is the check you should always do by hand: Solver's answer must make sense as a feasible mix, not just as a number in a cell.", "If a proposed mix breaks a constraint \u2014 uses more machine hours than exist, or makes a negative quantity \u2014 it is not a candidate at all, however profitable it looks. Feasibility first, optimality second. That order is the whole discipline of optimization."], "tip": "Never report a Solver answer without its feasibility check. An infeasible 'optimum' is not an answer; it is a modeling error wearing a number."}], "quiz": [{"q": "A feasible plan makes 10 units of X at $40 profit each and 5 units of Y at $30 each. What is total profit?", "opts": ["$450", "$550", "$700", "$350"], "a": 1, "why": "10 \u00d7 $40 + 5 \u00d7 $30 = $400 + $150 = $550. Always check a Solver answer by hand like this before reporting it."}, {"q": "In linear programming, where does the optimal solution occur?", "opts": ["At the center of the feasible region", "At a corner point (vertex) of the feasible region", "At the point with the most slack", "Outside the feasible region"], "a": 1, "why": "For a linear objective over a polygon-shaped feasible region, the optimum sits at a corner point. That is what makes systematic search possible."}, {"q": "A constraint has slack \u2014 the resource is not fully used. What is its shadow price?", "opts": ["Positive and large", "Zero", "Negative", "Equal to the slack"], "a": 1, "why": "A non-binding constraint has slack, so one more unit of that resource cannot improve the objective: its shadow price is zero, however large the slack."}]}];
+        var BOSSES = {
+        after4: { name: "Midterm Exam", covers: "Modules 1–4", text: "Boss battle #1 guards the trail at the halfway point. The Midterm covers introduction and core process concepts, process analysis and efficiency, process improvement and multiple flows, and quality management and control — Episodes 1–4 of this quest, in Connect.", pts: "IN CONNECT" },
+        after8: { name: "Final Exam", covers: "Modules 5–8", text: "The final boss. The Final Exam covers inventory management, forecasting, project management, and management science and optimization — Episodes 5–8 of this quest, in Connect.", pts: "IN CONNECT" }
+      };
+        var LEVELS = [
+        { xp: 0, name: "Ops Rookie" },
+        { xp: 150, name: "Process Scout" },
+        { xp: 350, name: "Flow Analyst" },
+        { xp: 600, name: "Quality Guardian" },
+        { xp: 800, name: "Inventory Strategist" },
+        { xp: 900, name: "Operations Master" }
+      ];
+        var XP_LESSON = 10, XP_QUESTION = 20, XP_BONUS = 30;
+
+      /* ============================================================
+         STATE (session only)
+         ============================================================ */
+      var state = { xp: 0, cleared: {}, stars: {}, awarded: {}, current: -1, step: 0, score: 0, answered: false, page: 0, gamesDone: {} };
+
+      function $(id){ return document.getElementById(id); }
+      function epMaxXP(ep){ return ep.lessons.length * XP_LESSON + ep.quiz.length * XP_QUESTION + XP_BONUS; }
+      function isUnlocked(i){ return i === 0 || !!state.cleared[i - 1]; }
+      function levelFor(xp){
+        var cur = LEVELS[0], next = null;
+        for (var i = 0; i < LEVELS.length; i++){
+          if (xp >= LEVELS[i].xp){ cur = LEVELS[i]; next = LEVELS[i + 1] || null; }
+        }
+        return { cur: cur, next: next, idx: LEVELS.indexOf(cur) };
+      }
+
+      function updateHUD(){
+        var lv = levelFor(state.xp);
+        $("hud-level").textContent = "Level " + (lv.idx + 1) + " · " + lv.cur.name;
+        var pct = 100;
+        if (lv.next){ pct = Math.round(100 * (state.xp - lv.cur.xp) / (lv.next.xp - lv.cur.xp)); }
+        $("hud-levelbar").style.width = pct + "%";
+        $("hud-xp").textContent = state.xp + " XP";
+        var clearedCount = Object.keys(state.cleared).length;
+        $("hud-cleared").textContent = clearedCount + " / 8 cleared";
+        var firstOpen = EPISODES.findIndex(function(_, i){ return !state.cleared[i]; });
+        $("btn-start-label").textContent = firstOpen === -1 ? "Replay any episode" :
+          (clearedCount === 0 ? "Start Episode 1" : "Continue: Episode " + (firstOpen + 1));
+      }
+
+      /* ============================================================
+         EPISODE MAP
+         ============================================================ */
+      function starString(n){
+        var s = "";
+        for (var i = 0; i < 3; i++){ s += '<span class="' + (i < n ? "on" : "") + '">★</span>'; }
+        return s;
+      }
+      function bossHTML(key){
+        var b = BOSSES[key];
+        return '<div class="boss" role="note">' +
+          '<div class="bic"><svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0z"/><path d="M7 6H4a2 2 0 002 4h1M17 6h3a2 2 0 01-2 4h-1"/></svg></div>' +
+          '<div><div class="chap">Boss Battle · ' + b.covers + '</div><h3>' + b.name + '</h3><p>' + b.text + '</p></div>' +
+          '<div class="pts">' + b.pts + '<small>IN MYLAB</small></div></div>';
+      }
+      function renderTrail(){
+        var html = "";
+        EPISODES.forEach(function(ep, i){
+          var unlocked = isUnlocked(i), cleared = !!state.cleared[i];
+          var status = cleared ? '<span class="status-pill done">Cleared</span>'
+            : unlocked ? '<span class="status-pill now">Now playing</span>'
+            : '<span class="status-pill lock">Locked</span>';
+          html += '<article class="ep ' + (cleared ? "cleared" : unlocked ? "" : "locked") + '">' +
+            '<div class="ep-medal" aria-hidden="true"><span><small>EP</small><span class="n">' + ep.n + '</span></span></div>' +
+            '<div class="ep-body"><div class="chap">' + ep.chapter + ' · ' + status.replace(/<[^>]+>/g, "") + '</div>' +
+            '<h3>' + ep.title + '</h3><p>' + ep.blurb + '</p>' +
+            '<div class="ep-tags">' + ep.tags.map(function(t){ return '<span class="tag">' + t + '</span>'; }).join("") + '</div></div>' +
+            '<div class="ep-side">' + status +
+            '<span class="stars" aria-label="' + (state.stars[i] || 0) + ' of 3 stars earned">' + starString(state.stars[i] || 0) + '</span>' +
+            '<span class="ep-badge">Badge: ' + ep.badge + '</span>' +
+            '<span class="ep-xp">+' + epMaxXP(ep) + ' XP</span>' +
+            (unlocked
+              ? '<button class="btn-play" type="button" data-play="' + i + '">' + (cleared ? "Replay" : "Play") +
+                ' <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></button>'
+              : '<button class="btn-play" type="button" disabled><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg> Locked</button>') +
+            '</div></article>';
+          if (i === 3) html += bossHTML("after4");
+          if (i === 7) html += bossHTML("after8");
+        });
+        $("trail").innerHTML = html;
+        var btns = document.querySelectorAll("[data-play]");
+        for (var j = 0; j < btns.length; j++){
+          btns[j].addEventListener("click", function(){ openEpisode(parseInt(this.getAttribute("data-play"), 10)); });
+        }
+      }
+
+      /* ============================================================
+         PLAYER
+         ============================================================ */
+      function openEpisode(i){
+        state.current = i; state.step = 0; state.score = 0; state.answered = false; state.page = 0;
+        var ep = EPISODES[i];
+        $("p-chap").textContent = "Episode " + ep.n + " · " + ep.chapter;
+        $("p-title").textContent = ep.title;
+        $("home").style.display = "none";
+        $("player").classList.add("open");
+        window.scrollTo({ top: 0 });
+        renderStep();
+        $("p-title").setAttribute("tabindex", "-1");
+        $("p-title").focus({ preventScroll: true });
+      }
+      function exitPlayer(){
+        $("player").classList.remove("open");
+        $("home").style.display = "";
+        state.current = -1;
+        renderTrail(); updateHUD();
+        window.scrollTo({ top: 0 });
+      }
+      function totalSteps(ep){ return ep.lessons.length + ep.quiz.length; }
+      function renderDots(){
+        var ep = EPISODES[state.current], html = "";
+        for (var i = 0; i < totalSteps(ep); i++){
+          html += '<span class="dot' + (i < state.step ? " done" : i === state.step ? " now" : "") + '"></span>';
+        }
+        $("p-dots").innerHTML = html;
+      }
+      function renderStep(){
+        var ep = EPISODES[state.current];
+        renderDots();
+        if (state.step < ep.lessons.length){ if (ep.lessons[state.step].pages) renderPagedLesson(ep, state.step); else renderLesson(ep, state.step); }
+        else if (state.step < totalSteps(ep)) renderQuiz(ep, state.step - ep.lessons.length);
+        else renderResults(ep);
+      }
+      function awardXP(key, amount){
+        if (state.awarded[key]) return;
+        state.awarded[key] = true;
+        state.xp += amount;
+        updateHUD();
+      }
+      function renderLesson(ep, li){
+        var L = ep.lessons[li];
+        var last = li === ep.lessons.length - 1;
+        $("p-phase").textContent = "Phase 1 · Micro-lessons — " + (li + 1) + " of " + ep.lessons.length;
+        $("p-stage").innerHTML =
+          '<span class="lesson-kicker"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V4H6.5A2.5 2.5 0 004 6.5z"/></svg> Micro-lesson ' + (li + 1) + '</span>' +
+          '<h3>' + L.h + '</h3>' +
+          L.body.map(function(p){ return "<p>" + p + "</p>"; }).join("") +
+          '<div class="powerup"><strong>Power-up · Field tip</strong>' + L.tip + '</div>' +
+          '<div class="stage-actions">' +
+            (li > 0 ? '<button class="btn btn-ghost" id="btn-back" type="button">← Back</button>' : "") +
+            '<span class="spacer"></span><span class="xp-pop">' + (state.awarded["L" + state.current + "-" + li] ? "" : "+" + XP_LESSON + " XP") + '</span>' +
+            '<button class="btn btn-gold" id="btn-next" type="button">' + (last ? "Start the checkpoint challenge →" : "Got it — next lesson →") + '</button>' +
+          '</div>';
+        if (li > 0) $("btn-back").addEventListener("click", function(){ state.step--; renderStep(); });
+        $("btn-next").addEventListener("click", function(){
+          awardXP("L" + state.current + "-" + li, XP_LESSON);
+          state.step++; renderStep();
+        });
+      }
+      function renderQuiz(ep, qi){
+        var Q = ep.quiz[qi];
+        state.answered = false;
+        $("p-phase").textContent = "Phase 2 · Checkpoint challenge — question " + (qi + 1) + " of " + ep.quiz.length + " · Score so far: " + state.score;
+        var letters = ["A", "B", "C", "D"];
+        $("p-stage").innerHTML =
+          '<span class="quiz-kicker"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4.5 13.5H11L9.5 22 19 10h-6.5z"/></svg> Checkpoint question ' + (qi + 1) + '</span>' +
+          '<h3>' + Q.q + '</h3>' +
+          '<div class="opts" role="group" aria-label="Answer choices">' +
+          Q.opts.map(function(o, oi){
+            return '<button class="opt" type="button" data-oi="' + oi + '"><span class="letter">' + letters[oi] + '</span><span>' + o + '</span></button>';
+          }).join("") + '</div>' +
+          '<div class="feedback" id="q-feedback"></div>' +
+          '<div class="stage-actions"><span class="spacer"></span>' +
+          '<button class="btn btn-gold" id="btn-qnext" type="button" style="display:none">' +
+          (qi === ep.quiz.length - 1 ? "See my results →" : "Next question →") + '</button></div>';
+        var opts = document.querySelectorAll(".opt");
+        for (var j = 0; j < opts.length; j++){
+          opts[j].addEventListener("click", function(){ answerQuestion(this, Q, ep); });
+        }
+        $("btn-qnext").addEventListener("click", function(){ state.step++; renderStep(); });
+      }
+      function answerQuestion(btn, Q, ep){
+        if (state.answered) return;
+        state.answered = true;
+        var picked = parseInt(btn.getAttribute("data-oi"), 10);
+        var correct = picked === Q.a;
+        var opts = document.querySelectorAll(".opt");
+        for (var j = 0; j < opts.length; j++){
+          opts[j].disabled = true;
+          var oi = parseInt(opts[j].getAttribute("data-oi"), 10);
+          if (oi === Q.a) opts[j].classList.add("correct");
+          else if (oi === picked) opts[j].classList.add("wrong");
+          else opts[j].classList.add("dim");
+        }
+        var fb = $("q-feedback");
+        fb.className = "feedback show " + (correct ? "good" : "bad");
+        if (correct){
+          state.score++;
+          var qi2 = state.step - ep.lessons.length;
+          var gained = !state.awarded["Q" + state.current + "-" + qi2];
+          awardXP("Q" + state.current + "-" + qi2, XP_QUESTION);
+          fb.innerHTML = "<strong>Correct!" + (gained ? " +" + XP_QUESTION + " XP" : "") + "</strong>" + Q.why;
+        } else {
+          fb.innerHTML = "<strong>Not quite — the correct answer is highlighted.</strong>" + Q.why;
+        }
+        $("p-phase").textContent = "Phase 2 · Checkpoint challenge · Score so far: " + state.score;
+        $("btn-qnext").style.display = "";
+        $("btn-qnext").focus();
+      }
+      function renderResults(ep){
+        var firstClear = !state.cleared[state.current];
+        var stars = state.score;
+        if (firstClear){
+          state.cleared[state.current] = true;
+          if (state.score === ep.quiz.length) awardXP("B" + state.current, XP_BONUS);
+        }
+        if (!state.stars[state.current] || stars > state.stars[state.current]) state.stars[state.current] = stars;
+        updateHUD();
+        $("p-phase").textContent = "Episode complete";
+        var verdict = state.score === ep.quiz.length ? "Flawless run. The checkpoint never stood a chance."
+          : state.score >= 1 ? "Checkpoint cleared. Review the explanations above any time by replaying the episode."
+          : "Checkpoint cleared — but this boss deserves a rematch. Replay to earn more stars.";
+        $("p-stage").innerHTML =
+          '<div class="results">' +
+          '<span class="quiz-kicker">Episode ' + ep.n + ' cleared</span>' +
+          '<div class="big-stars" aria-label="' + stars + ' of 3 stars">' + starString(stars) + '</div>' +
+          '<h3>' + verdict + '</h3>' +
+          '<div class="score-line">Checkpoint score: ' + state.score + ' / ' + ep.quiz.length + (state.score === ep.quiz.length ? ' · Perfect-run bonus +' + XP_BONUS + ' XP' : '') + '</div>' +
+          '<div><span class="badge-earned"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 14L7 22l5-3 5 3-1.5-8"/></svg> Badge earned: ' + ep.badge + '</span></div>' +
+          '<div class="score-line">Episode value: +' + epMaxXP(ep) + ' XP · Checkpoint: ' + state.score + ' / ' + ep.quiz.length + '</div>' +
+          badgeShelfHTML(ep) + certRowHTML() + shelfHTML(ep) + outroHTML(ep) +
+          '<div class="stage-actions" style="justify-content:center">' +
+            '<button class="btn btn-ghost" id="btn-replay" type="button">Replay episode</button>' +
+            '<button class="btn btn-ghost" id="btn-tomap" type="button">Back to map</button>' +
+            (state.current < EPISODES.length - 1 ? '<button class="btn btn-gold" id="btn-nextep" type="button">Next episode →</button>' : "") +
+          '</div></div>';
+        $("btn-replay").addEventListener("click", function(){ openEpisode(state.current); });
+        $("btn-tomap").addEventListener("click", exitPlayer);
+        var nx = $("btn-nextep");
+        if (nx) nx.addEventListener("click", function(){ openEpisode(state.current + 1); });
+        var cb = $("btn-cert");
+        if (cb) cb.addEventListener("click", function(){ openCert(ep); });
+        if (firstClear) confetti();
+      }
+      function confetti(){
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        var box = $("confetti"), colors = ["#f2b33d", "#0d9488", "#cf3f3f", "#f4edd9", "#4f6df5"];
+        var html = "";
+        for (var i = 0; i < 60; i++){
+          var left = Math.random() * 100;
+          var delay = (Math.random() * 0.6).toFixed(2);
+          var dur = (1.6 + Math.random() * 1.6).toFixed(2);
+          var col = colors[i % colors.length];
+          html += '<i style="left:' + left + '%;background:' + col + ';animation-delay:' + delay + 's;animation-duration:' + dur + 's"></i>';
+        }
+        box.innerHTML = html;
+        setTimeout(function(){ box.innerHTML = ""; }, 4200);
+      }
+
+
+      /* ---------- Episode 1 fun pass: paged lessons, games, badges, certificate ---------- */
+      function lessonPages(ep, li){
+        var L = ep.lessons[li];
+        if (!L.pages) return 1;
+        return L.pages.length + (L.game ? 1 : 0);
+      }
+      function renderVisual(key){
+        if (key === "dataflow") return '<div class="viz viz-flow" role="img" aria-label="Data becomes information, then a decision"><span class="viz-step">Raw data</span><span class="viz-arrow">→</span><span class="viz-step">Organized</span><span class="viz-arrow">→</span><span class="viz-step">Information</span><span class="viz-arrow">→</span><span class="viz-step">Decision</span></div>';
+        if (key === "lenses") return '<div class="viz viz-cards">' +
+          '<div class="viz-card"><b>Descriptive</b><span>What happened? Last quarter’s sales by region.</span></div>' +
+          '<div class="viz-card"><b>Predictive</b><span>What will happen? Next quarter’s demand.</span></div>' +
+          '<div class="viz-card"><b>Prescriptive</b><span>What should we do? The markdown schedule.</span></div></div>';
+        if (key === "fivevs") return '<div class="viz viz-vs">' +
+          '<span class="viz-v">Volume<span>how much</span></span>' +
+          '<span class="viz-v">Velocity<span>how fast</span></span>' +
+          '<span class="viz-v">Variety<span>how many kinds</span></span>' +
+          '<span class="viz-v">Veracity<span>how much to trust</span></span>' +
+          '<span class="viz-v gold">Value<span>what decision improves</span></span></div>';
+        if (key === "sentence") return '<div class="viz viz-sent">Should <b>owner</b> <b>decision</b>, choosing among <b>alternatives</b>, judged on <b>criteria</b>?</div>';
+        return "";
+      }
+      function renderPagedLesson(ep, li){
+        var L = ep.lessons[li];
+        var total = lessonPages(ep, li);
+        var pg = state.page;
+        var lastLesson = li === ep.lessons.length - 1;
+        var isGame = !!L.game && pg >= L.pages.length;
+        var isLastPage = pg === total - 1;
+        $("p-phase").textContent = "Phase 1 · Micro-lessons — " + (li + 1) + " of " + ep.lessons.length + " · Page " + (pg + 1) + " of " + total;
+        var html = '<span class="lesson-kicker"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V4H6.5A2.5 2.5 0 004 6.5z"/></svg> Micro-lesson ' + (li + 1) + '</span>';
+        if (li === 0 && pg === 0 && ep.intro){
+          html += '<div class="drk-intro"><strong>A note from Dr. K</strong>' + ep.intro + '</div>';
+        }
+        if (isGame){
+          html += '<h3>' + L.game.title + '</h3><div id="game-box"></div>';
+        } else {
+          var P = L.pages[pg];
+          html += '<h3>' + P.h + '</h3>' +
+            P.body.map(function(p){ return "<p>" + p + "</p>"; }).join("") +
+            (P.visual ? renderVisual(P.visual) : "") +
+            (P.aside ? '<div class="drk-aside">' + P.aside + '</div>' : "") +
+            (pg === L.pages.length - 1 ? '<div class="powerup"><strong>' + (ep.host ? ep.host + "’s field tip" : "Power-up · Field tip") + '</strong>' + L.tip + '</div>' : "");
+        }
+        html += '<div class="stage-actions">' +
+          ((li > 0 || pg > 0) ? '<button class="btn btn-ghost" id="btn-back" type="button">← Back</button>' : "") +
+          '<span class="spacer"></span><span class="xp-pop">' + ((isLastPage && !state.awarded["L" + state.current + "-" + li]) ? "+" + XP_LESSON + " XP" : "") + '</span>' +
+          '<button class="btn btn-gold" id="btn-next" type="button">' + (isLastPage ? (lastLesson ? "Start the checkpoint challenge →" : "Got it — next lesson →") : "Next page →") + '</button>' +
+          '</div>';
+        $("p-stage").innerHTML = html;
+        if (isGame) renderGame(L.game, li);
+        var back = $("btn-back");
+        if (back) back.addEventListener("click", function(){
+          if (state.page > 0){ state.page--; }
+          else { state.step--; state.page = lessonPages(ep, state.step) - 1; }
+          renderStep();
+        });
+        $("btn-next").addEventListener("click", function(){
+          if (!isLastPage){ state.page++; renderStep(); return; }
+          awardXP("L" + state.current + "-" + li, XP_LESSON);
+          state.step++; state.page = 0; renderStep();
+        });
+      }
+      function gameKey(li){ return "G" + state.current + "-" + li; }
+      function renderGame(g, li){
+        var box = $("game-box");
+        var doneKey = gameKey(li);
+        var html = '<div class="game"><h4>' + g.title + '</h4><p class="gintro">' + g.intro + '</p>';
+        if (g.type === "sort"){
+          html += g.items.map(function(it, ii){
+            return '<div class="gitem" id="gi-' + ii + '"><span>' + it.t + '</span>' +
+              g.buckets.map(function(b, bi){
+                return '<button class="gbtn" type="button" data-ii="' + ii + '" data-bi="' + bi + '">' + b + '</button>';
+              }).join("") + '<div class="gwhy" id="gw-' + ii + '"></div></div>';
+          }).join("");
+          html += '<div class="gdone" id="gdone" style="display:none">' + g.done + '</div></div>';
+          box.innerHTML = html;
+          var correct = 0, total = g.items.length;
+          var hint = g.buckets.length === 2
+            ? "Not quite — is it a recorded fact, or meaning that can change a decision?"
+            : "Not quite — what happened, what will happen, or what should we do?";
+          var btns = box.querySelectorAll(".gbtn");
+          for (var k = 0; k < btns.length; k++){
+            btns[k].addEventListener("click", function(){
+              var ii = parseInt(this.getAttribute("data-ii"), 10);
+              var bi = parseInt(this.getAttribute("data-bi"), 10);
+              var row = $("gi-" + ii);
+              if (row.classList.contains("ok")) return;
+              var it = g.items[ii];
+              if (bi === it.b){
+                row.classList.add("ok"); row.classList.remove("no");
+                $("gw-" + ii).textContent = "Right. " + it.why;
+                var rowBtns = row.querySelectorAll(".gbtn");
+                for (var m = 0; m < rowBtns.length; m++) rowBtns[m].disabled = true;
+                this.classList.add("sel");
+                correct++;
+                if (correct === total){
+                  state.gamesDone[doneKey] = true;
+                  $("gdone").style.display = "";
+                }
+              } else {
+                row.classList.add("no");
+                $("gw-" + ii).textContent = hint;
+              }
+            });
+          }
+        } else if (g.type === "build"){
+          html += g.groups.map(function(gr, gi){
+            return '<div class="ggroup" id="gg-' + gi + '"><strong>' + gr.label + '</strong>' +
+              gr.options.map(function(o, oi){
+                return '<button class="gbtn" type="button" data-gi="' + gi + '" data-oi="' + oi + '">' + o + '</button>';
+              }).join("") + '<div class="gwhy" id="gh-' + gi + '"></div></div>';
+          }).join("");
+          html += '<button class="btn btn-gold" id="gcheck" type="button">Check my sentence</button>' +
+            '<div class="gdone" id="gdone" style="display:none"></div></div>';
+          box.innerHTML = html;
+          var picks = {};
+          var gbtns = box.querySelectorAll(".gbtn");
+          for (var k2 = 0; k2 < gbtns.length; k2++){
+            gbtns[k2].addEventListener("click", function(){
+              var gi = parseInt(this.getAttribute("data-gi"), 10);
+              var oi = parseInt(this.getAttribute("data-oi"), 10);
+              picks[gi] = oi;
+              var grp = $("gg-" + gi);
+              var gb = grp.querySelectorAll(".gbtn");
+              for (var m2 = 0; m2 < gb.length; m2++) gb[m2].classList.remove("sel");
+              this.classList.add("sel");
+            });
+          }
+          $("gcheck").addEventListener("click", function(){
+            var allRight = true;
+            for (var gi2 = 0; gi2 < g.groups.length; gi2++){
+              var grp2 = $("gg-" + gi2);
+              if (picks[gi2] === undefined){ allRight = false; $("gh-" + gi2).textContent = "Pick one for this slot first."; continue; }
+              if (picks[gi2] === g.groups[gi2].a){ grp2.classList.add("ok"); $("gh-" + gi2).textContent = "Right."; }
+              else { grp2.classList.remove("ok"); allRight = false; $("gh-" + gi2).textContent = g.groups[gi2].hint; }
+            }
+            var dn = $("gdone");
+            if (allRight){
+              state.gamesDone[doneKey] = true;
+              dn.innerHTML = "<strong>" + g.sentence + "</strong><br>" + g.done;
+              dn.style.display = "";
+            } else {
+              dn.style.display = "none";
+            }
+          });
+        }
+      }
+      function gamesDoneCount(){
+        var done = 0;
+        for (var k in state.gamesDone){ if (k.indexOf("G" + state.current + "-") === 0) done++; }
+        return done;
+      }
+      function badgeShelfHTML(ep){
+        var perfect = state.score === ep.quiz.length;
+        var games = (ep.lessons || []).filter(function(L){ return !!L.game; }).length;
+        var gm = games > 0 && gamesDoneCount() >= games;
+        function chip(name, desc, got){
+          return '<span class="badge-chip ' + (got ? "got" : "miss") + '">' + (got ? "★ " : "☆ ") + name + '<small>' + desc + '</small></span>';
+        }
+        return '<div class="badge-shelf">' +
+          chip(ep.badge, "Clear this episode", true) +
+          chip("Perfect Run", "Score 3/3 on the checkpoint", perfect) +
+          (games > 0 ? chip("Game Master", "Finish all " + games + " games in this episode", gm) : "") +
+          '</div>';
+      }
+      function certRowHTML(){
+        return '<div class="cert-row"><label for="cert-input">Name for your certificate (optional): </label>' +
+          '<input id="cert-input" type="text" maxlength="60" placeholder="Your name" autocomplete="name">' +
+          '<button class="btn btn-gold" id="btn-cert" type="button">Print badge certificate (PDF)</button></div>';
+      }
+      function shelfHTML(ep){
+        if (!ep.shelf) return "";
+        var h = '<div class="shelf"><h4>Keep learning with Dr. K</h4><p class="snote">Optional — not graded, not on any test. Dr. K’s picks for the curious.</p>';
+        ep.shelf.forEach(function(s){
+          h += '<a href="' + s.url + '" target="_blank" rel="noopener"><span class="kind">' + (s.kind === "watch" ? "Watch" : "Read") + '</span><b>' + s.title + '</b><span>' + s.note + '</span></a>';
+        });
+        return h + '</div>';
+      }
+      function outroHTML(ep){
+        return ep.outro ? '<div class="drk-outro">' + ep.outro + '</div>' : "";
+      }
+      function openCert(ep){
+        var name = $("cert-input") ? $("cert-input").value.trim() : "";
+        $("cert-name").textContent = name || "An MBA 7033 Quest player";
+        $("cert-ep").textContent = "Episode " + ep.n + ": " + ep.title;
+        $("cert-badge").textContent = ep.badge;
+        $("cert-score").textContent = "Checkpoint: " + state.score + " / " + ep.quiz.length + " · Episode value: +" + epMaxXP(ep) + " XP";
+        var bonus = [];
+        if (state.score === ep.quiz.length) bonus.push("Perfect Run");
+        var games = (ep.lessons || []).filter(function(L){ return !!L.game; }).length;
+        if (games > 0 && gamesDoneCount() >= games) bonus.push("Game Master");
+        $("cert-bonus").textContent = bonus.length ? "Bonus badges: " + bonus.join(" · ") : "Bonus badges: none this run — replay the games and the checkpoint to earn them.";
+        $("cert-date").textContent = new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+        $("cert-overlay").classList.add("open");
+      }
+      /* ---------- wiring ---------- */
+      $("btn-exit").addEventListener("click", exitPlayer);
+      $("btn-start").addEventListener("click", function(){
+        var firstOpen = EPISODES.findIndex(function(_, i){ return !state.cleared[i] && isUnlocked(i); });
+        if (firstOpen === -1) firstOpen = 0;
+        openEpisode(firstOpen);
+      });
+      var _pb = $("btn-cert-print"); if (_pb) _pb.addEventListener("click", function(){ window.print(); });
+      var _cb2 = $("btn-cert-close"); if (_cb2) _cb2.addEventListener("click", function(){ $("cert-overlay").classList.remove("open"); });
+      var _ov = $("cert-overlay"); if (_ov) _ov.addEventListener("click", function(e){ if (e.target === this) this.classList.remove("open"); });
+      document.addEventListener("keydown", function(e){ if (e.key === "Escape"){ var o = $("cert-overlay"); if (o) o.classList.remove("open"); } });
+      renderTrail();
+      updateHUD();
+    </script>
+
+  </body>
+</html>
