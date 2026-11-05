@@ -150,7 +150,7 @@ function renderReport() {
     lastMeta.stats.paragraphs + " paragraphs, about " + lastMeta.stats.words.toLocaleString() + " words, " +
     lastMeta.stats.sections + " section(s). Checked " + new Date().toLocaleString() + ".";
   $("reportSummary").innerHTML =
-    (lastMeta.score ? "<span class=\"score\">Score: <strong>" + lastMeta.score.value + "/100</strong> — " + esc(lastMeta.score.band) + "</span> · " : "") +
+    (lastMeta.score ? "<span class=\"score\">Score: <strong>" + lastMeta.score.value + "/100</strong> — " + esc(lastMeta.score.band) + "</span>" + (lastMeta.score.capped ? " <span class=\"capnote\">" + esc(lastMeta.score.capNote) + "</span>" : "") + " · " : "") +
     "<strong>" + counts.fail + "</strong> to fix · <strong>" + counts.warn + "</strong> to review · " +
     "<strong>" + counts.pass + "</strong> passing" + (counts.info ? " · " + counts.info + " informational" : "");
   const label = { pass: "✓ Pass", fail: "✗ Fix", warn: "! Review", info: "i Info" };
@@ -173,7 +173,7 @@ function downloadCsv() {
   const lines = [
     ["Check", "Status", "Expected", "Found", "Where", "How to fix"].map(cell).join(","),
     ["# " + lastMeta.file + " — " + lastMeta.school + " — " + lastMeta.docType].map(cell).join(","),
-    ["# Score: " + (lastMeta.score ? lastMeta.score.value + "/100 — " + lastMeta.score.band : "n/a")].map(cell).join(",")
+    ["# Score: " + (lastMeta.score ? lastMeta.score.value + "/100 — " + lastMeta.score.band + (lastMeta.score.capped ? " — " + lastMeta.score.capNote : "") : "n/a")].map(cell).join(",")
   ];
   for (const r of lastResults) lines.push([r.label, r.status, r.expected, r.found, r.where, r.fix].map(cell).join(","));
   const blob = new Blob([lines.join("\r\n")], { type: "text/csv" });
