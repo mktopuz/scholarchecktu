@@ -72,6 +72,11 @@ function readPPr(pPr) {
   }
   const jc = kid(pPr, "w:jc");
   if (jc) out.jc = attr(jc, "w:val");
+  const ind = kid(pPr, "w:ind");
+  if (ind) {
+    const tw = (name) => { const v = attr(ind, name); return v == null ? null : parseInt(v, 10); };
+    out.ind = { left: tw("w:left"), firstLine: tw("w:firstLine"), hanging: tw("w:hanging") };
+  }
   return out;
 }
 
@@ -170,6 +175,7 @@ async function parseDocx(file) {
       : styleModel.defaults.pPr.line != null ? styleModel.defaults.pPr.line : null;
     const lineRule = directP.lineRule || chainLineRule || styleModel.defaults.pPr.lineRule || "auto";
     const jc = directP.jc || resolveChain(styleModel, styleId, (st) => st.pPr.jc) || styleModel.defaults.pPr.jc || null;
+    const ind = directP.ind || resolveChain(styleModel, styleId, (st) => st.pPr.ind) || styleModel.defaults.pPr.ind || null;
     const chainBold = !!resolveChain(styleModel, styleId, (st) => st.rPr.bold);
     const chainItalic = !!resolveChain(styleModel, styleId, (st) => st.rPr.italic);
 
@@ -195,7 +201,7 @@ async function parseDocx(file) {
       styleId, styleName,
       inTable: isDescendantOf(p, "w:tbl"),
       text, runs, line, lineRule,
-      jc, chainBold, chainItalic
+      jc, ind, chainBold, chainItalic
     };
   });
 
@@ -268,5 +274,30 @@ async function parseDocx(file) {
   const tableCount = doc.getElementsByTagName("w:tbl").length;
   const imageCount = doc.getElementsByTagName("a:blip").length + doc.getElementsByTagName("w:pict").length;
 
-  return { paragraphs, sections, headerFooterParts: hfParts, styleModel, theme, tableCount, imageCount };
+  /* Table widths, from the grid columns (twips -> inches); falls back to
+     the table's own width setting. A width the file never states stays null
+     and the width check reports it as unverifiable rather than guessing. */
+  const tables = [];
+  const tblEls = doc.getElementsByTagName("w:tbl");
+  for (let t = 0; t < tblEls.length; t++) {
+    const tbl = tblEls[t];
+    let widthIn = null;
+    const grid = kid(tbl, "w:tblGrid");
+    if (grid) {
+      let sum = 0, n = 0;
+      for (const gc of kids(grid, "w:gridCol")) {
+        const w = attr(gc, "w:w");
+        if (w != null) { sum += parseInt(w, 10); n++; }
+      }
+      if (n) widthIn = sum / 1440;
+    }
+    if (widthIn == null) {
+      const tblPr = kid(tbl, "w:tblPr");
+      const tblW = tblPr ? kid(tblPr, "w:tblW") : null;
+      if (tblW && attr(tblW, "w:type") === "dxa" && attr(tblW, "w:w")) widthIn = parseInt(attr(tblW, "w:w"), 10) / 1440;
+    }
+    tables.push({ widthIn });
+  }
+
+  return { paragraphs, sections, headerFooterParts: hfParts, styleModel, theme, tableCount, imageCount, tables };
 }
