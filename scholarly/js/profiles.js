@@ -116,5 +116,13 @@ const FIX = {
   pageNumbers: "Insert ▸ Page Number",
   pageNumbering: "Click into the section ▸ Insert ▸ Page Number ▸ Format Page Numbers ▸ Number format / Start at",
   frontMatter: "Add the missing part as its own section, titled with a Heading 1",
-  abstractWord: "Edit ▸ Word Count (status bar) shows the total — shorten the Abstract text to fit the limit"
+  abstractWord: "Edit ▸ Word Count (status bar) shows the total — shorten the Abstract text to fit the limit",
+  frontMatterOrder: "Move the out-of-order section so the front matter follows the school's sequence",
+  tocEntries: "Right-click the table of contents ▸ Update Field ▸ Update entire table",
+  listEntries: "Right-click the list ▸ Update Field ▸ Update entire table",
+  captions: "Click the table or figure ▸ References ▸ Insert Caption",
+  fontsUsed: "Select the text ▸ Home ▸ Font",
+  citations: "Check each flagged citation against the Bibliography — add the missing entry or fix the name and year",
+  bibliographyOrder: "Sort the Bibliography entries alphabetically by first author's surname",
+  tableWidth: "Click the table ▸ Table Layout ▸ AutoFit ▸ AutoFit to Window, or narrow the columns"
 };
