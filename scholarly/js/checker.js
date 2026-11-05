@@ -51,11 +51,85 @@ function effectiveMultiple(p, fallbackSizePt) {
   return size ? linePt / size : null;
 }
 
+function normText(t) {
+  return (t || "").trim().toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+}
+function captionMatch(text) {
+  const m = /^(table|figure)\s+(\d+)\s*[:.>\-–—]?\s*(.*)$/i.exec((text || "").trim());
+  if (!m) return null;
+  return { kind: m[1].toLowerCase(), num: parseInt(m[2], 10), rest: m[3] || "" };
+}
+function isBlockQuotePara(p) {
+  if (/quote|block/i.test(p.styleName || "")) return true;
+  const ind = p.ind;
+  return !!(ind && ind.left != null && ind.left >= 720);
+}
+/* A table-of-contents entry ends in a page number. Its heading text is
+   the entry minus that number — but a heading that itself ends in a digit
+   ("Introduction 1") is ambiguous, so both readings are tried. */
+function tocEntryCore(text) {
+  const m = /^(.*?)[\s ]*(\d{1,4})$/.exec(normText(text));
+  if (!m) return null;
+  return { core: m[1].trim(), num: m[2] };
+}
+/* Paragraphs of a Table of Contents field: after the "Table of Contents"
+   heading, an entry's text (minus its page number) matches a styled
+   Heading 1/2. Returns a Set of paragraph indices. */
+function tocEntryIndices(paras, headings) {
+  const hNorms = new Set(headings.filter((p) => headingLevel(p) === 1 || headingLevel(p) === 2).map((p) => normText(p.text)));
+  if (!hNorms.size) return new Set();
+  const tocAt = paras.findIndex((p) => normText(p.text) === "table of contents" || normText(p.text).startsWith("table of contents "));
+  if (tocAt < 0) return new Set();
+  const out = new Set();
+  const STOP = ["list of tables", "list of figures", "acknowledgements", "acknowledgments", "abstract", "references", "bibliography", "works cited", "literature cited", "table of contents"];
+  for (let i = tocAt + 1; i < paras.length; i++) {
+    const p = paras[i];
+    if (p.inTable) continue;
+    const n = normText(p.text);
+    if (!n) continue;
+    if (isHeadingPara(p)) break; /* entries are never heading-styled */
+    if (STOP.some((t) => n === t)) break;
+    const c = tocEntryCore(p.text);
+    if (c && (hNorms.has(c.core) || hNorms.has(c.core + c.num))) out.add(p.index);
+  }
+  return out;
+}
+/* Entries of a List of Tables / List of Figures: the paragraphs after its
+   heading, up to the next Heading 1 or part title. */
+function listEntryIndices(paras, listName) {
+  const at = paras.findIndex((p) => normText(p.text) === listName);
+  if (at < 0) return { at: -1, entries: [] };
+  const entries = [];
+  const STOP = ["list of tables", "list of figures", "acknowledgements", "acknowledgments", "abstract", "references", "bibliography", "works cited", "literature cited", "table of contents", "introduction", "chapter"];
+  for (let i = at + 1; i < paras.length; i++) {
+    const p = paras[i];
+    if (p.inTable) continue;
+    const n = normText(p.text);
+    if (!n) continue;
+    if (isHeadingPara(p)) break; /* entries are never heading-styled */
+    if (STOP.some((t) => n === t)) break;
+    entries.push({ index: p.index, text: n });
+  }
+  return { at, entries };
+}
+
 function runChecks(model, rules, docType) {
   const R = [];
   const paras = model.paragraphs;
   const bodyParas = paras.filter((p) => !p.inTable && !isHeadingPara(p) && p.text.trim().length > 0);
   const substantial = bodyParas.filter((p) => p.text.trim().length >= 20);
+
+  /* Spacing exceptions: block quotes, captions and table-of-contents
+     entries are single-spaced by design, so they are left out of the
+     line-spacing population instead of counting as violations. */
+  const headingsEarly = paras.filter(isHeadingPara);
+  const tocSet = tocEntryIndices(paras, headingsEarly);
+  const listSets = ["list of tables", "list of figures"].map((n) => listEntryIndices(paras, n).entries.map((e) => e.index));
+  const listSet = new Set(listSets.flat());
+  const quoteParas = substantial.filter(isBlockQuotePara);
+  const captionParas = substantial.filter((p) => captionMatch(p.text) && !listSet.has(p.index));
+  const spacingExcluded = new Set([...tocSet, ...listSet, ...quoteParas.map((p) => p.index), ...captionParas.map((p) => p.index)]);
+  const spacingParas = substantial.filter((p) => !spacingExcluded.has(p.index));
 
   const skippedSections = [];
   model.sections.forEach((s, i) => { if (!sectionHasText(model, i)) skippedSections.push(i + 1); });
@@ -137,19 +211,36 @@ function runChecks(model, rules, docType) {
 
   /* --- line spacing --- */
   const multPairs = [];
-  for (const p of substantial) {
+  for (const p of spacingParas) {
     const m = effectiveMultiple(p, rules.bodySizePt);
     if (m != null) multPairs.push({ value: Math.round(m * 20) / 20, weight: p.text.length });
   }
   const domMult = dominant(multPairs);
   const multOk = domMult.value != null && Math.abs(domMult.value - rules.lineSpacing) <= rules.lineSpacingTolerance;
+  const offenders = spacingParas.filter((p) => {
+    const m = effectiveMultiple(p, rules.bodySizePt);
+    return m != null && Math.abs(Math.round(m * 20) / 20 - rules.lineSpacing) > rules.lineSpacingTolerance;
+  });
   R.push({
     label: "Line spacing",
     status: domMult.value == null ? "warn" : multOk ? "pass" : "fail",
     expected: rules.lineSpacing.toFixed(1) + " (" + (rules.lineSpacing === 2 ? "double" : rules.lineSpacing === 1 ? "single" : "multiple") + ")",
-    found: domMult.value != null ? domMult.value.toFixed(2) + " for most body text" : "no spacing settings could be resolved",
+    found: domMult.value != null
+      ? domMult.value.toFixed(2) + " for most body text" +
+        (offenders.length ? "; " + offenders.length + " of " + spacingParas.length + " paragraphs differ: " +
+          offenders.slice(0, 5).map((p) => "¶" + p.index + " “" + firstWords(p.text, 5) + "”").join(", ") : "")
+      : "no spacing settings could be resolved",
     where: "Whole document", fix: FIX.lineSpacing
   });
+
+  if (spacingExcluded.size) {
+    R.push({
+      label: "Spacing exceptions", status: "info",
+      expected: "Block quotes, captions and table-of-contents entries are single-spaced by design",
+      found: quoteParas.length + " block-quote paragraph(s), " + captionParas.length + " caption(s), " + tocSet.size + " table-of-contents entr" + (tocSet.size === 1 ? "y" : "ies") + " and " + listSet.size + " list entr" + (listSet.size === 1 ? "y" : "ies") + " were left out of the spacing check",
+      where: "Whole document", fix: "—"
+    });
+  }
 
   /* --- heading styles --- */
   const headings = paras.filter(isHeadingPara);
@@ -347,7 +438,11 @@ function runChecks(model, rules, docType) {
   const searchable = paras.map((p) => ({ p, norm: p.text.trim().toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim() }));
   const findPart = (name) => {
     const aliases = aliasesFor(name);
-    return searchable.find((x) => aliases.some((a) => x.norm === a || x.norm.startsWith(a + " ")));
+    const match = (x) => aliases.some((a) => x.norm === a || x.norm.startsWith(a + " "));
+    /* A table-of-contents entry ("Bibliography … 42") must never count as
+       the part itself, and a real heading still beats a passing mention. */
+    const usable = (x) => match(x) && !tocSet.has(x.p.index);
+    return searchable.find((x) => usable(x) && isHeadingPara(x.p)) || searchable.find(usable);
   };
   for (const partName of docType.requiredParts) {
     if (/^title page$/i.test(partName)) {
@@ -396,7 +491,8 @@ function runChecks(model, rules, docType) {
   /* --- abstract word limit (when the profile sets one for this document type) --- */
   if (docType.abstractWordLimit) {
     const lim = docType.abstractWordLimit;
-    const absHit = searchable.find((x) => x.norm === "abstract" || x.norm.startsWith("abstract "));
+    const absHit = searchable.find((x) => (x.norm === "abstract" || x.norm.startsWith("abstract ")) && isHeadingPara(x.p))
+      || searchable.find((x) => x.norm === "abstract" || x.norm.startsWith("abstract "));
     if (!absHit) {
       R.push({
         label: "Abstract word count", status: "warn",
@@ -437,6 +533,236 @@ function runChecks(model, rules, docType) {
     }
   }
 
+  /* --- front-matter order --- */
+  {
+    const seq = [];
+    for (const name of docType.requiredParts) {
+      if (/^title page$/i.test(name)) continue;
+      seq.push(name);
+      if (/table of contents/i.test(name)) {
+        for (const cp of docType.conditionalParts || []) {
+          const has = cp.when === "tables" ? (model.tableCount || 0) > 0
+            : cp.when === "figures" ? (model.imageCount || 0) > 0 : false;
+          if (has) seq.push(cp.name);
+        }
+      }
+    }
+    const found = seq.map((name) => ({ name, hit: findPart(name) })).filter((x) => x.hit);
+    let outOfOrder = null;
+    for (let i = 1; i < found.length; i++) {
+      if (found[i].hit.p.index < found[i - 1].hit.p.index) { outOfOrder = [found[i - 1], found[i]]; break; }
+    }
+    R.push({
+      label: "Front-matter order",
+      status: found.length < 2 ? "info" : outOfOrder ? "fail" : "pass",
+      expected: "Front matter in order: " + seq.join(" → "),
+      found: found.length < 2
+        ? "fewer than two front-matter parts could be located, so the order could not be judged"
+        : outOfOrder
+          ? "“" + outOfOrder[1].name + "” (¶" + outOfOrder[1].hit.p.index + ") comes before “" + outOfOrder[0].name + "” (¶" + outOfOrder[0].hit.p.index + ")"
+          : "all located parts appear in order (" + found.map((x) => x.name).join(", ") + ")",
+      where: "Front matter", fix: FIX.frontMatterOrder
+    });
+  }
+
+  /* --- table of contents accuracy --- */
+  {
+    /* Only headings after the Table of Contents count: a contents list
+       never has to list the front-matter parts themselves (Copyright,
+       Abstract, the contents heading, …). */
+    const tocHit = findPart("Table of Contents");
+    const PART_NAMES = ["copyright", "acknowledgements", "acknowledgments", "abstract", "table of contents", "list of tables", "list of figures", "references", "bibliography", "works cited", "literature cited", "title page", "dedication", "vita", "preface"];
+    const hs = paras.filter(isHeadingPara).filter((p) => (headingLevel(p) === 1 || headingLevel(p) === 2) && p.text.trim().length > 0
+      && (!tocHit || p.index > tocHit.p.index)
+      && !PART_NAMES.some((n) => normText(p.text) === n || normText(p.text).startsWith(n + " ")));
+    if (tocHit) {
+      const entryParas = paras.filter((p) => tocSet.has(p.index));
+      const hNorms = new Set(hs.map((p) => normText(p.text)));
+      const entryCores = entryParas.map((p) => {
+        const c = tocEntryCore(p.text);
+        if (!c) return "";
+        if (hNorms.has(c.core)) return c.core;
+        if (hNorms.has(c.core + c.num)) return c.core + c.num;
+        return c.core;
+      });
+      const missing = hs.filter((p) => !entryCores.includes(normText(p.text)));
+      const stale = entryCores.filter((c) => c && !hNorms.has(c));
+      let status, found;
+      if (!hs.length) {
+        status = "warn";
+        found = "no Heading 1/2 styles found, so the entries could not be matched against the document's headings";
+      } else if (!entryParas.length) {
+        status = "warn";
+        found = "the Table of Contents heading is there but no entries could be read — the field may need updating in Word (right-click ▸ Update Field)";
+      } else if (missing.length || stale.length) {
+        status = "fail";
+        found = (missing.length ? missing.length + " heading(s) missing from the contents: " + missing.slice(0, 3).map((p) => "“" + firstWords(p.text, 5) + "”").join(", ") : "") +
+          (missing.length && stale.length ? "; " : "") +
+          (stale.length ? stale.length + " entr" + (stale.length === 1 ? "y" : "ies") + " with no matching heading: " + stale.slice(0, 3).map((c) => "“" + c + "”").join(", ") : "");
+      } else {
+        status = "pass";
+        found = "all " + hs.length + " Heading 1/2 titles appear in the contents, and every entry matches a heading";
+      }
+      R.push({ label: "Table of contents entries", status, expected: "Every Heading 1/2 title listed, nothing stale", found, where: "Table of Contents", fix: FIX.tocEntries });
+    }
+  }
+
+  /* --- list of tables / figures accuracy --- */
+  for (const [listName, kind] of [["List of Tables", "table"], ["List of Figures", "figure"]]) {
+    const hasFeature = kind === "table" ? (model.tableCount || 0) > 0 : (model.imageCount || 0) > 0;
+    if (!hasFeature) continue;
+    const listHit = findPart(listName);
+    if (!listHit) continue; /* a missing list is judged by the conditional-parts check */
+    const caps = paras.filter((p) => { const c = captionMatch(p.text); return c && c.kind === kind && !listSet.has(p.index); });
+    const { entries } = listEntryIndices(paras, listName.toLowerCase());
+    const capNums = caps.map((p) => captionMatch(p.text).num);
+    const entryNums = entries.map((e) => { const m = /^(table|figure)\s+(\d+)/.exec(e.text); return m ? parseInt(m[2], 10) : null; }).filter((n) => n != null);
+    const missing = capNums.filter((n) => !entryNums.includes(n));
+    const stale = entryNums.filter((n) => !capNums.includes(n));
+    let status, found;
+    if (!entries.length) {
+      status = "warn";
+      found = "the “" + listName + "” heading is there but no entries could be read — the field may need updating in Word (right-click ▸ Update Field)";
+    } else if (missing.length || stale.length) {
+      status = "fail";
+      found = (missing.length ? "caption(s) missing from the list: " + kind + " " + missing.slice(0, 5).join(", ") : "") +
+        (missing.length && stale.length ? "; " : "") +
+        (stale.length ? "list entr" + (stale.length === 1 ? "y" : "ies") + " with no matching caption: " + kind + " " + stale.slice(0, 5).join(", ") : "");
+    } else {
+      status = "pass";
+      found = "all " + capNums.length + " " + kind + " caption(s) listed, and every entry matches a caption";
+    }
+    R.push({ label: "List of " + kind + "s entries", status, expected: "Every " + kind + " caption listed, nothing stale", found, where: listName, fix: FIX.listEntries });
+  }
+
+  /* --- captions --- */
+  {
+    const caps = paras.filter((p) => captionMatch(p.text) && !listSet.has(p.index)).map((p) => ({ p, c: captionMatch(p.text) }));
+    const parts = [];
+    let status = "pass";
+    for (const kind of ["table", "figure"]) {
+      const count = kind === "table" ? (model.tableCount || 0) : (model.imageCount || 0);
+      if (!count) continue;
+      const list = caps.filter((x) => x.c.kind === kind);
+      const name = kind === "table" ? "Table" : "Figure";
+      if (!list.length) {
+        status = "fail";
+        parts.push(count + " " + kind + "(s) but no “" + name + " N” captions found");
+        continue;
+      }
+      const nums = list.map((x) => x.c.num);
+      const sequenced = nums.every((n, i) => n === i + 1);
+      const dupes = nums.filter((n, i) => nums.indexOf(n) !== i);
+      if (!sequenced || dupes.length) {
+        status = "fail";
+        parts.push(kind + " captions numbered " + nums.join(", ") + " — expected 1, 2, 3… in order");
+      } else {
+        parts.push(list.length + " " + kind + " caption(s), numbered 1–" + nums.length + " in order");
+      }
+    }
+    if (parts.length) {
+      R.push({ label: "Captions", status, expected: "Every table and figure has a numbered caption, in sequence", found: parts.join("; "), where: "Tables and figures", fix: FIX.captions });
+    }
+  }
+
+  /* --- fonts used (full audit, not just the dominant font) --- */
+  {
+    const others = [...domFont.totals.entries()].filter(([f]) => !rules.bodyFonts.some((b) => b.toLowerCase() === String(f).toLowerCase()));
+    const listed = others.filter(([, w]) => domFont.total && w / domFont.total >= 0.01)
+      .map(([f, w]) => f + " " + Math.round((w / domFont.total) * 100) + "%");
+    if (listed.length) {
+      const worst = Math.max(...others.map(([, w]) => domFont.total ? w / domFont.total : 0));
+      R.push({
+        label: "Fonts used",
+        status: worst >= 0.2 ? "fail" : "warn",
+        expected: "Body text in " + rules.bodyFonts.join(" or ") + " only",
+        found: "also uses " + listed.join(", ") + " (dominant: " + (domFont.value || "—") + " " + Math.round(domFont.share * 100) + "%)",
+        where: "Whole document", fix: FIX.fontsUsed
+      });
+    }
+  }
+
+  /* --- citations vs bibliography --- */
+  {
+    const bibHit = findPart("Bibliography") || findPart("References");
+    const bibStart = bibHit ? bibHit.p.index : null;
+    const STOPWORDS = new Set(["see", "cf", "e.g", "i.e", "etc", "word", "figure", "table", "chapter", "section", "appendix", "eq", "et"]);
+    const citeRe = /\(([^()]*)\)/g;
+    const nameYearRe = /([A-Z][A-Za-z'’\-\u00c0-\u024f]{1,30})(?:\s+(?:and|&)\s+([A-Z][A-Za-z'’\-\u00c0-\u024f]{1,30}))?(?:\s+et al\.?)?,?\s+((?:19|20)\d{2})[a-z]?/g;
+    const cites = new Map();
+    for (const p of paras) {
+      if (p.inTable || !p.text.trim()) continue;
+      if (bibStart != null && p.index >= bibStart) continue;
+      if (isHeadingPara(p)) continue;
+      let m;
+      citeRe.lastIndex = 0;
+      while ((m = citeRe.exec(p.text)) !== null) {
+        const inner = m[1];
+        let n;
+        nameYearRe.lastIndex = 0;
+        while ((n = nameYearRe.exec(inner)) !== null) {
+          for (const s of [n[1], n[2]]) {
+            if (!s) continue;
+            if (STOPWORDS.has(s.toLowerCase())) continue;
+            cites.set(s + "|" + n[3], "(¶" + p.index + " “" + firstWords(p.text, 6) + "”)");
+          }
+        }
+      }
+    }
+    if (bibHit && cites.size) {
+      const entries = [];
+      for (let i = bibHit.p.index; i < paras.length; i++) {
+        const p = paras[i];
+        if (p.inTable) continue;
+        const t = p.text.trim();
+        if (!t) continue;
+        if (isHeadingPara(p) && headingLevel(p) === 1) break;
+        if (/^(appendix|appendices)\b/i.test(t)) break;
+        const sur = /^[A-Za-z'’\-\u00c0-\u024f]+/.exec(t);
+        const yr = /\b((?:19|20)\d{2})[a-z]?\b/.exec(t);
+        entries.push({ index: p.index, text: t, surname: sur ? sur[0] : null, year: yr ? yr[1] : null, ind: p.ind });
+      }
+      const have = new Set(entries.filter((e) => e.surname && e.year).map((e) => e.surname + "|" + e.year));
+      const unmatchedCites = [...cites.keys()].filter((k) => !have.has(k));
+      const citedKeys = new Set(cites.keys());
+      const unmatchedRefs = entries.filter((e) => e.surname && e.year && !citedKeys.has(e.surname + "|" + e.year));
+      const problems = [];
+      if (unmatchedCites.length) problems.push(unmatchedCites.length + " citation(s) with no matching Bibliography entry: " + unmatchedCites.slice(0, 3).join(", "));
+      if (unmatchedRefs.length) problems.push(unmatchedRefs.length + " Bibliography entr" + (unmatchedRefs.length === 1 ? "y" : "ies") + " never cited in the text: " + unmatchedRefs.slice(0, 3).map((e) => e.surname + " " + e.year).join(", "));
+      R.push({ label: "Citation cross-check", status: problems.length ? "warn" : "pass", expected: "Every in-text citation has a Bibliography entry, and vice versa", found: problems.length ? problems.join("; ") : cites.size + " citation(s) checked against " + entries.length + " Bibliography entries — all match", where: "Body and Bibliography", fix: FIX.citations });
+      /* Entries without a readable surname are skipped, so disorder
+         always names two real entries. */
+      const orderedEntries = entries.filter((e) => e.surname);
+      let disorder = null;
+      for (let i = 1; i < orderedEntries.length; i++) {
+        if (orderedEntries[i].surname.toLowerCase() < orderedEntries[i - 1].surname.toLowerCase()) { disorder = [orderedEntries[i - 1], orderedEntries[i]]; break; }
+      }
+      R.push({ label: "Bibliography order", status: disorder ? "warn" : "pass", expected: "Bibliography entries in alphabetical order by first author's surname", found: disorder ? "“" + disorder[1].surname + "” (¶" + disorder[1].index + ") follows “" + disorder[0].surname + "” (¶" + disorder[0].index + ") — out of alphabetical order" : orderedEntries.length + " entries in alphabetical order", where: "Bibliography", fix: FIX.bibliographyOrder });
+      const hanging = entries.filter((e) => e.ind && ((e.ind.firstLine != null && e.ind.firstLine < 0) || (e.ind.hanging != null && e.ind.hanging > 0))).length;
+      R.push({ label: "Bibliography hanging indent", status: "info", expected: "—", found: hanging + " of " + entries.length + " entries use a hanging indent", where: "Bibliography", fix: "—" });
+    }
+  }
+
+  /* --- table width vs margins --- */
+  {
+    const tables = model.tables || [];
+    const textSecs = model.sections.filter((s, i) => sectionHasText(model, i));
+    const sec = textSecs[0] || model.sections[0];
+    if (tables.length && sec) {
+      const pw = twToIn(sec.pageWidthTw), ml = twToIn(sec.marginsTw.left), mr = twToIn(sec.marginsTw.right);
+      const avail = (pw != null && ml != null && mr != null) ? pw - ml - mr : null;
+      const over = tables.map((t, i) => ({ i: i + 1, w: t.widthIn })).filter((t) => t.w != null && avail != null && t.w > avail + 0.1);
+      const unknown = tables.filter((t) => t.widthIn == null).length;
+      if (avail == null) {
+        R.push({ label: "Table width", status: "warn", expected: "Tables fit inside the text width", found: "page size or margins are not stated, so table fit could not be verified", where: "Tables", fix: FIX.tableWidth });
+      } else if (over.length || unknown) {
+        R.push({ label: "Table width", status: over.length ? "fail" : "warn", expected: "Tables fit inside the text width (" + avail.toFixed(2) + " in)", found: (over.length ? over.slice(0, 3).map((t) => "table " + t.i + " is " + t.w.toFixed(2) + " in wide").join("; ") : "") + (unknown ? (over.length ? "; " : "") + unknown + " table(s) with no width information, so fit could not be verified" : ""), where: "Tables", fix: FIX.tableWidth });
+      } else {
+        R.push({ label: "Table width", status: "pass", expected: "Tables fit inside the text width (" + avail.toFixed(2) + " in)", found: tables.length + " table(s), all within the text width", where: "Tables", fix: FIX.tableWidth });
+      }
+    }
+  }
+
   /* --- tables (informational) --- */
   const tableParas = paras.filter((p) => p.inTable && p.text.trim().length > 0);
   if (tableParas.length) {
@@ -464,9 +790,12 @@ function runChecks(model, rules, docType) {
  * school would accept lands at 90+. */
 const SCORE_WEIGHTS = [
   [/^(Page size|Margins|Body font|Body font size|Line spacing|Page numbers|Page numbering format)$/, 3],
+  [/^Table width$/, 3],
   [/^(Heading styles|Heading font|Abstract word count)$/, 2],
   [/^Heading [1234] format$/, 2],
   [/^Required part:/, 2],
+  [/^(Front-matter order|Table of contents entries|List of tables entries|List of figures entries|Captions|Fonts used)$/, 2],
+  [/^(Citation cross-check|Bibliography order)$/, 1],
   [/^Possible unstyled headings$/, 1]
 ];
 function computeScore(results) {
@@ -476,20 +805,36 @@ function computeScore(results) {
     const cur = byLabel.get(r.label);
     if (cur === undefined || rank[r.status] < rank[cur]) byLabel.set(r.label, r.status);
   }
+  const weightOf = (label) => {
+    for (const [re, weight] of SCORE_WEIGHTS) if (re.test(label)) return weight;
+    return 0;
+  };
   let total = 0, earned = 0;
   for (const [label, status] of byLabel) {
     if (status === "info") continue;
-    let w = 0;
-    for (const [re, weight] of SCORE_WEIGHTS) if (re.test(label)) { w = weight; break; }
+    const w = weightOf(label);
     if (!w) continue;
     total += w;
     earned += w * (status === "pass" ? 1 : status === "warn" ? 0.5 : 0);
   }
   if (!total) return null;
-  const value = Math.round((earned / total) * 100);
+  /* Band caps — the trust fix: a document the school would reject must
+     never score "Excellent". Any failed core rule caps the band at Good;
+     a failed core rule plus a missing required part caps it at Needs work. */
+  let value = Math.round((earned / total) * 100);
+  let capped = false, capNote = "";
+  const coreFail = [...byLabel.entries()].some(([label, status]) => status === "fail" && weightOf(label) === 3);
+  const missingPart = [...byLabel.entries()].some(([label, status]) => status === "fail" && /^Required part:/.test(label));
+  if (coreFail && missingPart && value > 74) {
+    value = 74; capped = true;
+    capNote = "Score capped at 74 — a failed core rule plus a missing required part limit the band to “Needs work”.";
+  } else if (coreFail && value > 89) {
+    value = 89; capped = true;
+    capNote = "Score capped at 89 — a failed core formatting rule limits the band to “Good”.";
+  }
   const band = value >= 90 ? "Excellent — ready to submit"
     : value >= 75 ? "Good — minor fixes"
     : value >= 50 ? "Needs work"
     : "Major rework needed";
-  return { value, band };
+  return { value, band, capped, capNote };
 }
