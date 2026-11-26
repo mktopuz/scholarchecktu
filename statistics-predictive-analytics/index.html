@@ -967,7 +967,7 @@
         if (!L.pages) return 1;
         return L.pages.length + (L.game ? 1 : 0);
       }
-      var VIZHTML = {"bell": "\n<div class=\"viz-wrap\" data-viz=\"bell\" role=\"group\" aria-label=\"Interactive bell curve\">\n  <div class=\"viz-title\">Try it: move the mean and the spread</div>\n  <div class=\"viz-chart\" id=\"viz-bell-chart\"></div>\n  <div class=\"viz-controls\">\n    <label for=\"viz-bell-mean\">Mean <output id=\"viz-bell-mean-out\">70</output></label>\n    <input type=\"range\" id=\"viz-bell-mean\" min=\"60\" max=\"80\" step=\"1\" value=\"70\" aria-label=\"Mean of the bell curve\">\n    <label for=\"viz-bell-sd\">Standard deviation <output id=\"viz-bell-sd-out\">10</output></label>\n    <input type=\"range\" id=\"viz-bell-sd\" min=\"5\" max=\"20\" step=\"1\" value=\"10\" aria-label=\"Standard deviation of the bell curve\">\n  </div>\n  <div class=\"viz-readout\" id=\"viz-bell-readout\" aria-live=\"polite\"></div>\n  <p class=\"viz-cap\">The bell curve moves and stretches as you change the mean and the spread. Takeaway: the mean shifts the curve, the standard deviation controls its width, and about 68%, 95% and 99.7% of values sit within one, two and three standard deviations.</p>\n</div>", "boxplot": "\n<div class=\"viz-wrap\" data-viz=\"boxplot\" role=\"group\" aria-label=\"Box plot of the delivery times\">\n  <div class=\"viz-title\">The delivery times as a box plot</div>\n  <div class=\"viz-chart\" id=\"viz-boxplot-chart\"></div>\n  <p class=\"viz-cap\">The box holds the middle 50% of deliveries, from Q1 16 to Q3 24, with a line at the median 20; the dot at 52 sits past the 36-minute fence. Takeaway: the IQR stays 8 even if the slowest delivery jumps to 90 minutes, while the range would jump to 78.</p>\n</div>", "binomial": "\n<div class=\"viz-wrap\" data-viz=\"binomial\" role=\"group\" aria-label=\"Binomial bar chart for 10 flips\">\n  <div class=\"viz-title\">Try it: tilt the coin and watch the bars move</div>\n  <div class=\"viz-chart\" id=\"viz-binomial-chart\"></div>\n  <div class=\"viz-controls\">\n    <label for=\"viz-binomial-p\">Probability of heads on one flip <output id=\"viz-binomial-p-out\">0.50</output></label>\n    <input type=\"range\" id=\"viz-binomial-p\" min=\"0.1\" max=\"0.9\" step=\"0.05\" value=\"0.5\" aria-label=\"Probability of heads on one flip\">\n  </div>\n  <div class=\"viz-readout\" id=\"viz-binomial-readout\" aria-live=\"polite\"></div>\n  <p class=\"viz-cap\">Exactly 5 heads in 10 flips is the tallest bar when the coin is fair, at 24.6% \u2014 252 of the 1,024 possible sequences. Takeaway: the Binomial counts successes in n trials, and its whole shape follows p.</p>\n</div>", "bayes": "\n<div class=\"viz-wrap\" data-viz=\"bayes\" role=\"group\" aria-label=\"Prior, likelihood and posterior curves\">\n  <div class=\"viz-title\">Try it: change the prior, then watch the posterior move</div>\n  <div class=\"viz-chart\" id=\"viz-bayes-chart\"></div>\n  <div class=\"viz-controls\">\n    <label for=\"viz-bayes-mean\">Prior mean <output id=\"viz-bayes-mean-out\">10%</output></label>\n    <input type=\"range\" id=\"viz-bayes-mean\" min=\"5\" max=\"20\" step=\"1\" value=\"10\" aria-label=\"Prior mean conversion rate, in percent\">\n    <label for=\"viz-bayes-strength\">Prior strength <output id=\"viz-bayes-strength-out\">20 visits</output></label>\n    <input type=\"range\" id=\"viz-bayes-strength\" min=\"5\" max=\"100\" step=\"5\" value=\"20\" aria-label=\"Prior strength, in visits\">\n  </div>\n  <div class=\"viz-readout\" id=\"viz-bayes-readout\" aria-live=\"polite\"></div>\n  <p class=\"viz-cap\">The grey prior says conversion is near 10%; the data, 12 purchases in 100 visits, pull it to a posterior near 11.7%, with a 95% credible interval of about 6.6\u201318.0%. Takeaway: Bayes updates a belief with evidence \u2014 and the prior matters most when the data are few. Curves are scaled to the same height so their positions can be compared.</p>\n</div>", "scatter": "\n<div class=\"viz-wrap\" data-viz=\"scatter\" role=\"group\" aria-label=\"Interactive scatterplot\">\n  <div class=\"viz-title\">Try it: drag the correlation, then break it with a curve</div>\n  <div class=\"viz-chart\" id=\"viz-scatter-chart\"></div>\n  <div class=\"viz-controls\">\n    <label for=\"viz-scatter-r\">Target correlation <output id=\"viz-scatter-r-out\">0.80</output></label>\n    <input type=\"range\" id=\"viz-scatter-r\" min=\"-0.9\" max=\"0.9\" step=\"0.05\" value=\"0.8\" aria-label=\"Target correlation\">\n    <div class=\"viz-btnrow\">\n      <button class=\"viz-btn\" type=\"button\" id=\"viz-scatter-line\">Straight-line pattern</button>\n      <button class=\"viz-btn\" type=\"button\" id=\"viz-scatter-u\">U-shaped pattern</button>\n    </div>\n  </div>\n  <div class=\"viz-readout\" id=\"viz-scatter-readout\" aria-live=\"polite\"></div>\n  <p class=\"viz-cap\">Drag the slider and the cloud tightens into a line; switch to the U-shape and Pearson falls to about 0.00 even though the pattern is obvious. Takeaway: a correlation coefficient only sees straight-line movement \u2014 always look at the scatterplot. Points are illustrative, generated to show each pattern.</p>\n</div>", "pvalue": "\n<div class=\"viz-wrap\" data-viz=\"pvalue\" role=\"group\" aria-label=\"Null distribution with the p-value tails shaded\">\n  <div class=\"viz-title\">Where the p-value lives</div>\n  <div class=\"viz-chart\" id=\"viz-pvalue-chart\"></div>\n  <p class=\"viz-cap\">Under the null hypothesis of equal signup rates, a gap of 3 points or more happens only 3.5% of the time \u2014 that shaded rarity is the p-value, p &asymp; 0.035. Takeaway: p measures surprise under the null, not the probability that the rates are equal.</p>\n</div>", "zt": "\n<div class=\"viz-wrap\" data-viz=\"zt\" role=\"group\" aria-label=\"Z-test versus t-test curves\">\n  <div class=\"viz-title\">Try it: same gap, two tests</div>\n  <div class=\"viz-chart\" id=\"viz-zt-chart\"></div>\n  <div class=\"viz-controls\">\n    <div class=\"viz-btnrow\">\n      <button class=\"viz-btn\" type=\"button\" id=\"viz-zt-z\">Z-test (&sigma; known)</button>\n      <button class=\"viz-btn\" type=\"button\" id=\"viz-zt-t\">t-test (&sigma; estimated)</button>\n    </div>\n  </div>\n  <div class=\"viz-readout\" id=\"viz-zt-readout\" aria-live=\"polite\"></div>\n  <p class=\"viz-cap\">Same gap of 4 g, same statistic of 2.0 \u2014 but the t curve&rsquo;s heavier tails make the same evidence less surprising. Takeaway: estimate the spread from the sample and you must pay for the extra uncertainty with the t distribution.</p>\n</div>", "ols": "\n<div class=\"viz-wrap\" data-viz=\"ols\" role=\"group\" aria-label=\"Regression line with a study-hours slider\">\n  <div class=\"viz-title\">Try it: slide the study hours, watch the prediction</div>\n  <div class=\"viz-chart\" id=\"viz-ols-chart\"></div>\n  <div class=\"viz-controls\">\n    <label for=\"viz-ols-h\">Study hours <output id=\"viz-ols-h-out\">5</output></label>\n    <input type=\"range\" id=\"viz-ols-h\" min=\"0\" max=\"10\" step=\"0.5\" value=\"5\" aria-label=\"Study hours\">\n  </div>\n  <div class=\"viz-readout\" id=\"viz-ols-readout\" aria-live=\"polite\"></div>\n  <p class=\"viz-cap\">The line is the model&rsquo;s prediction, intercept 50 and slope 4.0; the gold dot is the one student named in the lesson, who scored 81 against a prediction of 70. Takeaway: each extra hour adds about 4 points, and R&sup2; = 0.671 says about 67% of the variation is explained.</p>\n</div>", "sigmoid": "\n<div class=\"viz-wrap\" data-viz=\"sigmoid\" role=\"group\" aria-label=\"Sigmoid curve with a decision threshold slider\">\n  <div class=\"viz-title\">Try it: move the threshold, change the verdict</div>\n  <div class=\"viz-chart\" id=\"viz-sigmoid-chart\"></div>\n  <div class=\"viz-controls\">\n    <label for=\"viz-sigmoid-t\">Decision threshold <output id=\"viz-sigmoid-t-out\">50%</output></label>\n    <input type=\"range\" id=\"viz-sigmoid-t\" min=\"0.1\" max=\"0.9\" step=\"0.05\" value=\"0.5\" aria-label=\"Decision threshold for labelling an email as spam\">\n  </div>\n  <div class=\"viz-readout\" id=\"viz-sigmoid-readout\" aria-live=\"polite\"></div>\n  <p class=\"viz-cap\">The sigmoid turns any score into a probability \u2014 a score of +1.390 becomes about 80% spam \u2014 and the threshold turns the probability into a decision. Takeaway: lowering the threshold catches more spam and flags more real mail too.</p>\n</div>", "mltrain": "\n<div class=\"viz-wrap\" data-viz=\"mltrain\" role=\"group\" aria-label=\"Bias-variance curves and a gradient descent stepper\">\n  <div class=\"viz-title\">Bias, variance, and the walk downhill</div>\n  <div class=\"viz-chart\" id=\"viz-biasvar-chart\"></div>\n  <p class=\"viz-cap\">Bias falls and variance rises as a model gets more complex, so total error is lowest in the middle. Takeaway: the best balance predicts new data best \u2014 find it with validation, never with training error alone.</p>\n  <div class=\"viz-chart\" id=\"viz-gd-chart\"></div>\n  <div class=\"viz-controls\">\n    <div class=\"viz-btnrow\">\n      <button class=\"viz-btn\" type=\"button\" id=\"viz-gd-step\">Take a gradient step</button>\n      <button class=\"viz-btn\" type=\"button\" id=\"viz-gd-reset\">Reset</button>\n    </div>\n  </div>\n  <div class=\"viz-readout\" id=\"viz-gd-readout\" aria-live=\"polite\"></div>\n  <p class=\"viz-cap\">Each step moves the slope downhill by learning rate &times; gradient, starting at slope 0 with gradient &minus;10 and rate 0.1, and the steps shrink as the slope nears 2. Takeaway: small rates crawl, large rates overshoot \u2014 the rate is the steering.</p>\n</div>", "did": "\n<div class=\"viz-wrap\" data-viz=\"did\" role=\"group\" aria-label=\"Difference-in-differences diagram\">\n  <div class=\"viz-title\">Two shops, one shared trend</div>\n  <div class=\"viz-chart\" id=\"viz-did-chart\"></div>\n  <p class=\"viz-cap\">Both coffee shops share the seasonal trend; only the treated shop gets the extra rise, and that extra rise is the effect. Takeaway: difference-in-differences subtracts the shared trend away. The diagram is a schematic of the coffee-shop example in the lesson, which has no numbers.</p>\n</div>", "rdd": "\n<div class=\"viz-wrap\" data-viz=\"rdd\" role=\"group\" aria-label=\"Regression discontinuity chart\">\n  <div class=\"viz-title\">The jump at the cutoff</div>\n  <div class=\"viz-chart\" id=\"viz-rdd-chart\"></div>\n  <p class=\"viz-cap\">Hotels at 4.49 and 4.51 are practically identical \u2014 except the badge. Takeaway: the jump at the 4.5 cutoff, from 40 to 52 bookings a week, is the badge&rsquo;s effect, about +12.</p>\n</div>", "forecast": "\n<div class=\"viz-wrap\" data-viz=\"forecast\" role=\"group\" aria-label=\"Forecast with a widening uncertainty band\">\n  <div class=\"viz-title\">Yesterday, tomorrow, and the day after</div>\n  <div class=\"viz-chart\" id=\"viz-forecast-chart\"></div>\n  <p class=\"viz-cap\">Yesterday was 20 &deg;C, so the model forecasts 21 &deg;C tomorrow \u2014 the actual came in at 22 &deg;C. Takeaway: each step feeds the last forecast back in, so the uncertainty band widens the further out you go.</p>\n</div>", "cafe": "\n<div class=\"viz-wrap\" data-viz=\"cafe\" role=\"group\" aria-label=\"Bar chart of Data Cafe drink sales\">\n  <div class=\"viz-title\">The Data Caf&eacute; bestseller, at a glance</div>\n  <div class=\"viz-chart\" id=\"viz-cafe-chart\"></div>\n  <p class=\"viz-cap\">Coffee is the bestseller at a glance \u2014 120 against Tea 60 and Smoothies 20. Takeaway: bars beat slices for comparing categories, because lengths are easier to judge than angles.</p>\n</div>", "metrictree": "\n<div class=\"viz-wrap\" data-viz=\"metrictree\" role=\"group\" aria-label=\"Metric tree for the Nike revenue drop\">\n  <div class=\"viz-title\">Walk the Nike tree, branch by branch</div>\n  <div class=\"viz-tree\">\n    <div class=\"viz-tnode viz-troot\">Revenue $3M &rarr; $2.4M &middot; &minus;20%</div>\n    <div class=\"viz-trow\">\n      <div class=\"viz-tnode ok\">Visitors 1M<br><span>held &#10003;</span></div>\n      <div class=\"viz-tx\">&times;</div>\n      <div class=\"viz-tnode bad\">Conversion 3.0% &rarr; 2.4%<br><span>moved &#10007;</span></div>\n      <div class=\"viz-tx\">&times;</div>\n      <div class=\"viz-tnode ok\">Average order value $100<br><span>held &#10003;</span></div>\n    </div>\n    <div class=\"viz-trow\">\n      <div class=\"viz-tnode ok\">Add-to-cart 10%<br><span>held &#10003;</span></div>\n      <div class=\"viz-tx\">&times;</div>\n      <div class=\"viz-tnode bad\">Checkout completion 30% &rarr; 24%<br><span>moved &#10007;</span></div>\n    </div>\n    <div class=\"viz-tnode viz-tcause\">Root cause: a new $10 shipping fee at checkout</div>\n  </div>\n  <p class=\"viz-cap\">Visitors and average order value held \u2014 only conversion moved, and inside conversion only checkout completion moved. Takeaway: define, decompose, compare, segment, test \u2014 the tree points at checkout, not traffic.</p>\n</div>"};
+      var VIZHTML = {"bell": "\n<div class=\"viz-wrap\" data-viz=\"bell\" role=\"group\" aria-label=\"Interactive bell curve\">\n  <div class=\"viz-title\">Try it: move the mean and the spread</div>\n  <div class=\"viz-chart\" id=\"viz-bell-chart\"></div>\n  <div class=\"viz-controls\">\n    <label for=\"viz-bell-mean\">Mean <output id=\"viz-bell-mean-out\">70</output></label>\n    <input type=\"range\" id=\"viz-bell-mean\" min=\"60\" max=\"80\" step=\"1\" value=\"70\" aria-label=\"Mean of the bell curve\">\n    <label for=\"viz-bell-sd\">Standard deviation <output id=\"viz-bell-sd-out\">10</output></label>\n    <input type=\"range\" id=\"viz-bell-sd\" min=\"5\" max=\"20\" step=\"1\" value=\"10\" aria-label=\"Standard deviation of the bell curve\">\n  </div>\n  <div class=\"viz-readout\" id=\"viz-bell-readout\" aria-live=\"polite\"></div>\n  <p class=\"viz-cap\">The bell curve moves and stretches as you change the mean and the spread. Takeaway: the mean shifts the curve, the standard deviation controls its width, and about 68%, 95% and 99.7% of values sit within one, two and three standard deviations.</p>\n</div>", "boxplot": "\n<div class=\"viz-wrap\" data-viz=\"boxplot\" role=\"group\" aria-label=\"Box plot of the delivery times\">\n  <div class=\"viz-title\">The delivery times as a box plot</div>\n  <div class=\"viz-chart\" id=\"viz-boxplot-chart\"></div>\n  <p class=\"viz-cap\">The box holds the middle 50% of deliveries, from Q1 16 to Q3 24, with a line at the median 20; the dot at 52 sits past the 36-minute fence. Takeaway: the IQR stays 8 even if the slowest delivery jumps to 90 minutes, while the range would jump to 78.</p>\n</div>", "binomial": "\n<div class=\"viz-wrap\" data-viz=\"binomial\" role=\"group\" aria-label=\"Binomial bar chart for 10 flips\">\n  <div class=\"viz-title\">Try it: tilt the coin and watch the bars move</div>\n  <div class=\"viz-chart\" id=\"viz-binomial-chart\"></div>\n  <div class=\"viz-controls\">\n    <label for=\"viz-binomial-p\">Probability of heads on one flip <output id=\"viz-binomial-p-out\">0.50</output></label>\n    <input type=\"range\" id=\"viz-binomial-p\" min=\"0.1\" max=\"0.9\" step=\"0.01\" value=\"0.5\" aria-label=\"Probability of heads on one flip\">\n  </div>\n  <div class=\"viz-readout\" id=\"viz-binomial-readout\" aria-live=\"polite\"></div>\n  <p class=\"viz-cap\">Exactly 5 heads in 10 flips is the tallest bar when the coin is fair, at 24.6% \u2014 252 of the 1,024 possible sequences. Takeaway: the Binomial counts successes in n trials, and its whole shape follows p.</p>\n</div>", "bayes": "\n<div class=\"viz-wrap\" data-viz=\"bayes\" role=\"group\" aria-label=\"Prior, likelihood and posterior curves\">\n  <div class=\"viz-title\">Try it: change the prior, then watch the posterior move</div>\n  <div class=\"viz-chart\" id=\"viz-bayes-chart\"></div>\n  <div class=\"viz-controls\">\n    <label for=\"viz-bayes-mean\">Prior mean <output id=\"viz-bayes-mean-out\">10%</output></label>\n    <input type=\"range\" id=\"viz-bayes-mean\" min=\"5\" max=\"20\" step=\"1\" value=\"10\" aria-label=\"Prior mean conversion rate, in percent\">\n    <label for=\"viz-bayes-strength\">Prior strength <output id=\"viz-bayes-strength-out\">20 visits</output></label>\n    <input type=\"range\" id=\"viz-bayes-strength\" min=\"5\" max=\"100\" step=\"5\" value=\"20\" aria-label=\"Prior strength, in visits\">\n  </div>\n  <div class=\"viz-readout\" id=\"viz-bayes-readout\" aria-live=\"polite\"></div>\n  <p class=\"viz-cap\">The grey prior is your belief before the data; the gold likelihood is what the data say on their own; the teal posterior is the updated belief after the two are combined. Takeaway: Bayes updates a belief with evidence \u2014 and the prior matters most when the data are few. The numbers above move live as you drag the sliders. Curves are scaled to the same height so their positions can be compared.</p>\n</div>", "scatter": "\n<div class=\"viz-wrap\" data-viz=\"scatter\" role=\"group\" aria-label=\"Interactive scatterplot\">\n  <div class=\"viz-title\">Try it: drag the correlation, then break it with a curve</div>\n  <div class=\"viz-chart\" id=\"viz-scatter-chart\"></div>\n  <div class=\"viz-controls\">\n    <label for=\"viz-scatter-r\">Target correlation <output id=\"viz-scatter-r-out\">0.80</output></label>\n    <input type=\"range\" id=\"viz-scatter-r\" min=\"-0.9\" max=\"0.9\" step=\"0.01\" value=\"0.8\" aria-label=\"Target correlation\">\n    <div class=\"viz-btnrow\">\n      <button class=\"viz-btn\" type=\"button\" id=\"viz-scatter-line\">Straight-line pattern</button>\n      <button class=\"viz-btn\" type=\"button\" id=\"viz-scatter-u\">U-shaped pattern</button>\n    </div>\n  </div>\n  <div class=\"viz-readout\" id=\"viz-scatter-readout\" aria-live=\"polite\"></div>\n  <p class=\"viz-cap\">Drag the slider and the cloud tightens into a line; switch to the U-shape and Pearson falls to about 0.00 even though the pattern is obvious. Takeaway: a correlation coefficient only sees straight-line movement \u2014 always look at the scatterplot. Points are illustrative, generated to show each pattern.</p>\n</div>", "pvalue": "\n<div class=\"viz-wrap\" data-viz=\"pvalue\" role=\"group\" aria-label=\"Null distribution with the p-value tails shaded\">\n  <div class=\"viz-title\">Where the p-value lives</div>\n  <div class=\"viz-chart\" id=\"viz-pvalue-chart\"></div>\n  <p class=\"viz-cap\">Under the null hypothesis of equal signup rates, a gap of 3 points or more happens only 3.5% of the time \u2014 that shaded rarity is the p-value, p &asymp; 0.035. Takeaway: p measures surprise under the null, not the probability that the rates are equal.</p>\n</div>", "zt": "\n<div class=\"viz-wrap\" data-viz=\"zt\" role=\"group\" aria-label=\"Z-test versus t-test curves\">\n  <div class=\"viz-title\">Try it: same gap, two tests</div>\n  <div class=\"viz-chart\" id=\"viz-zt-chart\"></div>\n  <div class=\"viz-controls\">\n    <div class=\"viz-btnrow\">\n      <button class=\"viz-btn\" type=\"button\" id=\"viz-zt-z\">Z-test (&sigma; known)</button>\n      <button class=\"viz-btn\" type=\"button\" id=\"viz-zt-t\">t-test (&sigma; estimated)</button>\n    </div>\n  </div>\n  <div class=\"viz-readout\" id=\"viz-zt-readout\" aria-live=\"polite\"></div>\n  <p class=\"viz-cap\">Same gap of 4 g, same statistic of 2.0 \u2014 but the t curve&rsquo;s heavier tails make the same evidence less surprising. Takeaway: estimate the spread from the sample and you must pay for the extra uncertainty with the t distribution.</p>\n</div>", "ols": "\n<div class=\"viz-wrap\" data-viz=\"ols\" role=\"group\" aria-label=\"Regression line with a study-hours slider\">\n  <div class=\"viz-title\">Try it: slide the study hours, watch the prediction</div>\n  <div class=\"viz-chart\" id=\"viz-ols-chart\"></div>\n  <div class=\"viz-controls\">\n    <label for=\"viz-ols-h\">Study hours <output id=\"viz-ols-h-out\">5</output></label>\n    <input type=\"range\" id=\"viz-ols-h\" min=\"0\" max=\"10\" step=\"0.5\" value=\"5\" aria-label=\"Study hours\">\n  </div>\n  <div class=\"viz-readout\" id=\"viz-ols-readout\" aria-live=\"polite\"></div>\n  <p class=\"viz-cap\">The line is the model&rsquo;s prediction, intercept 50 and slope 4.0; the gold dot is the one student named in the lesson, who scored 81 against a prediction of 70. Takeaway: each extra hour adds about 4 points, and R&sup2; = 0.671 says about 67% of the variation is explained.</p>\n</div>", "sigmoid": "\n<div class=\"viz-wrap\" data-viz=\"sigmoid\" role=\"group\" aria-label=\"Sigmoid curve with a decision threshold slider\">\n  <div class=\"viz-title\">Try it: move the threshold, change the verdict</div>\n  <div class=\"viz-chart\" id=\"viz-sigmoid-chart\"></div>\n  <div class=\"viz-controls\">\n    <label for=\"viz-sigmoid-t\">Decision threshold <output id=\"viz-sigmoid-t-out\">50%</output></label>\n    <input type=\"range\" id=\"viz-sigmoid-t\" min=\"0.1\" max=\"0.9\" step=\"0.01\" value=\"0.5\" aria-label=\"Decision threshold for labelling an email as spam\">\n  </div>\n  <div class=\"viz-readout\" id=\"viz-sigmoid-readout\" aria-live=\"polite\"></div>\n  <p class=\"viz-cap\">The sigmoid turns any score into a probability \u2014 a score of +1.390 becomes about 80% spam \u2014 and the threshold turns the probability into a decision. Takeaway: lowering the threshold catches more spam and flags more real mail too.</p>\n</div>", "mltrain": "\n<div class=\"viz-wrap\" data-viz=\"mltrain\" role=\"group\" aria-label=\"Bias-variance curves and a gradient descent stepper\">\n  <div class=\"viz-title\">Bias, variance, and the walk downhill</div>\n  <div class=\"viz-chart\" id=\"viz-biasvar-chart\"></div>\n  <p class=\"viz-cap\">Bias falls and variance rises as a model gets more complex, so total error is lowest in the middle. Takeaway: the best balance predicts new data best \u2014 find it with validation, never with training error alone.</p>\n  <div class=\"viz-chart\" id=\"viz-gd-chart\"></div>\n  <div class=\"viz-controls\">\n    <div class=\"viz-btnrow\">\n      <button class=\"viz-btn\" type=\"button\" id=\"viz-gd-step\">Take a gradient step</button>\n      <button class=\"viz-btn\" type=\"button\" id=\"viz-gd-reset\">Reset</button>\n    </div>\n  </div>\n  <div class=\"viz-readout\" id=\"viz-gd-readout\" aria-live=\"polite\"></div>\n  <p class=\"viz-cap\">Each step moves the slope downhill by learning rate &times; gradient, starting at slope 0 with gradient &minus;10 and rate 0.1, and the steps shrink as the slope nears 2. Takeaway: small rates crawl, large rates overshoot \u2014 the rate is the steering.</p>\n</div>", "did": "\n<div class=\"viz-wrap\" data-viz=\"did\" role=\"group\" aria-label=\"Difference-in-differences diagram\">\n  <div class=\"viz-title\">Two shops, one shared trend</div>\n  <div class=\"viz-chart\" id=\"viz-did-chart\"></div>\n  <p class=\"viz-cap\">Both coffee shops share the seasonal trend; only the treated shop gets the extra rise, and that extra rise is the effect. Takeaway: difference-in-differences subtracts the shared trend away. The diagram is a schematic of the coffee-shop example in the lesson, which has no numbers.</p>\n</div>", "rdd": "\n<div class=\"viz-wrap\" data-viz=\"rdd\" role=\"group\" aria-label=\"Regression discontinuity chart\">\n  <div class=\"viz-title\">The jump at the cutoff</div>\n  <div class=\"viz-chart\" id=\"viz-rdd-chart\"></div>\n  <p class=\"viz-cap\">Hotels at 4.49 and 4.51 are practically identical \u2014 except the badge. Takeaway: the jump at the 4.5 cutoff, from 40 to 52 bookings a week, is the badge&rsquo;s effect, about +12.</p>\n</div>", "forecast": "\n<div class=\"viz-wrap\" data-viz=\"forecast\" role=\"group\" aria-label=\"Forecast with a widening uncertainty band\">\n  <div class=\"viz-title\">Yesterday, tomorrow, and the day after</div>\n  <div class=\"viz-chart\" id=\"viz-forecast-chart\"></div>\n  <p class=\"viz-cap\">Yesterday was 20 &deg;C, so the model forecasts 21 &deg;C tomorrow \u2014 the actual came in at 22 &deg;C. Takeaway: each step feeds the last forecast back in, so the uncertainty band widens the further out you go.</p>\n</div>", "cafe": "\n<div class=\"viz-wrap\" data-viz=\"cafe\" role=\"group\" aria-label=\"Bar chart of Data Cafe drink sales\">\n  <div class=\"viz-title\">The Data Caf&eacute; bestseller, at a glance</div>\n  <div class=\"viz-chart\" id=\"viz-cafe-chart\"></div>\n  <p class=\"viz-cap\">Coffee is the bestseller at a glance \u2014 120 against Tea 60 and Smoothies 20. Takeaway: bars beat slices for comparing categories, because lengths are easier to judge than angles.</p>\n</div>", "metrictree": "\n<div class=\"viz-wrap\" data-viz=\"metrictree\" role=\"group\" aria-label=\"Metric tree for the Nike revenue drop\">\n  <div class=\"viz-title\">Walk the Nike tree, branch by branch</div>\n  <div class=\"viz-tree\">\n    <div class=\"viz-tnode viz-troot\">Revenue $3M &rarr; $2.4M &middot; &minus;20%</div>\n    <div class=\"viz-trow\">\n      <div class=\"viz-tnode ok\">Visitors 1M<br><span>held &#10003;</span></div>\n      <div class=\"viz-tx\">&times;</div>\n      <div class=\"viz-tnode bad\">Conversion 3.0% &rarr; 2.4%<br><span>moved &#10007;</span></div>\n      <div class=\"viz-tx\">&times;</div>\n      <div class=\"viz-tnode ok\">Average order value $100<br><span>held &#10003;</span></div>\n    </div>\n    <div class=\"viz-trow\">\n      <div class=\"viz-tnode ok\">Add-to-cart 10%<br><span>held &#10003;</span></div>\n      <div class=\"viz-tx\">&times;</div>\n      <div class=\"viz-tnode bad\">Checkout completion 30% &rarr; 24%<br><span>moved &#10007;</span></div>\n    </div>\n    <div class=\"viz-tnode viz-tcause\">Root cause: a new $10 shipping fee at checkout</div>\n  </div>\n  <p class=\"viz-cap\">Visitors and average order value held \u2014 only conversion moved, and inside conversion only checkout completion moved. Takeaway: define, decompose, compare, segment, test \u2014 the tree points at checkout, not traffic.</p>\n</div>"};
 
       /* ---------- Statistics Quest visuals: pure math (unit-tested) + drawing ---------- */
       function vizLnGamma(z){
@@ -1045,19 +1045,21 @@
       function vizInitBell(w){
         var chart = vizEl('viz-bell-chart');
         function draw(){
-          var mu = parseFloat(vizEl('viz-bell-mean').value);
-          var sd = parseFloat(vizEl('viz-bell-sd').value);
+          var mu = Math.round(parseFloat(vizEl('viz-bell-mean').value));
+          var sd = Math.round(parseFloat(vizEl('viz-bell-sd').value));
+          vizEl('viz-bell-mean').value = String(mu);
+          vizEl('viz-bell-sd').value = String(sd);
           vizSetText('viz-bell-mean-out', String(mu));
           vizSetText('viz-bell-sd-out', String(sd));
           var W = 560, H = 300, L = 44, R = 548, T = 24, B = 252;
           var d0 = mu - 3.5 * sd, d1 = mu + 3.5 * sd, peak = vizNormPDF(mu, mu, sd);
           var xs = [], ys = [], i, x;
-          for (i = 0; i <= 120; i++){ x = d0 + (d1 - d0) * i / 120; xs.push(vizX(x, d0, d1, L, R)); ys.push(vizY(vizNormPDF(x, mu, sd), 0, peak, B, T)); }
+          for (i = 0; i <= 120; i++){ x = d0 + (d1 - d0) * i / 120; xs.push(vizX(x, d0, d1, L, R)); ys.push(vizY(vizNormPDF(x, mu, sd), 0, peak, T, B)); }
           var inner = '';
           var bands = [[3, '0.05'], [2, '0.10'], [1, '0.18']];
           for (var b = 0; b < bands.length; b++){
             var k = bands[b][0], a = [], yy = [];
-            for (i = 0; i <= 60; i++){ x = mu - k * sd + (2 * k * sd) * i / 60; a.push(vizX(x, d0, d1, L, R)); yy.push(vizY(vizNormPDF(x, mu, sd), 0, peak, B, T)); }
+            for (i = 0; i <= 60; i++){ x = mu - k * sd + (2 * k * sd) * i / 60; a.push(vizX(x, d0, d1, L, R)); yy.push(vizY(vizNormPDF(x, mu, sd), 0, peak, T, B)); }
             inner += '<path d="' + vizAreaPath(a, yy, B) + '" fill="#0d9488" fill-opacity="' + bands[b][1] + '"/>';
           }
           inner += '<path d="' + vizLinePath(xs.map(function(px, j){ return [px, ys[j]]; })) + '" fill="none" stroke="#0d9488" stroke-width="2.5"/>';
@@ -1092,9 +1094,9 @@
         inner += '<rect x="' + X(16) + '" y="' + T + '" width="' + (X(24) - X(16)) + '" height="' + (B - T) + '" fill="#0d9488" fill-opacity="0.25" stroke="#0d9488" stroke-width="2"/>';
         inner += '<line x1="' + X(20) + '" y1="' + T + '" x2="' + X(20) + '" y2="' + B + '" stroke="#0d9488" stroke-width="3"/>';
         inner += '<circle cx="' + X(52) + '" cy="' + y + '" r="6" fill="#cf3f3f"/>';
-        inner += vizTickLabel(X(16), T - 10, 'Q1 16');
+        inner += vizTickLabel(X(16), T - 34, 'Q1 16');
         inner += vizTickLabel(X(20), T - 10, 'median 20');
-        inner += vizTickLabel(X(24), T - 10, 'Q3 24');
+        inner += vizTickLabel(X(24), T - 34, 'Q3 24');
         inner += vizTickLabel(X(36), B + 34, 'upper fence 36');
         inner += vizTickLabel(X(52), y - 18, '52: outlier');
         inner += vizTickLabel((L + R) / 2, 210, 'delivery time, minutes');
@@ -1104,7 +1106,8 @@
       function vizInitBinomial(w){
         var chart = vizEl('viz-binomial-chart');
         function draw(){
-          var p = parseFloat(vizEl('viz-binomial-p').value);
+          var p = Math.round(parseFloat(vizEl('viz-binomial-p').value) * 100) / 100;
+          vizEl('viz-binomial-p').value = p.toFixed(2);
           vizSetText('viz-binomial-p-out', p.toFixed(2));
           var W = 560, H = 300, L = 44, R = 548, T = 24, B = 252;
           var vals = [], max = 0, k;
@@ -1129,8 +1132,10 @@
       function vizInitBayes(w){
         var chart = vizEl('viz-bayes-chart');
         function draw(){
-          var m = parseFloat(vizEl('viz-bayes-mean').value) / 100;
-          var s = parseFloat(vizEl('viz-bayes-strength').value);
+          var m = Math.round(parseFloat(vizEl('viz-bayes-mean').value)) / 100;
+          var s = Math.round(parseFloat(vizEl('viz-bayes-strength').value));
+          vizEl('viz-bayes-mean').value = String(Math.round(m * 100));
+          vizEl('viz-bayes-strength').value = String(s);
           vizSetText('viz-bayes-mean-out', Math.round(m * 100) + '%');
           vizSetText('viz-bayes-strength-out', s + ' visits');
           var a = m * s, b = (1 - m) * s;
@@ -1141,7 +1146,7 @@
             var xs = [], ys = [], mx = 0, i, x, v;
             for (i = 0; i <= n; i++){ x = d0 + (d1 - d0) * i / n; v = fn(x); xs.push(x); ys.push(v); if (v > mx) mx = v; }
             var pts = [];
-            for (i = 0; i <= n; i++) pts.push([vizX(xs[i], d0, d1, L, R), vizY(ys[i] / (mx || 1), 0, 1, B, T)]);
+            for (i = 0; i <= n; i++) pts.push([vizX(xs[i], d0, d1, L, R), vizY(ys[i] / (mx || 1), 0, 1, T, B)]);
             return pts;
           }
           var prior = curve(function(x){ return vizBetaPDF(x, a, b); }, 120);
@@ -1195,7 +1200,8 @@
           return { xs: xs, ys: ys, x0: -2.8, x1: 2.8, y0: -0.5, y1: 5 };
         }
         function draw(){
-          var r = parseFloat(slider.value);
+          var r = Math.round(parseFloat(slider.value) * 100) / 100;
+          slider.value = r.toFixed(2);
           vizSetText('viz-scatter-r-out', r.toFixed(2));
           var d = gen();
           var W = 560, H = 320, L = 44, R = 548, T = 24, B = 272;
@@ -1204,12 +1210,12 @@
             var curve = [];
             for (var i = 0; i <= 40; i++){
               var cx = -2 + 4 * i / 40;
-              curve.push([vizX(cx, d.x0, d.x1, L, R), vizY(0.55 * cx * cx, d.y0, d.y1, B, T)]);
+              curve.push([vizX(cx, d.x0, d.x1, L, R), vizY(0.55 * cx * cx, d.y0, d.y1, T, B)]);
             }
             inner += '<path d="' + vizLinePath(curve) + '" fill="none" stroke="#b8860b" stroke-width="2" stroke-dasharray="5 4"/>';
           }
           for (var j = 0; j < d.xs.length; j++){
-            inner += '<circle cx="' + vizNum(vizX(d.xs[j], d.x0, d.x1, L, R), 1) + '" cy="' + vizNum(vizY(d.ys[j], d.y0, d.y1, B, T), 1) + '" r="3.5" fill="#0d9488"/>';
+            inner += '<circle cx="' + vizNum(vizX(d.xs[j], d.x0, d.x1, L, R), 1) + '" cy="' + vizNum(vizY(d.ys[j], d.y0, d.y1, T, B), 1) + '" r="3.5" fill="#0d9488"/>';
           }
           inner += vizTickLabel((L + R) / 2, 308, mode === 'u' ? 'X (the pattern is a curve)' : 'X');
           chart.innerHTML = vizSvg(W, H, inner, mode === 'u' ? 'U-shaped scatterplot' : 'Scatterplot with correlation ' + r.toFixed(2));
@@ -1230,12 +1236,12 @@
         var W = 560, H = 300, L = 44, R = 548, T = 24, B = 252;
         var mu = 0, sd = 1.423, d0 = -5, d1 = 5, peak = vizNormPDF(0, 0, sd);
         var xs = [], ys = [], i, x;
-        for (i = 0; i <= 120; i++){ x = d0 + (d1 - d0) * i / 120; xs.push(vizX(x, d0, d1, L, R)); ys.push(vizY(vizNormPDF(x, mu, sd), 0, peak, B, T)); }
+        for (i = 0; i <= 120; i++){ x = d0 + (d1 - d0) * i / 120; xs.push(vizX(x, d0, d1, L, R)); ys.push(vizY(vizNormPDF(x, mu, sd), 0, peak, T, B)); }
         var inner = '';
         var tails = [[-5, -3], [3, 5]];
         for (var t = 0; t < tails.length; t++){
           var ax = [], ay = [];
-          for (i = 0; i <= 40; i++){ x = tails[t][0] + (tails[t][1] - tails[t][0]) * i / 40; ax.push(vizX(x, d0, d1, L, R)); ay.push(vizY(vizNormPDF(x, mu, sd), 0, peak, B, T)); }
+          for (i = 0; i <= 40; i++){ x = tails[t][0] + (tails[t][1] - tails[t][0]) * i / 40; ax.push(vizX(x, d0, d1, L, R)); ay.push(vizY(vizNormPDF(x, mu, sd), 0, peak, T, B)); }
           inner += '<path d="' + vizAreaPath(ax, ay, B) + '" fill="#cf3f3f" fill-opacity="0.30"/>';
         }
         inner += '<path d="' + vizLinePath(xs.map(function(px, j){ return [px, ys[j]]; })) + '" fill="none" stroke="#1f3a5f" stroke-width="2.5"/>';
@@ -1259,7 +1265,7 @@
             var pts = [];
             for (var i = 0; i <= 120; i++){
               var x = d0 + (d1 - d0) * i / 120;
-              pts.push([vizX(x, d0, d1, L, R), vizY(fn(x), 0, peak, B, T)]);
+              pts.push([vizX(x, d0, d1, L, R), vizY(fn(x), 0, peak, T, B)]);
             }
             return pts;
           }
@@ -1273,7 +1279,7 @@
             var ax = [], ay = [];
             for (var i = 0; i <= 40; i++){
               var x = tails[t][0] + (tails[t][1] - tails[t][0]) * i / 40;
-              ax.push(vizX(x, d0, d1, L, R)); ay.push(vizY(fn(x), 0, peak, B, T));
+              ax.push(vizX(x, d0, d1, L, R)); ay.push(vizY(fn(x), 0, peak, T, B));
             }
             inner += '<path d="' + vizAreaPath(ax, ay, B) + '" fill="' + (mode === 'z' ? '#0d9488' : '#b8860b') + '" fill-opacity="0.25"/>';
           }
@@ -1301,25 +1307,26 @@
       function vizInitOls(w){
         var chart = vizEl('viz-ols-chart');
         function draw(){
-          var h = parseFloat(vizEl('viz-ols-h').value);
+          var h = Math.round(parseFloat(vizEl('viz-ols-h').value) * 10) / 10;
+          vizEl('viz-ols-h').value = String(h);
           vizSetText('viz-ols-h-out', String(h));
           var W = 560, H = 320, L = 48, R = 548, T = 24, B = 272;
           var inner = vizAxis(L, B, R, B) + vizAxis(L, T, L, B);
-          var line = [[vizX(0, 0, 10, L, R), vizY(50, 40, 100, B, T)], [vizX(10, 0, 10, L, R), vizY(90, 40, 100, B, T)]];
+          var line = [[vizX(0, 0, 10, L, R), vizY(50, 40, 100, T, B)], [vizX(10, 0, 10, L, R), vizY(90, 40, 100, T, B)]];
           inner += '<line x1="' + line[0][0] + '" y1="' + line[0][1] + '" x2="' + line[1][0] + '" y2="' + line[1][1] + '" stroke="#0d9488" stroke-width="2.5"/>';
-          inner += '<line x1="' + vizX(5, 0, 10, L, R) + '" y1="' + vizY(81, 40, 100, B, T) + '" x2="' + vizX(5, 0, 10, L, R) + '" y2="' + vizY(70, 40, 100, B, T) + '" stroke="#cf3f3f" stroke-width="2" stroke-dasharray="4 3"/>';
-          inner += '<circle cx="' + vizX(5, 0, 10, L, R) + '" cy="' + vizY(81, 40, 100, B, T) + '" r="6" fill="#b8860b" stroke="#fff" stroke-width="1.5"/>';
-          inner += vizTickLabel(vizX(5, 0, 10, L, R) + 10, vizY(81, 40, 100, B, T) - 8, 'actual 81', 'start');
-          inner += '<circle cx="' + vizX(5, 0, 10, L, R) + '" cy="' + vizY(70, 40, 100, B, T) + '" r="5" fill="#0d9488"/>';
-          inner += vizTickLabel(vizX(5, 0, 10, L, R) + 10, vizY(70, 40, 100, B, T) + 16, 'predicted 70', 'start');
-          var px = vizX(h, 0, 10, L, R), py = vizY(vizOLS(h), 40, 100, B, T);
+          inner += '<line x1="' + vizX(5, 0, 10, L, R) + '" y1="' + vizY(81, 40, 100, T, B) + '" x2="' + vizX(5, 0, 10, L, R) + '" y2="' + vizY(70, 40, 100, T, B) + '" stroke="#cf3f3f" stroke-width="2" stroke-dasharray="4 3"/>';
+          inner += '<circle cx="' + vizX(5, 0, 10, L, R) + '" cy="' + vizY(81, 40, 100, T, B) + '" r="6" fill="#b8860b" stroke="#fff" stroke-width="1.5"/>';
+          inner += vizTickLabel(vizX(5, 0, 10, L, R) + 10, vizY(81, 40, 100, T, B) - 8, 'actual 81', 'start');
+          inner += '<circle cx="' + vizX(5, 0, 10, L, R) + '" cy="' + vizY(70, 40, 100, T, B) + '" r="5" fill="#0d9488"/>';
+          inner += vizTickLabel(vizX(5, 0, 10, L, R) + 10, vizY(70, 40, 100, T, B) + 16, 'predicted 70', 'start');
+          var px = vizX(h, 0, 10, L, R), py = vizY(vizOLS(h), 40, 100, T, B);
           inner += '<circle cx="' + px + '" cy="' + py + '" r="7" fill="none" stroke="#1f3a5f" stroke-width="2.5"/>';
           inner += '<line x1="' + px + '" y1="' + py + '" x2="' + px + '" y2="' + B + '" stroke="#1f3a5f" stroke-width="1" stroke-dasharray="3 3"/>';
           var ticks = [0, 2, 4, 6, 8, 10];
           for (var i = 0; i < ticks.length; i++) inner += vizTickLabel(vizX(ticks[i], 0, 10, L, R), B + 18, String(ticks[i]));
           inner += vizTickLabel((L + R) / 2, 312, 'study hours');
           var yticks = [40, 60, 80, 100];
-          for (var j = 0; j < yticks.length; j++) inner += vizTickLabel(L - 8, vizY(yticks[j], 40, 100, B, T) + 4, String(yticks[j]), 'end');
+          for (var j = 0; j < yticks.length; j++) inner += vizTickLabel(L - 8, vizY(yticks[j], 40, 100, T, B) + 4, String(yticks[j]), 'end');
           chart.innerHTML = vizSvg(W, H, inner, 'Regression line, intercept 50, slope 4.0, with the student who scored 81');
           var extra = h === 5 ? ' Actual 81, residual +11.' : '';
           vizSetText('viz-ols-readout', 'At ' + h + ' hours: predicted score ' + vizOLS(h) + '.' + extra + ' R² = 0.671.');
@@ -1331,25 +1338,26 @@
       function vizInitSigmoid(w){
         var chart = vizEl('viz-sigmoid-chart');
         function draw(){
-          var t = parseFloat(vizEl('viz-sigmoid-t').value);
+          var t = Math.round(parseFloat(vizEl('viz-sigmoid-t').value) * 100) / 100;
+          vizEl('viz-sigmoid-t').value = t.toFixed(2);
           vizSetText('viz-sigmoid-t-out', Math.round(t * 100) + '%');
           var W = 560, H = 300, L = 48, R = 548, T = 24, B = 252;
           var pts = [];
           for (var i = 0; i <= 120; i++){
             var x = -6 + 12 * i / 120;
-            pts.push([vizX(x, -6, 6, L, R), vizY(vizSigmoid(x), 0, 1, B, T)]);
+            pts.push([vizX(x, -6, 6, L, R), vizY(vizSigmoid(x), 0, 1, T, B)]);
           }
           var inner = vizAxis(L, B, R, B) + vizAxis(L, T, L, B);
-          inner += '<line x1="' + L + '" y1="' + vizY(t, 0, 1, B, T) + '" x2="' + R + '" y2="' + vizY(t, 0, 1, B, T) + '" stroke="#b8860b" stroke-width="2" stroke-dasharray="6 4"/>';
-          inner += vizTickLabel(R - 4, vizY(t, 0, 1, B, T) - 8, 'threshold ' + Math.round(t * 100) + '%', 'end');
+          inner += '<line x1="' + L + '" y1="' + vizY(t, 0, 1, T, B) + '" x2="' + R + '" y2="' + vizY(t, 0, 1, T, B) + '" stroke="#b8860b" stroke-width="2" stroke-dasharray="6 4"/>';
+          inner += vizTickLabel(R - 4, vizY(t, 0, 1, T, B) - 8, 'threshold ' + Math.round(t * 100) + '%', 'end');
           inner += '<path d="' + vizLinePath(pts) + '" fill="none" stroke="#0d9488" stroke-width="2.5"/>';
-          inner += '<circle cx="' + vizX(1.39, -6, 6, L, R) + '" cy="' + vizY(0.80, 0, 1, B, T) + '" r="6" fill="#b8860b" stroke="#fff" stroke-width="1.5"/>';
-          inner += vizTickLabel(vizX(1.39, -6, 6, L, R) + 8, vizY(0.80, 0, 1, B, T) - 10, 'score +1.390 → 80%', 'start');
+          inner += '<circle cx="' + vizX(1.39, -6, 6, L, R) + '" cy="' + vizY(0.80, 0, 1, T, B) + '" r="6" fill="#b8860b" stroke="#fff" stroke-width="1.5"/>';
+          inner += vizTickLabel(vizX(1.39, -6, 6, L, R) + 8, vizY(0.80, 0, 1, T, B) - 10, 'score +1.390 → 80%', 'start');
           var ticks = [-6, -3, 0, 3, 6];
           for (var j = 0; j < ticks.length; j++) inner += vizTickLabel(vizX(ticks[j], -6, 6, L, R), B + 18, String(ticks[j]));
           inner += vizTickLabel((L + R) / 2, 292, 'spam score');
           var yt = [0, 0.5, 1];
-          for (var k = 0; k < yt.length; k++) inner += vizTickLabel(L - 8, vizY(yt[k], 0, 1, B, T) + 4, Math.round(yt[k] * 100) + '%', 'end');
+          for (var k = 0; k < yt.length; k++) inner += vizTickLabel(L - 8, vizY(yt[k], 0, 1, T, B) + 4, Math.round(yt[k] * 100) + '%', 'end');
           chart.innerHTML = vizSvg(W, H, inner, 'Sigmoid curve turning a spam score into a probability');
           vizSetText('viz-sigmoid-readout', 'Score +1.390 → 80% spam. At a ' + Math.round(t * 100) + '% threshold this email is labelled ' + (0.80 >= t ? 'SPAM.' : 'NOT SPAM.'));
         }
@@ -1365,7 +1373,7 @@
           var pts = [];
           for (var i = 0; i <= 100; i++){
             var x = 10 * i / 100;
-            pts.push([vizX(x, 0, 10, L, R), vizY(fn(x), 0, 10, B, T)]);
+            pts.push([vizX(x, 0, 10, L, R), vizY(fn(x), 0, 10, T, B)]);
           }
           return pts;
         }
@@ -1389,11 +1397,11 @@
           var pts = [];
           for (var i = 0; i <= 60; i++){
             var x = 3 * i / 60;
-            pts.push([vizX(x, 0, 3, L2, R2), vizY(2.5 * (x - 2) * (x - 2), 0, 10, B2, T2)]);
+            pts.push([vizX(x, 0, 3, L2, R2), vizY(2.5 * (x - 2) * (x - 2), 0, 10, T2, B2)]);
           }
           var g = vizAxis(L2, B2, R2, B2) + vizAxis(L2, T2, L2, B2);
           g += '<path d="' + vizLinePath(pts) + '" fill="none" stroke="#0d9488" stroke-width="2.5"/>';
-          g += '<circle cx="' + vizX(slope, 0, 3, L2, R2) + '" cy="' + vizY(mse, 0, 10, B2, T2) + '" r="7" fill="#b8860b" stroke="#fff" stroke-width="1.5"/>';
+          g += '<circle cx="' + vizX(slope, 0, 3, L2, R2) + '" cy="' + vizY(mse, 0, 10, T2, B2) + '" r="7" fill="#b8860b" stroke="#fff" stroke-width="1.5"/>';
           g += vizTickLabel(vizX(2, 0, 3, L2, R2), B2 + 18, 'best slope 2');
           g += vizTickLabel((L2 + R2) / 2, 204, 'slope');
           vizEl('viz-gd-chart').innerHTML = vizSvg(W2, H2, g, 'Mean squared error falling as the slope approaches 2');
@@ -1435,7 +1443,7 @@
       function vizInitRdd(w){
         var W = 560, H = 300, L = 48, R = 548, T = 24, B = 252;
         function X(v){ return vizX(v, 4.0, 5.0, L, R); }
-        function Y(v){ return vizY(v, 30, 60, B, T); }
+        function Y(v){ return vizY(v, 30, 60, T, B); }
         var inner = vizAxis(L, B, R, B) + vizAxis(L, T, L, B);
         inner += '<line x1="' + X(4.5) + '" y1="' + T + '" x2="' + X(4.5) + '" y2="' + B + '" stroke="#cf3f3f" stroke-width="2" stroke-dasharray="5 4"/>';
         inner += vizTickLabel(X(4.5), T - 8, 'cutoff 4.5');
@@ -1461,7 +1469,7 @@
       function vizInitForecast(w){
         var W = 560, H = 300, L = 48, R = 548, T = 24, B = 252;
         function X(d){ return vizX(d, 0, 3, L, R); }
-        function Y(t){ return vizY(t, 16, 26, B, T); }
+        function Y(t){ return vizY(t, 16, 26, T, B); }
         var band = 'M' + vizPt(X(0), Y(20)) + ' L' + vizPt(X(1), Y(22)) + ' L' + vizPt(X(2), Y(23.8)) + ' L' + vizPt(X(3), Y(25.4)) + ' L' + vizPt(X(3), Y(19.4)) + ' L' + vizPt(X(2), Y(19.8)) + ' L' + vizPt(X(1), Y(20)) + ' L' + vizPt(X(0), Y(20)) + ' Z';
         var inner = vizAxis(L, B, R, B) + vizAxis(L, T, L, B);
         inner += '<path d="' + band + '" fill="#0d9488" fill-opacity="0.15"/>';
