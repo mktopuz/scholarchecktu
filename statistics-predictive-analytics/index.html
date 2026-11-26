@@ -1,0 +1,1140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Statistics & Predictive Analytics — The Statistics Quest</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Public+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <style>
+      :root{
+        --bg:#f5efe1;
+        --bg-soft:#efe6d0;
+        --surface:#fffdf6;
+        --surface-2:#fdf6e3;
+        --ink:#1c2340;
+        --muted:#5b6378;
+        --line:#ddd2b8;
+        --navy:#1a2150;
+        --navy-deep:#12173c;
+        --gold:#d98e04;
+        --gold-bright:#f2b33d;
+        --gold-soft:#fbeecd;
+        --teal:#0d9488;
+        --teal-soft:#d7f2ec;
+        --red:#cf3f3f;
+        --red-soft:#fbe3e1;
+        --green:#1d9e62;
+        --green-soft:#dcf4e5;
+        --shadow:0 10px 30px rgba(28,35,64,.10);
+        --radius:18px;
+      }
+      @media (prefers-color-scheme: dark){
+        :root{
+          --bg:#0e1230;
+          --bg-soft:#12173c;
+          --surface:#181f4a;
+          --surface-2:#1d2657;
+          --ink:#f4edd9;
+          --muted:#a9b0cc;
+          --line:#2e3768;
+          --navy:#232c66;
+          --navy-deep:#0e1230;
+          --gold:#f2b33d;
+          --gold-bright:#ffc95e;
+          --gold-soft:#33305e;
+          --teal:#2dd4bf;
+          --teal-soft:#173f42;
+          --red:#f08080;
+          --red-soft:#4a2438;
+          --green:#4ade80;
+          --green-soft:#1d4038;
+          --shadow:0 10px 30px rgba(0,0,0,.35);
+        }
+      }
+      *{box-sizing:border-box}
+      html{scroll-behavior:smooth}
+      body{
+        margin:0;background:var(--bg);color:var(--ink);
+        font-family:"Public Sans",system-ui,sans-serif;
+        font-size:16.5px;line-height:1.6;
+        -webkit-font-smoothing:antialiased;
+      }
+      h1,h2,h3,.display{font-family:"Bricolage Grotesque","Public Sans",sans-serif;line-height:1.12;margin:0}
+      .mono{font-family:"Space Mono",monospace}
+      .wrap{max-width:1140px;margin:0 auto;padding:0 20px}
+      a{color:var(--teal)}
+      button{font:inherit;cursor:pointer}
+      :focus-visible{outline:3px solid var(--gold-bright);outline-offset:2px;border-radius:6px}
+
+      /* ---------- HUD ---------- */
+      .hud{
+        position:sticky;top:0;z-index:50;
+        background:color-mix(in srgb, var(--bg) 88%, transparent);
+        backdrop-filter:blur(10px);
+        border-bottom:2px solid var(--line);
+      }
+      .hud-inner{display:flex;align-items:center;gap:14px;padding:10px 0;flex-wrap:wrap}
+      .hud-brand{display:flex;align-items:center;gap:10px;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.02rem;letter-spacing:.01em}
+      .hud-brand .crest{
+        width:34px;height:34px;border-radius:10px;background:var(--navy);color:var(--gold-bright);
+        display:grid;place-items:center;flex:none;
+      }
+      .hud-brand small{display:block;font-family:"Space Mono",monospace;font-weight:400;font-size:.62rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+      .hud-stats{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+      .chip{
+        display:inline-flex;align-items:center;gap:7px;
+        background:var(--surface);border:2px solid var(--line);border-radius:999px;
+        padding:5px 13px;font-family:"Space Mono",monospace;font-size:.82rem;font-weight:700;
+      }
+      .chip svg{flex:none}
+      .chip.xp{border-color:var(--gold);background:var(--gold-soft)}
+      .levelbar{width:110px;height:9px;border-radius:99px;background:var(--line);overflow:hidden}
+      .levelbar i{display:block;height:100%;background:var(--gold-bright);border-radius:99px;transition:width .6s ease}
+
+      /* ---------- Hero ---------- */
+      .hero{padding:44px 0 10px}
+      .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:34px;align-items:center}
+      .kicker{
+        display:inline-flex;align-items:center;gap:8px;
+        font-family:"Space Mono",monospace;font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+        background:var(--navy);color:var(--gold-bright);border-radius:999px;padding:6px 14px;
+      }
+      .hero h1{font-size:clamp(2.4rem,5.4vw,3.9rem);font-weight:800;margin:16px 0 6px}
+      .hero h1 .quest{color:var(--gold)}
+      .hero .sub{font-size:1.13rem;color:var(--muted);max-width:34rem;margin:10px 0 0}
+      .hero .sub strong{color:var(--ink)}
+      .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+      .btn{
+        display:inline-flex;align-items:center;gap:9px;border:none;border-radius:13px;
+        padding:13px 22px;font-weight:700;font-size:1rem;text-decoration:none;
+        transition:transform .15s ease, box-shadow .15s ease;
+      }
+      .btn:active{transform:translateY(1px)}
+      .btn-gold{background:var(--gold-bright);color:#231a02;box-shadow:0 6px 0 #a86e06}
+      .btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 0 #a86e06}
+      .btn-ghost{background:var(--surface);color:var(--ink);border:2px solid var(--line);box-shadow:0 4px 0 var(--line)}
+      .btn-ghost:hover{transform:translateY(-2px)}
+      .hero-facts{display:flex;gap:18px;flex-wrap:wrap;margin-top:22px;font-size:.9rem;color:var(--muted)}
+      .hero-facts span{display:inline-flex;gap:7px;align-items:center}
+      .hero-art{
+        border-radius:22px;overflow:hidden;border:3px solid var(--navy);
+        box-shadow:var(--shadow);line-height:0;background:var(--navy-deep);
+      }
+      .hero-art img{width:100%;height:auto;display:block}
+      .hero-art figcaption{
+        line-height:1.45;background:var(--navy);color:#e9e2cd;font-size:.82rem;
+        padding:10px 16px;font-family:"Space Mono",monospace;letter-spacing:.03em;
+      }
+
+      /* ---------- How it plays ---------- */
+      .howto{padding:38px 0 6px}
+      .howto-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}
+      .how-card{
+        background:var(--surface);border:2px solid var(--line);border-radius:var(--radius);
+        padding:18px;position:relative;
+      }
+      .how-card .stepnum{
+        font-family:"Space Mono",monospace;font-weight:700;font-size:.72rem;letter-spacing:.12em;
+        color:var(--gold);text-transform:uppercase;
+      }
+      .how-card h3{font-size:1.06rem;margin:8px 0 5px}
+      .how-card p{margin:0;color:var(--muted);font-size:.93rem}
+      .how-card .ic{
+        width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:10px;
+        background:var(--gold-soft);color:var(--gold);
+      }
+      .how-card:nth-child(2) .ic{background:var(--teal-soft);color:var(--teal)}
+      .how-card:nth-child(3) .ic{background:var(--gold-soft);color:var(--gold)}
+      .how-card:nth-child(4) .ic{background:var(--red-soft);color:var(--red)}
+
+      .section-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-top:44px}
+      .section-head h2{font-size:clamp(1.6rem,3.4vw,2.2rem);font-weight:800}
+      .section-head p{color:var(--muted);margin:0}
+
+      /* ---------- Episode trail ---------- */
+      .trail{margin-top:22px;display:flex;flex-direction:column;gap:0}
+      .ep{
+        display:grid;grid-template-columns:86px 1fr auto;gap:18px;align-items:center;
+        background:var(--surface);border:2px solid var(--line);border-radius:var(--radius);
+        padding:20px 22px;position:relative;
+      }
+      .ep + .ep{margin-top:14px}
+      .ep::before{
+        content:"";position:absolute;left:64px;top:-16px;height:16px;width:0;
+        border-left:3px dashed var(--line);
+      }
+      .ep:first-child::before{display:none}
+      .boss + .ep::before{display:none}
+      .ep-medal{
+        width:64px;height:64px;border-radius:50%;flex:none;
+        display:grid;place-items:center;text-align:center;
+        background:var(--navy);color:var(--gold-bright);
+        font-family:"Bricolage Grotesque",sans-serif;font-weight:800;
+        border:3px solid var(--gold);
+      }
+      .ep-medal small{display:block;font-family:"Space Mono",monospace;font-weight:400;font-size:.55rem;letter-spacing:.14em;color:#cfd4ea}
+      .ep-medal .n{font-size:1.45rem;line-height:1}
+      .ep.locked .ep-medal{background:var(--bg-soft);color:var(--muted);border-color:var(--line)}
+      .ep.cleared .ep-medal{background:var(--teal);border-color:var(--teal);color:#fff}
+      .ep-body h3{font-size:1.22rem;font-weight:700}
+      .ep-body .chap{font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:700}
+      .ep-body p{margin:5px 0 0;color:var(--muted);font-size:.95rem;max-width:44rem}
+      .ep-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+      .tag{
+        font-size:.74rem;font-weight:600;background:var(--bg-soft);border:1.5px solid var(--line);
+        border-radius:999px;padding:3px 10px;color:var(--muted);
+      }
+      .ep-side{display:flex;flex-direction:column;align-items:flex-end;gap:9px}
+      .ep-xp{font-family:"Space Mono",monospace;font-weight:700;font-size:.85rem;color:var(--gold)}
+      .stars{font-size:1rem;letter-spacing:2px;color:var(--line)}
+      .stars .on{color:var(--gold-bright)}
+      .btn-play{
+        background:var(--navy);color:#fff;border:none;border-radius:11px;padding:11px 20px;
+        font-weight:700;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 0 var(--navy-deep);
+      }
+      .btn-play:hover{transform:translateY(-2px)}
+      .btn-play:disabled{background:var(--bg-soft);color:var(--muted);box-shadow:none;cursor:not-allowed;transform:none}
+      .ep.locked{opacity:.75}
+      .status-pill{
+        font-family:"Space Mono",monospace;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+        border-radius:999px;padding:4px 11px;
+      }
+      .status-pill.now{background:var(--gold-soft);color:var(--gold);border:1.5px solid var(--gold)}
+      .status-pill.done{background:var(--teal-soft);color:var(--teal);border:1.5px solid var(--teal)}
+      .status-pill.lock{background:var(--bg-soft);color:var(--muted);border:1.5px solid var(--line)}
+
+      /* boss cards */
+      .boss{
+        margin-top:14px;border-radius:var(--radius);padding:20px 22px;
+        background:var(--navy);color:#f2ead8;border:3px solid var(--gold);
+        display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;
+      }
+      .boss .bic{
+        width:58px;height:58px;border-radius:16px;background:var(--gold-bright);color:#231a02;
+        display:grid;place-items:center;flex:none;
+      }
+      .boss h3{font-size:1.25rem;color:#fff}
+      .boss .chap{font-family:"Space Mono",monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-bright);font-weight:700}
+      .boss p{margin:4px 0 0;color:#c9cfe6;font-size:.94rem;max-width:40rem}
+      .boss .pts{font-family:"Space Mono",monospace;font-weight:700;text-align:right;color:var(--gold-bright);font-size:1.05rem;white-space:nowrap}
+      .boss .pts small{display:block;color:#c9cfe6;font-weight:400;font-size:.68rem;letter-spacing:.08em}
+
+      /* ---------- Player ---------- */
+      #player{display:none;padding:34px 0 60px}
+      #player.open{display:block}
+      .player-shell{max-width:820px;margin:0 auto}
+      .player-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+      .player-top .chap{font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700}
+      .player-top h2{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800}
+      .btn-exit{
+        margin-left:auto;background:var(--surface);border:2px solid var(--line);color:var(--ink);
+        border-radius:11px;padding:9px 16px;font-weight:700;display:inline-flex;gap:7px;align-items:center;
+      }
+      .dots{display:flex;gap:7px;margin:20px 0 6px;flex-wrap:wrap}
+      .dot{height:10px;flex:1;min-width:26px;border-radius:99px;background:var(--line)}
+      .dot.done{background:var(--teal)}
+      .dot.now{background:var(--gold-bright)}
+      .phase-label{font-family:"Space Mono",monospace;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+      .stage{
+        margin-top:14px;background:var(--surface);border:2px solid var(--line);border-radius:22px;
+        padding:30px;box-shadow:var(--shadow);
+      }
+      .stage .lesson-kicker{display:inline-flex;gap:8px;align-items:center;background:var(--teal-soft);color:var(--teal);font-weight:700;font-size:.78rem;border-radius:999px;padding:5px 13px;letter-spacing:.04em}
+      .stage .quiz-kicker{display:inline-flex;gap:8px;align-items:center;background:var(--gold-soft);color:var(--gold);font-weight:700;font-size:.78rem;border-radius:999px;padding:5px 13px;letter-spacing:.04em}
+      .stage h3{font-size:1.55rem;font-weight:800;margin:14px 0 10px}
+      .stage p{margin:0 0 12px}
+      .stage p:last-of-type{margin-bottom:0}
+      .powerup{
+        margin-top:18px;border-radius:14px;padding:15px 17px;background:var(--surface-2);
+        border:2px dashed var(--gold);font-size:.95rem;
+      }
+      .powerup strong{color:var(--gold);font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:4px}
+      .stage-actions{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;align-items:center}
+      .stage-actions .spacer{flex:1}
+      .xp-pop{font-family:"Space Mono",monospace;font-weight:700;color:var(--gold);font-size:.95rem}
+      .opts{display:grid;gap:11px;margin-top:18px}
+      .opt{
+        text-align:left;background:var(--bg);border:2px solid var(--line);border-radius:14px;
+        padding:15px 17px;font-size:1rem;display:flex;gap:12px;align-items:flex-start;width:100%;
+        transition:border-color .12s ease, background .12s ease;color:var(--ink);
+      }
+      .opt:hover:not(:disabled){border-color:var(--gold)}
+      .opt .letter{
+        font-family:"Space Mono",monospace;font-weight:700;flex:none;width:27px;height:27px;border-radius:8px;
+        background:var(--surface);border:2px solid var(--line);display:grid;place-items:center;font-size:.85rem;
+      }
+      .opt.correct{border-color:var(--green);background:var(--green-soft)}
+      .opt.correct .letter{background:var(--green);border-color:var(--green);color:#fff}
+      .opt.wrong{border-color:var(--red);background:var(--red-soft)}
+      .opt.wrong .letter{background:var(--red);border-color:var(--red);color:#fff}
+      .opt:disabled{cursor:default;opacity:1}
+      .opt.dim{opacity:.55}
+      .feedback{
+        display:none;margin-top:18px;border-radius:14px;padding:15px 17px;font-size:.96rem;
+      }
+      .feedback.show{display:block}
+      .feedback.good{background:var(--green-soft);border:2px solid var(--green)}
+      .feedback.bad{background:var(--red-soft);border:2px solid var(--red)}
+      .feedback strong{display:block;margin-bottom:3px}
+      /* results */
+      .results{text-align:center;padding:8px 0}
+      .results .big-stars{font-size:2.6rem;letter-spacing:8px;color:var(--line);margin:8px 0 2px}
+      .results .big-stars .on{color:var(--gold-bright)}
+      .results h3{font-size:1.9rem}
+      .badge-earned{
+        display:inline-flex;align-items:center;gap:10px;margin-top:16px;
+        background:var(--navy);color:var(--gold-bright);border-radius:999px;padding:10px 20px;
+        font-weight:700;border:2px solid var(--gold);
+      }
+      .score-line{font-family:"Space Mono",monospace;color:var(--muted);margin-top:10px}
+      .confetti{position:fixed;inset:0;pointer-events:none;z-index:99;overflow:hidden}
+      .confetti i{position:absolute;top:-14px;width:10px;height:14px;border-radius:2px;animation:fall linear forwards}
+      @keyframes fall{to{transform:translateY(105vh) rotate(720deg)}}
+      @media (prefers-reduced-motion: reduce){
+        .confetti{display:none}
+        html{scroll-behavior:auto}
+        *{transition:none !important;animation:none !important}
+      }
+
+      /* ---------- HQ / syllabus ---------- */
+      .hq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+      .hq-card{background:var(--surface);border:2px solid var(--line);border-radius:var(--radius);padding:20px}
+      .hq-card h3{font-size:1.05rem;margin:0 0 10px;display:flex;gap:9px;align-items:center}
+      .hq-card h3 .ic{color:var(--gold);display:grid;place-items:center}
+      .hq-card p,.hq-card li{font-size:.94rem;color:var(--muted)}
+      .hq-card p{margin:0 0 8px}
+      .hq-card ul{margin:0;padding-left:18px}
+      .hq-card li{margin-bottom:5px}
+      .hq-card strong{color:var(--ink)}
+      table.grades{width:100%;border-collapse:collapse;font-size:.95rem}
+      table.grades th,table.grades td{padding:9px 10px;text-align:left;border-bottom:1.5px solid var(--line)}
+      table.grades th{font-family:"Space Mono",monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+      table.grades td.num,table.grades th.num{text-align:right;font-family:"Space Mono",monospace}
+      table.grades tr.total td{font-weight:700;border-bottom:none;color:var(--ink)}
+      .scale-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+      .scale-row span{font-family:"Space Mono",monospace;font-size:.8rem;font-weight:700;background:var(--bg-soft);border:1.5px solid var(--line);border-radius:9px;padding:5px 11px}
+      .wide-card{grid-column:1/-1}
+      .assign-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+      .assign-grid div{background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:13px 15px}
+      .assign-grid strong{display:block;color:var(--ink);margin-bottom:2px}
+      .assign-grid p{margin:0}
+
+      footer{margin-top:56px;border-top:2px solid var(--line);padding:26px 0 40px;color:var(--muted);font-size:.88rem}
+      footer .wrap{display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between}
+
+      @media (max-width:960px){
+        .hero-grid{grid-template-columns:1fr}
+        .howto-grid{grid-template-columns:repeat(2,1fr)}
+        .hq-grid{grid-template-columns:1fr 1fr}
+      }
+      @media (max-width:640px){
+        body{font-size:16px}
+        .howto-grid{grid-template-columns:1fr}
+        .hq-grid{grid-template-columns:1fr}
+        .assign-grid{grid-template-columns:1fr}
+        .ep{grid-template-columns:60px 1fr;padding:16px}
+        .ep::before{left:45px}
+        .ep-medal{width:48px;height:48px}
+        .ep-medal .n{font-size:1.1rem}
+        .ep-side{grid-column:2;flex-direction:row;align-items:center;justify-content:space-between;width:100%}
+        .boss{grid-template-columns:1fr}
+        .boss .pts{text-align:left}
+        .stage{padding:22px 18px}
+        .levelbar{display:none}
+        table.grades th:nth-child(2),table.grades td:nth-child(2){display:none}
+      }
+
+      /* ---------- Episode 1 fun pass: Dr. K, pages, games, badges, certificate ---------- */
+      .drk-intro{background:var(--gold-soft);border:2px solid var(--gold);border-radius:var(--radius);padding:16px 18px;margin-bottom:18px}
+      .drk-intro strong{display:block;color:var(--gold);font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+      .drk-outro{background:var(--teal-soft);border:2px solid var(--teal);border-radius:var(--radius);padding:16px 18px;margin-top:20px;text-align:left}
+      .drk-aside{border-left:4px solid var(--gold);background:var(--gold-soft);padding:12px 16px;border-radius:0 12px 12px 0;font-style:italic;margin-top:14px}
+      .viz{margin-top:16px}
+      .viz-flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+      .viz-step{background:var(--bg-soft);border:2px solid var(--line);border-radius:12px;padding:9px 14px;font-weight:700}
+      .viz-arrow{color:var(--gold);font-weight:700}
+      .viz-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+      .viz-card{background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:13px 14px}
+      .viz-card b{display:block;margin-bottom:3px}
+      .viz-card span{color:var(--muted);font-size:.9rem}
+      .viz-vs{display:flex;gap:8px;flex-wrap:wrap}
+      .viz-v{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:700}
+      .viz-v span{display:block;font-weight:400;color:var(--muted);font-size:.8rem}
+      .viz-v.gold{border-color:var(--gold);background:var(--gold-soft)}
+      .viz-sent{background:var(--surface);border:2px dashed var(--gold);border-radius:12px;padding:14px 16px}
+      .game{margin-top:20px;background:var(--bg-soft);border:2px solid var(--line);border-radius:var(--radius);padding:18px}
+      .game h4{margin:0 0 6px}
+      .game .gintro{color:var(--muted);margin:0 0 14px}
+      .gitem{display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+      .gitem>span:first-child{flex:1;min-width:200px}
+      .gbtn{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:6px 13px;font-weight:700;cursor:pointer}
+      .gbtn:hover{border-color:var(--gold)}
+      .gbtn.sel{background:var(--gold);color:#231a02;border-color:var(--gold)}
+      .gbtn:disabled{cursor:default;opacity:1}
+      .gitem.ok{border-color:var(--green);background:var(--green-soft)}
+      .gitem.no{border-color:var(--red)}
+      .gwhy{font-size:.9rem;color:var(--muted);width:100%}
+      .ggroup{margin-bottom:12px}
+      .ggroup>strong{display:block;margin-bottom:6px}
+      .ggroup.ok>strong{color:var(--green)}
+      .gdone{background:var(--green-soft);border:2px solid var(--green);border-radius:12px;padding:12px 14px;margin-top:12px;font-weight:700}
+      .badge-shelf{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+      .badge-chip{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:8px 16px;font-weight:700}
+      .badge-chip.got{border-color:var(--gold);background:var(--gold-soft)}
+      .badge-chip.miss{opacity:.55}
+      .badge-chip small{display:block;font-weight:400;color:var(--muted);font-size:.75rem}
+      .cert-row{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
+      .cert-row label{font-weight:700}
+      .cert-row input{padding:9px 12px;border:2px solid var(--line);border-radius:10px;font-size:1rem;max-width:280px;width:100%}
+      .shelf{text-align:left;max-width:640px;margin:22px auto 0;background:var(--surface);border:2px solid var(--line);border-radius:var(--radius);padding:18px 20px}
+      .shelf h4{margin:0 0 4px}
+      .shelf .snote{color:var(--muted);font-size:.9rem;margin:0 0 6px}
+      .shelf a{display:block;text-decoration:none;color:var(--ink);border-top:1.5px solid var(--line);padding:10px 0}
+      .shelf a:hover{color:var(--gold)}
+      .shelf a b{display:block}
+      .shelf a span{color:var(--muted);font-size:.88rem}
+      .shelf .kind{font-family:"Space Mono",monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+      .ep-badge{font-family:"Space Mono",monospace;font-size:.72rem;color:var(--gold);letter-spacing:.06em;text-transform:uppercase}
+      #cert-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;overflow:auto;padding:24px}
+      #cert-overlay.open{display:block}
+      .cert{background:#fff;color:#111;max-width:720px;margin:24px auto;padding:44px 48px;border-radius:8px;text-align:center}
+      .cert .c-kicker{font-family:"Space Mono",monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:#666}
+      .cert h2{font-size:2rem;margin:10px 0}
+      .cert .c-name{font-size:1.6rem;font-weight:700;margin:8px 0}
+      .cert .c-badge{display:inline-block;border:3px solid #b8860b;color:#7a5b00;border-radius:999px;padding:8px 22px;font-weight:700;margin:12px 0}
+      .cert .sig{margin-top:30px;border-top:2px solid #111;padding-top:10px}
+      .cert .c-foot{color:#666;font-size:.85rem;margin-top:18px}
+      .cert-actions{display:flex;gap:10px;justify-content:center;margin-top:16px}
+      @media print{
+        body *{visibility:hidden}
+        #cert-overlay,#cert-overlay *{visibility:visible}
+        #cert-overlay{position:absolute;inset:0;background:#fff;padding:0}
+        .cert{margin:0;max-width:none;box-shadow:none}
+        .cert-actions{display:none !important}
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ================= HUD ================= -->
+    <header class="hud">
+      <div class="wrap hud-inner">
+        <div class="hud-brand">
+          <span class="crest" aria-hidden="true">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-8"/><path d="M22 20H2"/></svg>
+          </span>
+          <span>Statistics &amp; Predictive Analytics<small>The Statistics Quest</small></span>
+        </div>
+        <div class="hud-stats" aria-label="Your progress">
+          <span class="chip" title="Your level">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/></svg>
+            <span id="hud-level">Level 1 · Stats Cadet</span>
+            <span class="levelbar" aria-hidden="true"><i id="hud-levelbar" style="width:0%"></i></span>
+          </span>
+          <span class="chip xp" title="Experience points">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4.5 13.5H11L9.5 22 19 10h-6.5z"/></svg>
+            <span id="hud-xp">0 XP</span>
+          </span>
+          <span class="chip" title="Episodes cleared">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 21V4"/><path d="M4 5h13l-2.5 4L17 13H4"/></svg>
+            <span id="hud-cleared">0 / 8 cleared</span>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <main id="home">
+      <!-- ================= HERO ================= -->
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div>
+            <span class="kicker">8 Episodes · Inspired by StatsMania</span>
+            <h1>Statistics &amp; Predictive Analytics:<br /><span class="quest">The Statistics Quest</span></h1>
+            <p class="sub">A statistics and prediction quest, played like a game and inspired by the public posts of <a href="https://www.instagram.com/statsmaniaofficial">StatsMania (@statsmaniaofficial)</a>. Each episode teaches a core statistics concept in <strong>bite-size micro-lessons</strong>, then challenges you with checkpoint questions before you can move on. Clear all eight episodes, survive two boss battles, and level up from Stats Cadet to Predictive Analytics Master.</p>
+            <div class="hero-cta">
+              <button class="btn btn-gold" id="btn-start" type="button">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>
+                <span id="btn-start-label">Start Episode 1</span>
+              </button>
+              <a class="btn btn-ghost" href="#hq">Quest HQ</a>
+            </div>
+            <div class="hero-facts">
+              <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg> 8 episodes · play in order</span>
+              <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V4H6.5A2.5 2.5 0 004 6.5z"/></svg> Inspired by StatsMania · 129 posts</span>
+              <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg> Prereq: curiosity (and a calculator)</span>
+            </div>
+          </div>
+          <figure class="hero-art" style="margin:0">
+            <img src="assets/quest-map.webp" alt="Illustrated quest map: a golden trail winding toward a sun, with eight checkpoint flags for the eight episodes" width="2352" height="1008" />
+            <figcaption>THE TRAIL AHEAD — 8 CHECKPOINTS FROM DESCRIBING DATA TO THE ANALYST'S JOB</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- ================= HOW IT PLAYS ================= -->
+      <section class="howto">
+        <div class="wrap">
+          <div class="section-head" style="margin-top:0">
+            <h2>How the quest works</h2>
+            <p>Learn a little, prove it, earn rewards — repeat.</p>
+          </div>
+          <div class="howto-grid">
+            <div class="how-card">
+              <div class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V4H6.5A2.5 2.5 0 004 6.5z"/><path d="M8 8h8M8 12h5"/></svg></div>
+              <div class="stepnum">Step 1 · Learn</div>
+              <h3>Micro-lessons</h3>
+              <p>Every episode opens with three short, focused lessons — one concept each, with a real business example. No 40-slide decks.</p>
+            </div>
+            <div class="how-card">
+              <div class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.3A2.6 2.6 0 1112 12.5V14"/><circle cx="12" cy="17.4" r=".4" fill="currentColor"/></svg></div>
+              <div class="stepnum">Step 2 · Prove it</div>
+              <h3>Checkpoint questions</h3>
+              <p>Three questions per episode with instant feedback and explanations — the same style as StatsMania's worked examples — short, with the numbers shown.</p>
+            </div>
+            <div class="how-card">
+              <div class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4.5 13.5H11L9.5 22 19 10h-6.5z"/></svg></div>
+              <div class="stepnum">Step 3 · Level up</div>
+              <h3>XP, stars &amp; badges</h3>
+              <p>Earn XP for every lesson and correct answer, collect a badge per episode, and climb from Stats Cadet to Predictive Analytics Master.</p>
+            </div>
+            <div class="how-card">
+              <div class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0z"/><path d="M7 6H4a2 2 0 002 4h1M17 6h3a2 2 0 01-2 4h-1"/></svg></div>
+              <div class="stepnum">Step 4 · Boss battles</div>
+              <h3>Midterm &amp; Final</h3>
+              <p>The Midterm boss battle guards the trail after Episode 4 (Episodes 1–4); the Final waits at the end after Episode 8 (Episodes 5–8). Both are practice only — nothing here is graded.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= EPISODE MAP ================= -->
+      <section>
+        <div class="wrap">
+          <div class="section-head">
+            <h2>Episode map</h2>
+            <p>Clear an episode to unlock the next checkpoint on the trail.</p>
+          </div>
+          <div class="trail" id="trail"></div>
+        </div>
+      </section>
+
+      <!-- ================= COURSE HQ ================= -->
+      <section id="hq">
+        <div class="wrap">
+          <div class="section-head">
+            <h2>Quest HQ</h2>
+            <p>The big picture behind the game — the episodes, the source, and how practice fits around it.</p>
+          </div>
+          <div class="hq-grid">
+            <div class="hq-card wide-card">
+              <h3>The episode map</h3>
+              <p>Eight episodes, in the order the ideas build on each other. Play them in sequence — each one unlocks the next. This site is organized by idea, not by week.</p>
+              <ul>
+                <li><strong>Episode 1 — Describing Data: Centre, Spread &amp; Shape</strong> · Foundations</li>
+                <li><strong>Episode 2 — Probability: Distributions &amp; Updating Beliefs</strong> · Probability</li>
+                <li><strong>Episode 3 — Correlation: Measuring Relationships</strong> · Correlation</li>
+                <li><strong>Episode 4 — Inference: Tests, p-values &amp; Effect Sizes</strong> · Inference</li>
+                <li><strong>★ Midterm Boss Battle</strong> · Covers Episodes 1–4 — the practice boss battle after Episode 4</li>
+                <li><strong>Episode 5 — Regression &amp; Model Fitting</strong> · Regression</li>
+                <li><strong>Episode 6 — Machine Learning Toolkit</strong> · Machine learning</li>
+                <li><strong>Episode 7 — Causal Inference &amp; Experiments</strong> · Causal inference</li>
+                <li><strong>Episode 8 — Forecasting, Visualisation &amp; the Analyst's Job</strong> · Applied analytics</li>
+                <li><strong>★ Final Boss Battle</strong> · Covers Episodes 5–8 — the practice boss battle after Episode 8</li>
+              </ul>
+            </div>
+            <div class="hq-card">
+              <h3>The source: StatsMania</h3>
+              <p>This quest is inspired by the public posts of <strong><a href="https://www.instagram.com/statsmaniaofficial">StatsMania (@statsmaniaofficial)</a></strong> — 129 posts from October–November 2026, tagline <em>"Data science, made simple."</em></p>
+              <p>Every lesson here is a paraphrase in our own words, built from the account's worked examples — the delivery times, the coffee bags, the spam filter, the fraud detector, the Nike revenue mystery. Nothing is copied from a caption.</p>
+              <p>Where the account is thin, we wrote original lessons and say so: mean, median, mode and variance (Episode 1) have no dedicated StatsMania post, and the SQL patterns (Episode 8) get a short original summary.</p>
+            </div>
+            <div class="hq-card">
+              <h3>The big idea</h3>
+              <p>Statistics is how you describe the world honestly; predictive analytics is how you guess what happens next — and know how much to trust the guess.</p>
+              <p>The journey runs from the first question — <strong>what does this data actually look like?</strong> — through probability, relationships, inference, regression, machine learning, and causality, to the analyst's job itself: forecasting and explaining why a number moved. Each episode adds one tool; the boss battles ask you to use them together.</p>
+            </div>
+            <div class="hq-card">
+              <h3>Quest facts</h3>
+              <ul>
+                <li><strong>8 episodes</strong>, 3 micro-lessons + 3 checkpoint questions each</li>
+                <li><strong>120 XP per episode</strong> — 960 XP in total, stars = checkpoint score</li>
+                <li>Play in order; each episode unlocks the next</li>
+                <li><strong>No graded work exists for this quest.</strong> Nothing here is an exam, a mark, or a course requirement — it is practice, for its own sake.</li>
+                <li>Progress lives in your browser session only; nothing is uploaded or stored anywhere</li>
+              </ul>
+            </div>
+            <div class="hq-card wide-card">
+              <h3>What you'll be able to do</h3>
+              <div class="assign-grid">
+                <div><strong>Describe data</strong><p>Summarize centre, spread and shape — and know when the mean is lying to you and the median is telling the truth.</p></div>
+                <div><strong>Think in probabilities</strong><p>Pick the right distribution, read a conditional probability the right way round, and update a belief with Bayes.</p></div>
+                <div><strong>Measure relationships</strong><p>Choose the right correlation coefficient for the data in front of you, and spot the traps that make one lie.</p></div>
+                <div><strong>Test claims honestly</strong><p>Choose a test, read a p-value without fooling yourself, and always ask how big the effect is, not just whether it is significant.</p></div>
+                <div><strong>Predict — and check the prediction</strong><p>Read a regression summary, fit and evaluate a model, and explain a revenue move with a metric tree.</p></div>
+              </div>
+            </div>
+            <div class="hq-card">
+              <h3>Tools of the trade</h3>
+              <p><strong>Spreadsheets, SQL, Python/pandas, and dashboards</strong> — the tools the source material points to in its learning roadmaps (Sheets → SQL → Dashboards → Decisions). They are the tools the posts suggest for doing this work for real, not a requirement for playing the quest: everything here is playable with a calculator and the lessons themselves.</p>
+              <p><strong>SQL in one lesson</strong> — Episode 8 covers the execution order (FROM first, SELECT fifth) and the nine everyday query patterns, kept short because the source account only brushes SQL.</p>
+            </div>
+            <div class="hq-card">
+              <h3>How practice fits around this site</h3>
+              <p>This site is a <strong>practice companion, not a course</strong>. There is no syllabus, no instructor, no deadline, and no grade. The two boss battles are practice checkpoints inside the game: they test what you have learned so far, and the only person who sees the result is you.</p>
+              <p>If you want to go deeper, the source is one tap away: every worked example in these episodes comes from a StatsMania post, and the account keeps posting new ones.</p>
+            </div>
+            <div class="hq-card wide-card">
+              <h3>Where it gets tricky — and why that's normal</h3>
+              <div class="assign-grid">
+                <div><strong>The mean lies when the data is skewed</strong><p>One 52-minute delivery drags the mean; the median and the IQR don't care. Always ask what the extremes are doing to your summary.</p></div>
+                <div><strong>Conditional probabilities flip</strong><p>P(music | sports) is 50% and P(sports | music) is 67% — same overlap, different condition. State the condition before you state the number.</p></div>
+                <div><strong>Correlation is not causation</strong><p>A coefficient of 0.98 is a pattern, not a cause. Solar-panel homes sell for $80K more, but only $25K of that is the panels.</p></div>
+                <div><strong>Significant is not the same as large</strong><p>With 5,000 orders per system, a 6-second difference can be "significant". Always ask for the effect size next to the p-value.</p></div>
+                <div><strong>Accuracy can lie</strong><p>A fraud detector that flags nothing is 99% accurate and catches zero fraud. Precision and recall tell the honest story.</p></div>
+              </div>
+            </div>
+            <div class="hq-card wide-card">
+              <h3>Meet the statistics crew</h3>
+              <p>Dr. K hosts the quest, but each episode has a character who will try to trip you up — in a friendly way. Learn their names and you'll remember their lessons.</p>
+              <div class="assign-grid">
+                <div><strong>Mia Median</strong><p>Episode 1 — maps centre, spread and shape, and never lets an outlier boss the average around.</p></div>
+                <div><strong>Benny Binomial</strong><p>Episode 2 — deals out distributions and updates beliefs like a card sharp with a prior.</p></div>
+                <div><strong>Cora Correlation</strong><p>Episode 3 — measures how two variables move together, and warns you when the number lies.</p></div>
+                <div><strong>Polly p-value</strong><p>Episode 4 — reads p-values without fooling herself, and always asks how big the effect is.</p></div>
+                <div><strong>Reggie Regression</strong><p>Episode 5 — reads a full OLS summary and turns a spam score into a probability.</p></div>
+                <div><strong>Trevor Tree</strong><p>Episode 6 — opens the machine learning toolkit and trains honestly, or not at all.</p></div>
+                <div><strong>Carla Causal</strong><p>Episode 7 — separates real causes from lucky correlations, one experiment at a time.</p></div>
+                <div><strong>Aria ARIMA</strong><p>Episode 8 — forecasts tomorrow and traces a revenue drop to its branch on the metric tree.</p></div>
+              </div>
+            </div>
+            <div class="hq-card wide-card">
+              <h3>Playing fair: AI &amp; practice honesty</h3>
+              <p>AI is welcome as <strong>learning support</strong> here: explanations, study help, extra practice examples, brainstorming. But the checkpoint questions only teach you anything if you answer them yourself first — looking up or generating the answer skips the learning the quest exists for. StatsMania's own rule from its roadmaps applies here too: <em>use AI to draft, verify it yourself</em> — "AI ASSIST / YOUR CHECK".</p>
+              <p>There is nothing to hand in and nobody to fool, so the honest move is also the easy one: play it straight, check the work, and explain the result in your own words.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <div class="wrap">
+          <span><strong>Statistics &amp; Predictive Analytics — The Statistics Quest</strong> — inspired by StatsMania</span>
+          <span>Practice companion — no graded work. Built from the public posts of StatsMania.</span>
+        </div>
+      </footer>
+    </main>
+
+    <!-- ================= PLAYER ================= -->
+    <section id="player" aria-live="polite">
+      <div class="wrap player-shell">
+        <div class="player-top">
+          <div>
+            <div class="chap" id="p-chap"></div>
+            <h2 id="p-title"></h2>
+          </div>
+          <button class="btn-exit" id="btn-exit" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            Exit to map
+          </button>
+        </div>
+        <div class="dots" id="p-dots" aria-hidden="true"></div>
+        <div class="phase-label" id="p-phase"></div>
+        <div class="stage" id="p-stage"></div>
+      </div>
+    </section>
+
+    <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+      <div id="cert-overlay" role="dialog" aria-label="Badge certificate">
+        <div class="cert">
+          <div class="c-kicker">Statistics &amp; Predictive Analytics — The Statistics Quest</div>
+          <h2>Certificate of Achievement</h2>
+          <p>This badge is awarded to</p>
+          <div class="c-name" id="cert-name">A Statistics Quest player</div>
+          <p>for completing <strong id="cert-ep">Episode 1</strong></p>
+          <div class="c-badge" id="cert-badge">Framing Badge</div>
+          <p id="cert-score"></p>
+          <p id="cert-bonus"></p>
+          <p id="cert-date"></p>
+          <div class="sig">Dr. K<br><small>Statistics & Predictive Analytics — The Statistics Quest</small></div>
+          <p class="c-foot">Practice companion — no graded work.</p>
+        </div>
+        <div class="cert-actions">
+          <button class="btn btn-gold" id="btn-cert-print" type="button">Print / Save as PDF</button>
+          <button class="btn btn-ghost" id="btn-cert-close" type="button">Close</button>
+        </div>
+      </div>
+    <script>
+      /* ============================================================
+         EPISODE DATA — micro-lessons + checkpoint questions
+         ============================================================ */
+      var EPISODES = [{"n": 1, "title": "Describing Data: Centre, Spread & Shape", "chapter": "Foundations \u00b7 StatsMania A1\u2013A3 \u00b7 A6", "badge": "Describing Data Badge", "tags": ["Mean, median & mode", "IQR", "Normal & CLT"], "lessons": [{"h": "Centre and Spread: Mean, Median, Mode and Variance", "body": ["Three numbers compete to describe the centre of a dataset. The <strong>mean</strong> is the sum of all the values divided by how many there are. The <strong>median</strong> is the middle value once the data are put in order, and the <strong>mode</strong> is the value that turns up most often. Each one answers a slightly different question, so a careful analyst checks more than one of them.", "Spread matters just as much as centre. The <strong>variance</strong> is the average squared distance of each value from the mean, and the <strong>standard deviation</strong> is its square root, which brings the spread back into the original units. Take the values 2, 4, 6, 8, 10: the mean is (2 + 4 + 6 + 8 + 10) / 5 = 30 / 5 = 6, and the median is also 6, the middle value. The variance is ((\u22124)\u00b2 + (\u22122)\u00b2 + 0\u00b2 + 2\u00b2 + 4\u00b2) / 5 = (16 + 4 + 0 + 4 + 16) / 5 = 40 / 5 = 8, so the standard deviation is \u221a8 \u2248 2.83.", "The median has a superpower the mean lacks: it is resistant to outliers. Imagine five incomes, in thousands, of 30, 32, 35, 38 and 200. The mean is (30 + 32 + 35 + 38 + 200) / 5 = 335 / 5 = 67, pulled far above what anyone in the group typically earns, while the median is 35 \u2014 the middle value, barely moved by the one very large income. When data are skewed, the median usually tells the more honest story about the typical case."], "tip": "Mia's rule: if the mean and the median disagree by a lot, look for skew or an outlier \u2014 the gap itself is a clue.", "pages": [{"h": "Centre and Spread: Mean, Median, Mode and Variance", "body": ["Three numbers compete to describe the centre of a dataset. The <strong>mean</strong> is the sum of all the values divided by how many there are. The <strong>median</strong> is the middle value once the data are put in order, and the <strong>mode</strong> is the value that turns up most often. Each one answers a slightly different question, so a careful analyst checks more than one of them."]}, {"h": "Centre and Spread: Mean, Median, Mode and Variance", "body": ["Spread matters just as much as centre. The <strong>variance</strong> is the average squared distance of each value from the mean, and the <strong>standard deviation</strong> is its square root, which brings the spread back into the original units. Take the values 2, 4, 6, 8, 10: the mean is (2 + 4 + 6 + 8 + 10) / 5 = 30 / 5 = 6, and the median is also 6, the middle value. The variance is ((\u22124)\u00b2 + (\u22122)\u00b2 + 0\u00b2 + 2\u00b2 + 4\u00b2) / 5 = (16 + 4 + 0 + 4 + 16) / 5 = 40 / 5 = 8, so the standard deviation is \u221a8 \u2248 2.83."]}, {"h": "Centre and Spread: Mean, Median, Mode and Variance", "body": ["The median has a superpower the mean lacks: it is resistant to outliers. Imagine five incomes, in thousands, of 30, 32, 35, 38 and 200. The mean is (30 + 32 + 35 + 38 + 200) / 5 = 335 / 5 = 67, pulled far above what anyone in the group typically earns, while the median is 35 \u2014 the middle value, barely moved by the one very large income. When data are skewed, the median usually tells the more honest story about the typical case."]}]}, {"h": "The IQR and the Box Plot", "body": ["The <strong>interquartile range</strong>, or IQR, measures the spread of the middle half of the data. For a set of delivery times running from 12 to 52 minutes, with a median of 20 minutes, the first quartile Q1 is 16 and the third quartile Q3 is 24, so the IQR is 24 \u2212 16 = 8 minutes. That single number tells you how tightly the typical deliveries cluster, ignoring the extremes at both ends.", "A box plot draws exactly this picture: the box runs from Q1 to Q3, with a line at the median, and whiskers stretch out to the furthest values that are not outliers. The outlier fences sit 1.5 \u00d7 IQR beyond the quartiles, so here the lower fence is 16 \u2212 12 = 4 minutes and the upper fence is 24 + 12 = 36 minutes. The 52-minute delivery sits above the 36-minute fence, so it is flagged as an outlier \u2014 a genuine oddity worth investigating, not just a slow day.", "That robustness is the IQR's great strength. The range of these deliveries is 52 \u2212 12 = 40 minutes, but if the slowest delivery became 90 minutes the range would jump to 90 \u2212 12 = 78 minutes, while the IQR would stay at 8 \u2014 the middle 50% of the data has not moved at all. One honest caution: quartile definitions differ slightly across software packages, so for small samples different tools can give slightly different values of Q1 and Q3."], "tip": "When a single wild value can wreck your summary, reach for the median and the IQR \u2014 they describe the middle of the data, not the extremes."}, {"h": "The Normal Curve and the Central Limit Theorem", "body": ["The <strong>normal distribution</strong> is the famous bell curve: symmetric, with mean, median and mode all equal at the centre, and a total area of 1 underneath it. Its width is controlled by the standard deviation. The 68\u201395\u201399.7 rule says about 68% of values fall within one standard deviation of the mean, about 95% within two, and about 99.7% within three. For scores with a mean of 70 and a standard deviation of 10, about 95% fall between 70 \u2212 20 = 50 and 70 + 20 = 90.", "The <strong>Central Limit Theorem</strong> is the reason the normal curve shows up everywhere. Take repeated samples from almost any population, compute each sample's average, and the distribution of those averages becomes approximately normal as the sample size grows \u2014 even when the original data are not normal at all. Averages smooth out the quirks of individual values, and the bigger the samples, the smoother and more bell-shaped the averages become.", "That smoothing is measured by the <strong>standard error</strong>, SE = \u03c3 / \u221an, where \u03c3 is the population standard deviation and n is the sample size. The standard deviation describes the spread of individual values; the standard error describes how much a sample mean would vary from sample to sample. With \u03c3 = 10, the standard error is 2.0 minutes at n = 25 (10 / 5) and 1.0 at n = 100 (10 / 10) \u2014 quadrupling the sample size halves the standard error."], "tip": "Don't confuse the two spreads: SD describes the data, SE describes the mean. Bigger samples shrink the SE, never the SD.", "pages": [{"h": "The Normal Curve and the Central Limit Theorem", "body": ["The <strong>normal distribution</strong> is the famous bell curve: symmetric, with mean, median and mode all equal at the centre, and a total area of 1 underneath it. Its width is controlled by the standard deviation. The 68\u201395\u201399.7 rule says about 68% of values fall within one standard deviation of the mean, about 95% within two, and about 99.7% within three. For scores with a mean of 70 and a standard deviation of 10, about 95% fall between 70 \u2212 20 = 50 and 70 + 20 = 90."]}, {"h": "The Normal Curve and the Central Limit Theorem", "body": ["The <strong>Central Limit Theorem</strong> is the reason the normal curve shows up everywhere. Take repeated samples from almost any population, compute each sample's average, and the distribution of those averages becomes approximately normal as the sample size grows \u2014 even when the original data are not normal at all. Averages smooth out the quirks of individual values, and the bigger the samples, the smoother and more bell-shaped the averages become."]}, {"h": "The Normal Curve and the Central Limit Theorem", "body": ["That smoothing is measured by the <strong>standard error</strong>, SE = \u03c3 / \u221an, where \u03c3 is the population standard deviation and n is the sample size. The standard deviation describes the spread of individual values; the standard error describes how much a sample mean would vary from sample to sample. With \u03c3 = 10, the standard error is 2.0 minutes at n = 25 (10 / 5) and 1.0 at n = 100 (10 / 10) \u2014 quadrupling the sample size halves the standard error."]}], "game": {"done": "Mia approves: the middle of the data is steady even when the extremes run wild.", "groups": [{"a": 0, "hint": "Q3 \u2212 Q1 = 24 \u2212 16.", "label": "The IQR is", "options": ["8 minutes", "40 minutes", "52 minutes"]}, {"a": 0, "hint": "Upper fence is 24 + 1.5 \u00d7 8 = 36.", "label": "The 52-minute delivery is", "options": ["An outlier \u2014 above the 36-minute fence", "Typical", "The median"]}, {"a": 0, "hint": "The range jumps to 78; the middle 50% does not move.", "label": "If the slowest delivery becomes 90 minutes, the IQR", "options": ["Stays 8", "Jumps to 78", "Becomes 40"]}], "intro": "Mia has a batch of delivery times and a claim to check. Build the call, piece by piece, using the IQR numbers from this episode.", "sentence": "IQR 8 minutes, the 52-minute delivery is an outlier above the 36-minute fence \u2014 and the IQR stays 8 even if the max jumps to 90.", "title": "Dr. K Challenge: Mia's delivery check", "type": "build"}}], "quiz": [{"a": 1, "opts": ["4 minutes", "8 minutes", "24 minutes", "40 minutes"], "q": "Delivery times: Q1 16, Q3 24. What is the IQR?", "why": "IQR = Q3 \u2212 Q1 = 24 \u2212 16 = 8 minutes."}, {"a": 1, "opts": ["60 and 80", "50 and 90", "40 and 100", "70 and 90"], "q": "Exam scores: mean 70, SD 10. About 95% of scores fall between\u2026", "why": "95% is roughly mean \u00b1 2 SD: 70 \u2212 20 = 50 and 70 + 20 = 90."}, {"a": 2, "opts": ["50", "75", "100", "200"], "q": "\u03c3 = 10. The standard error halves when the sample size goes from 25 to\u2026", "why": "SE = \u03c3/\u221an: at n=25, SE = 10/5 = 2.0; at n=100, SE = 10/10 = 1.0 \u2014 halved. Quadrupling n halves the SE."}], "host": "Dr. K", "intro": "<p>Welcome to the Statistics Quest! I'm Dr. K, and today Mia Median is joining us to ask the first question every analyst should ask of a new dataset: where is its centre, how spread out is it, and what shape does it take? By the end of this episode you'll be able to summarise a batch of numbers in a few honest figures \u2014 and spot the ones that are trying to mislead you.</p>", "outro": "Nice work \u2014 you can now describe a dataset's centre, spread and shape, and you know which summaries survive an outlier and which ones don't. Next time we turn to probability: the language of chance, and how beliefs get updated when new evidence arrives.", "blurb": "Mia Median joins Dr. K to map centre, spread and shape \u2014 from the mean, median and mode to the IQR, the normal curve and the Central Limit Theorem."}, {"n": 2, "title": "Probability: Distributions & Updating Beliefs", "chapter": "Probability \u00b7 StatsMania B1\u2013B5 \u00b7 A7 \u00b7 D10", "badge": "Probability Badge", "tags": ["Distributions", "Binomial", "Bayes"], "lessons": [{"h": "Six Distributions Every Analyst Needs", "body": ["Six distributions do most of the everyday work in statistics, and each one models a different kind of randomness. The <strong>Bernoulli</strong> distribution covers a single trial with two outcomes, such as one ad click \u2014 success or not, with probability p. The <strong>Binomial</strong> counts successes across a fixed number of such trials, like coin flips, with parameters n (trials) and p. The <strong>Poisson</strong> counts arrivals in a fixed interval, such as customers per hour, with a single parameter \u03bb, the average rate.", "The remaining three fill out the toolkit. The <strong>Uniform</strong> distribution gives every value in a range equal density \u2014 pick a number x in [0, 1] and no value is more likely than any other. The <strong>Normal</strong> is the bell curve, described by its mean \u03bc and standard deviation, modelling measurements like height, here with \u03bc = 170 cm. The <strong>Exponential</strong> models the waiting time until the next arrival, with its rate set by how often arrivals happen.", "The trick is matching the distribution to the question. Counting how many successes in a fixed number of tries? Binomial. Counting how many events in a fixed stretch of time? Poisson. One yes-or-no trial? Bernoulli. A measurement that piles up symmetrically around a typical value? Normal. Time until the next event? Exponential. Every value equally likely? Uniform. Name the quantity first, and the distribution usually names itself."], "tip": "Benny's shortcut: count successes in fixed trials \u2014 Binomial; count events in fixed time \u2014 Poisson; one trial only \u2014 Bernoulli.", "pages": [{"h": "Six Distributions Every Analyst Needs", "body": ["Six distributions do most of the everyday work in statistics, and each one models a different kind of randomness. The <strong>Bernoulli</strong> distribution covers a single trial with two outcomes, such as one ad click \u2014 success or not, with probability p. The <strong>Binomial</strong> counts successes across a fixed number of such trials, like coin flips, with parameters n (trials) and p. The <strong>Poisson</strong> counts arrivals in a fixed interval, such as customers per hour, with a single parameter \u03bb, the average rate."]}, {"h": "Six Distributions Every Analyst Needs", "body": ["The remaining three fill out the toolkit. The <strong>Uniform</strong> distribution gives every value in a range equal density \u2014 pick a number x in [0, 1] and no value is more likely than any other. The <strong>Normal</strong> is the bell curve, described by its mean \u03bc and standard deviation, modelling measurements like height, here with \u03bc = 170 cm. The <strong>Exponential</strong> models the waiting time until the next arrival, with its rate set by how often arrivals happen."]}, {"h": "Six Distributions Every Analyst Needs", "body": ["The trick is matching the distribution to the question. Counting how many successes in a fixed number of tries? Binomial. Counting how many events in a fixed stretch of time? Poisson. One yes-or-no trial? Bernoulli. A measurement that piles up symmetrically around a typical value? Normal. Time until the next event? Exponential. Every value equally likely? Uniform. Name the quantity first, and the distribution usually names itself."]}]}, {"h": "Bernoulli vs Binomial vs Poisson", "body": ["The Bernoulli, Binomial and Poisson form one family, and the differences between them are about how much you are counting. A <strong>Bernoulli</strong> trial is a single attempt with success probability p, so its mean is p. A <strong>Binomial</strong> counts the successes in n independent trials with the same constant p, and its mean is np. A Bernoulli is simply a Binomial with n = 1 \u2014 one trial, one count.", "A concrete count shows how the Binomial works. Exactly 5 heads in 10 fair flips has probability about 24.6%: there are C(10, 5) = 252 arrangements with exactly 5 heads out of 2^10 = 1,024 possible sequences, and 252 / 1,024 \u2248 0.246. Note that 24.6% is the chance of exactly 5 heads \u2014 not the chance of heads on any single flip, which stays 50%.", "The <strong>Poisson</strong> counts events in a fixed interval, with a single parameter \u03bb that is both its mean and its variance \u2014 mean = variance = \u03bb. When n is large and p is small, a Binomial is well approximated by a Poisson with \u03bb = np, which is why rare-event counts are so often modelled this way. Two warnings travel with these models: linked decisions break the Binomial's independence, and rush-hour surges break the Poisson's constant rate \u2014 check the assumptions before you trust the count."], "tip": "Mean = variance = \u03bb is the Poisson's fingerprint \u2014 if your count's variance is far from its mean, the Poisson may be the wrong model."}, {"h": "Conditional Probability and Bayes", "body": ["<strong>Conditional probability</strong> asks a question inside a smaller group. Among 100 students, 40 play sports, 30 play music, and 20 do both. The probability of music given sports is P(music | sports) = 20 / 40 = 50%, while the probability of sports given music is P(sports | music) = 20 / 30 \u2248 67%. Same overlap, different condition \u2014 the answer changes because the group you are counting inside has changed. The rule of thumb is: Restrict. Count. Divide.", "<strong>Bayes' rule</strong> turns that idea into a way of updating beliefs. Start with a prior conversion rate of 10%, held with a strength of 20 visits, then observe 12 purchases in 100 visits. The posterior mean becomes 11.7%, with a 95% credible interval of roughly 6.6\u201318.0% \u2014 the data have pulled the belief up a little and narrowed the uncertainty. Compare two versions the same way: version B, with 18 purchases in 100 visits, beats version A, with 12 in 100, with about 87% probability.", "The same updating logic exposes a famous trap. A scanner flags 19 of 20 real defects, a 95% detection rate, which sounds decisive \u2014 but it also raises 99 false alarms, so among the flagged items there are 19 true detections and 99 false alarms, 118 flagged in total. The posterior probability that a flagged item is truly defective is 19 / 118 \u2248 16%. A strong test can still produce mostly false alarms when defects are rare: the base rate matters as much as the test."], "tip": "Before you trust a positive result, ask how many positives are false alarms \u2014 the base rate decides, not the test alone.", "pages": [{"h": "Conditional Probability and Bayes", "body": ["<strong>Conditional probability</strong> asks a question inside a smaller group. Among 100 students, 40 play sports, 30 play music, and 20 do both. The probability of music given sports is P(music | sports) = 20 / 40 = 50%, while the probability of sports given music is P(sports | music) = 20 / 30 \u2248 67%. Same overlap, different condition \u2014 the answer changes because the group you are counting inside has changed. The rule of thumb is: Restrict. Count. Divide."]}, {"h": "Conditional Probability and Bayes", "body": ["<strong>Bayes' rule</strong> turns that idea into a way of updating beliefs. Start with a prior conversion rate of 10%, held with a strength of 20 visits, then observe 12 purchases in 100 visits. The posterior mean becomes 11.7%, with a 95% credible interval of roughly 6.6\u201318.0% \u2014 the data have pulled the belief up a little and narrowed the uncertainty. Compare two versions the same way: version B, with 18 purchases in 100 visits, beats version A, with 12 in 100, with about 87% probability."]}, {"h": "Conditional Probability and Bayes", "body": ["The same updating logic exposes a famous trap. A scanner flags 19 of 20 real defects, a 95% detection rate, which sounds decisive \u2014 but it also raises 99 false alarms, so among the flagged items there are 19 true detections and 99 false alarms, 118 flagged in total. The posterior probability that a flagged item is truly defective is 19 / 118 \u2248 16%. A strong test can still produce mostly false alarms when defects are rare: the base rate matters as much as the test."]}], "game": {"done": "Benny nods: count the right group first, and a positive flag is not a guilty verdict.", "groups": [{"a": 0, "hint": "252 of the 1,024 possible sequences have exactly 5 heads.", "label": "Exactly 5 heads in 10 fair flips happens about", "options": ["24.6% of the time", "50% of the time", "5% of the time"]}, {"a": 0, "hint": "Restrict to the 40 sports players, then count: 20 of 40.", "label": "P(music | sports) with 20 of 40 sports players also doing music is", "options": ["50%", "67%", "20%"]}, {"a": 0, "hint": "19 true flags among 118 flagged items: 19 \u00f7 118.", "label": "A flagged item is truly defective with probability about", "options": ["16%", "95%", "50%"]}], "intro": "Benny has a coin, a classroom and a very confident scanner. Build the call, piece by piece, and see which numbers survive a closer look.", "sentence": "5 heads in 10 flips is 24.6%, P(music|sports) is 50% \u2014 and a flagged item is only about 16% likely to be defective.", "title": "Dr. K Challenge: Benny's coin call", "type": "build"}}], "quiz": [{"a": 1, "opts": ["About 50%", "About 24.6%", "About 10%", "About 75%"], "q": "Exactly 5 heads in 10 fair coin flips: probability?", "why": "C(10,5) = 252 arrangements out of 2^10 = 1,024, so 252 \u00f7 1,024 \u2248 24.6%."}, {"a": 2, "opts": ["20%", "30%", "50%", "67%"], "q": "40 students play sports, 20 of them also play music. P(music | sports) =", "why": "Restrict to the 40 sports players: 20 \u00f7 40 = 50%. (P(sports | music) is the different 20 \u00f7 30 \u2248 67%.)"}, {"a": 2, "opts": ["About 95%", "About 50%", "About 16%", "About 5%"], "q": "A defect scanner flags 19 of 20 real defects, but also raises 99 false alarms. Of 118 flagged items, about what share are truly defective?", "why": "19 true detections among 118 flagged items: 19 \u00f7 118 \u2248 16%. Most flags are false alarms \u2014 the base rate matters."}], "host": "Dr. K", "intro": "<p>Welcome back to the Statistics Quest! I'm Dr. K, and today Benny Binomial is flipping coins, counting arrivals and asking the question that makes probability feel like a superpower: how should a belief change when new evidence shows up? By the end of this episode you'll know which distribution fits which situation \u2014 and how to update a hunch into a number.</p>", "outro": "You now have the six distributions, the Bernoulli\u2013Binomial\u2013Poisson family, and Bayes' rule for updating beliefs when evidence arrives. Next time we look at how two variables move together \u2014 correlation, and why it is never quite the same as causation.", "blurb": "Benny Binomial joins Dr. K to deal out the six distributions every analyst needs \u2014 Bernoulli, Binomial, Poisson, Uniform, Normal and Exponential \u2014 and then shows how Bayes updates a belief when the evidence arrives."}, {"n": 3, "title": "Correlation: Measuring Relationships", "chapter": "Correlation \u00b7 StatsMania C1\u2013C4", "badge": "Correlation Badge", "tags": ["Pearson & Spearman", "Kendall", "Traps"], "lessons": [{"h": "One number, from \u22121 to +1", "body": ["A <strong>correlation coefficient</strong> is a single number between \u22121 and +1 that summarises how strongly two variables move together. A value of +1 means perfect joint rise \u2014 when one goes up, the other always goes up in step. A value of \u22121 means perfect joint fall \u2014 when one rises, the other always falls. A value of 0 means no straight-line relationship at all.", "Two things live inside that one number: the <strong>sign</strong> tells you the direction of the relationship, and the <strong>size</strong> tells you its strength. A coefficient of +0.80 is a strong positive relationship, while +0.20 is a weak one, and \u22120.80 is just as strong as +0.80 \u2014 only in the opposite direction. Reading both parts, sign and size, is the whole skill of reading a correlation at a glance.", "The coefficient is a <strong>standardised</strong> summary: it is the covariance divided by the two standard deviations, which cancels out the units and lets you compare any pair of variables on the same scale. But remember what it is \u2014 a description of the pattern in the data at hand. It tells you how the variables move together; it does not explain why."], "tip": "Sign = direction, size = strength. A \u22120.80 is every bit as strong as a +0.80.", "pages": [{"h": "One number, from \u22121 to +1", "body": ["A <strong>correlation coefficient</strong> is a single number between \u22121 and +1 that summarises how strongly two variables move together. A value of +1 means perfect joint rise \u2014 when one goes up, the other always goes up in step. A value of \u22121 means perfect joint fall \u2014 when one rises, the other always falls. A value of 0 means no straight-line relationship at all."]}, {"h": "One number, from \u22121 to +1", "body": ["Two things live inside that one number: the <strong>sign</strong> tells you the direction of the relationship, and the <strong>size</strong> tells you its strength. A coefficient of +0.80 is a strong positive relationship, while +0.20 is a weak one, and \u22120.80 is just as strong as +0.80 \u2014 only in the opposite direction. Reading both parts, sign and size, is the whole skill of reading a correlation at a glance."]}, {"h": "One number, from \u22121 to +1", "body": ["The coefficient is a <strong>standardised</strong> summary: it is the covariance divided by the two standard deviations, which cancels out the units and lets you compare any pair of variables on the same scale. But remember what it is \u2014 a description of the pattern in the data at hand. It tells you how the variables move together; it does not explain why."]}]}, {"h": "Four coefficients, four jobs", "body": ["<strong>Pearson r = 0.80</strong> measures a straight-line relationship using the actual values \u2014 covariance divided by the two standard deviations. It is the right tool when the pattern is roughly linear and the values themselves carry the information. <strong>Spearman \u03c1 = 0.95</strong> measures a monotonic relationship using ranks instead of values, so it works on curves too, as long as the order holds: whenever one variable rises, the other rises (or always falls).", "<strong>Kendall \u03c4 = 0.88</strong> also works on order, but it counts <strong>concordant vs discordant pairs</strong> \u2014 how often two items are ordered the same way by both variables. It is the natural choice when agreement between two rankings is the question. <strong>Point-biserial r = 0.85</strong> handles a binary variable against a continuous one, such as group membership versus a score \u2014 one side is yes-or-no, the other is a number.", "Cora runs three hotel rounds to show how the choice works. Room size vs nightly price follows a straight trend with no extreme outliers, so Pearson fits and gives r = 0.98. Service ratings of 1\u20135 stars vs tips are ordinal with unequal gaps, so ranks are the honest scale \u2014 Spearman \u03c1 = 0.98, with ties averaged. Two judges ranking 5 hotels is a question of pairwise agreement, so Kendall \u03c4 = 0.60. The rule, every time: read the data first, then choose. Ratings of 1\u20135 stars vs spending? Use Spearman or Kendall, since the ratings are ordered but unevenly spaced."], "tip": "Read the data. Then choose. The shape of your variables picks the coefficient \u2014 not habit."}, {"h": "Traps: curves, U-shapes and outliers", "body": ["The same curved data can tell two different stories depending on the coefficient. Pearson gives +0.84 while Spearman gives +1.00 \u2014 Pearson misses the curve's full strength because it only sees straight lines, while Spearman, working on ranks, sees the perfect monotonic rise. When the relationship bends, Pearson understates it. That is not a mistake in the data; it is a limit of the tool.", "A U-shape is worse: Pearson can miss the pattern entirely. With Y = X\u00b2, the rising half and the falling half cancel out in a straight-line measure, so Pearson r = 0.00 \u2014 yet the pattern is strong, and <strong>distance correlation</strong> picks it up at 0.50. A zero Pearson never means \"no relationship\"; it means no straight-line relationship. And a single outlier can inflate r to +0.67, dragging the whole summary toward one unusual point.", "The deepest trap is the oldest one: <strong>correlation is not causation</strong>. A strong coefficient never proves that one variable causes the other \u2014 both could be driven by a third factor, or the link could run the other way round. So always read the scatterplot first. The coefficient is a summary, not a substitute for looking at the data."], "tip": "A Pearson of 0.00 can hide a perfect U-shape. Look at the scatterplot before you believe any single number.", "pages": [{"h": "Traps: curves, U-shapes and outliers", "body": ["The same curved data can tell two different stories depending on the coefficient. Pearson gives +0.84 while Spearman gives +1.00 \u2014 Pearson misses the curve's full strength because it only sees straight lines, while Spearman, working on ranks, sees the perfect monotonic rise. When the relationship bends, Pearson understates it. That is not a mistake in the data; it is a limit of the tool."]}, {"h": "Traps: curves, U-shapes and outliers", "body": ["A U-shape is worse: Pearson can miss the pattern entirely. With Y = X\u00b2, the rising half and the falling half cancel out in a straight-line measure, so Pearson r = 0.00 \u2014 yet the pattern is strong, and <strong>distance correlation</strong> picks it up at 0.50. A zero Pearson never means \"no relationship\"; it means no straight-line relationship. And a single outlier can inflate r to +0.67, dragging the whole summary toward one unusual point."]}, {"h": "Traps: curves, U-shapes and outliers", "body": ["The deepest trap is the oldest one: <strong>correlation is not causation</strong>. A strong coefficient never proves that one variable causes the other \u2014 both could be driven by a third factor, or the link could run the other way round. So always read the scatterplot first. The coefficient is a summary, not a substitute for looking at the data."]}], "game": {"done": "Cora approves: read the data first, then choose the coefficient \u2014 and never let a single number replace the scatterplot.", "groups": [{"a": 0, "hint": "Ratings are ordinal with unequal gaps \u2014 rank them.", "label": "1\u20135 star ratings vs tips \u2014 the right coefficient is", "options": ["Spearman \u03c1", "Pearson r", "Point-biserial"]}, {"a": 0, "hint": "The rise and the fall cancel in a straight-line measure.", "label": "On U-shaped data (Y = X\u00b2), Pearson r is about", "options": ["0.00", "1.00", "0.50"]}, {"a": 0, "hint": "Judge agreement is pairwise ordering.", "label": "Two judges ranking 5 hotels \u2014 the right coefficient is", "options": ["Kendall \u03c4", "Pearson r", "Distance correlation"]}], "intro": "Three calls, three coefficients. Cora is watching \u2014 pick the right tool for each dataset.", "sentence": "Spearman for ordinal ratings, Pearson \u2248 0.00 on a U-shape, Kendall for two judges ranking.", "title": "Dr. K Challenge: Cora's coefficient call", "type": "build"}}], "quiz": [{"a": 1, "opts": ["Pearson r", "Spearman \u03c1", "Point-biserial r", "Distance correlation"], "q": "You have 1\u20135 star service ratings and tip amounts. Which coefficient fits best?", "why": "Ratings are ordinal with unequal gaps, so rank-based Spearman \u03c1 fits; Pearson assumes equal spacing and straight lines."}, {"a": 1, "opts": ["+1.00", "0.00", "\u22121.00", "+0.50"], "q": "Data follow a perfect U-shape, Y = X\u00b2. Pearson r is about\u2026", "why": "The rising half and falling half cancel in a straight-line measure, so Pearson r \u2248 0.00 even though the pattern is strong (distance correlation is 0.50)."}, {"a": 2, "opts": ["Pearson r", "Spearman \u03c1", "Kendall \u03c4", "Point-biserial r"], "q": "Two judges each rank 5 hotels. Which coefficient measures their agreement?", "why": "Kendall \u03c4 counts concordant vs discordant pairs \u2014 pairwise agreement between two rankings (\u03c4 = 0.60 in the hotel example)."}], "host": "Dr. K", "intro": "<p>Welcome back, questers! Today we meet Cora Correlation, who measures how strongly two variables move together \u2014 and who will also warn you about every way a single number can mislead you. Four coefficients, three hotel rounds, and a few traps worth dodging. Let's go!</p>", "outro": "Next up: inference \u2014 how to choose a test, read a p-value, and tell a real effect from a surprising coincidence. Cora's scatterplot habit will serve you well there too.", "blurb": "Meet Cora Correlation and learn the four coefficients \u2014 Pearson, Spearman, Kendall and point-biserial \u2014 plus the traps that catch even careful analysts: curves, U-shapes and lone outliers."}, {"n": 4, "title": "Inference: Tests, p-values & Effect Sizes", "chapter": "Inference \u00b7 StatsMania D1\u2013D9", "badge": "Inference Badge", "tags": ["p-value", "Z vs t", "ANOVA"], "lessons": [{"h": "Choosing a test: ask three questions", "body": ["The 11-test guide looks long, but choosing is simple once you ask the right questions: how many groups, same or different units, and what kind of data? A <strong>one-sample t-test</strong> compares one group against a fixed target, such as delivery times against a promised target. <strong>Welch's t-test</strong> compares two different groups and allows unequal variances, such as spending under Plan A versus Plan B.", "When the same units are measured twice, the design changes the test. A <strong>paired t-test</strong> handles before-and-after data \u2014 store sales before and after a redesign \u2014 by testing the average change against zero. With three or more group means, such as basket size by region, you need a <strong>one-way ANOVA</strong>. And when both variables are categorical, such as device versus plan, a <strong>chi-square test</strong> is the tool.", "Two more cover the awkward cases. <strong>Mann-Whitney U</strong> compares two groups on ranked data, such as time on page, when the usual assumptions do not hold. <strong>Fisher's exact test</strong> handles small-sample counts, such as button clicks in a tiny experiment. Whatever you pick, check the assumptions first \u2014 and remember that a p-value is not an effect size."], "tip": "How many groups? Same units or different? What kind of data? Those three answers pick your test.", "pages": [{"h": "Choosing a test: ask three questions", "body": ["The 11-test guide looks long, but choosing is simple once you ask the right questions: how many groups, same or different units, and what kind of data? A <strong>one-sample t-test</strong> compares one group against a fixed target, such as delivery times against a promised target. <strong>Welch's t-test</strong> compares two different groups and allows unequal variances, such as spending under Plan A versus Plan B."]}, {"h": "Choosing a test: ask three questions", "body": ["When the same units are measured twice, the design changes the test. A <strong>paired t-test</strong> handles before-and-after data \u2014 store sales before and after a redesign \u2014 by testing the average change against zero. With three or more group means, such as basket size by region, you need a <strong>one-way ANOVA</strong>. And when both variables are categorical, such as device versus plan, a <strong>chi-square test</strong> is the tool."]}, {"h": "Choosing a test: ask three questions", "body": ["Two more cover the awkward cases. <strong>Mann-Whitney U</strong> compares two groups on ranked data, such as time on page, when the usual assumptions do not hold. <strong>Fisher's exact test</strong> handles small-sample counts, such as button clicks in a tiny experiment. Whatever you pick, check the assumptions first \u2014 and remember that a p-value is not an effect size."]}]}, {"h": "p-values and effect sizes: surprise vs size", "body": ["A signup-page redesign is tested against the original with 1,000 visitors each: 100 signups (10%) against 130 (13%), a gap of +3 percentage points. Under the null hypothesis of equal underlying rates, a gap of \u00b13 percentage points or more occurs about 3.5% of the time \u2014 so p \u2248 0.035, significant at \u03b1 = 0.05. A smaller p means the data are less compatible with the null; it is a measure of surprise under the null.", "Two misreadings need correcting. First, p is NOT the probability that the rates are equal \u2014 it is the probability of a gap at least this large if the rates were equal. Second, significance is not business value: whether to roll out the redesign also depends on the effect size (+3 percentage points), the rollout cost, and the context. A significant result can still be too small to matter.", "The caf\u00e9 experiment makes the split concrete. System A has a mean wait of 2:00 and System B a mean of 1:54 \u2014 the <strong>effect size</strong> is 6 seconds, answering \"how large\". The <strong>p-value</strong> answers a different question: \"how unusual\" would that gap be if there were no real difference? With 5,000 orders per system, even a tiny effect can be \"significant\" \u2014 size and surprise are different questions, and you need both answers."], "tip": "p-value = how unusual. Effect size = how large. Never report one without the other."}, {"h": "Z vs t, and how ANOVA works", "body": ["A coffee roaster aims for 200 g per bag, and 9 bags average 204 g \u2014 a gap of 4 g. With a <strong>Z-test</strong>, the population standard deviation is known (6 g), so the standard error is SE = 6/\u221a9 = 2 g, giving Z = 4/2 = 2 and a two-sided p \u2248 4.6%. At 5%, that is evidence of a difference. With a <strong>t-test</strong>, the standard deviation is estimated from the sample (also 6 g), so the standard error is the same 2 g and t = 2 \u2014 but the heavier-tailed t distribution gives p \u2248 8.1%, and at 5% the verdict flips to \"no evidence\".", "The rule is plain: use Z when \u03c3 is known, and t when \u03c3 is estimated from the sample. Estimating the spread adds uncertainty, and the t distribution prices that uncertainty in with heavier tails \u2014 which is why the same gap of 4 g can be significant under one test and not under the other. As the sample grows, the t distribution approaches the normal and the two answers converge.", "<strong>ANOVA</strong> \u2014 analysis of variance \u2014 compares group means by comparing variation between groups with variation within groups; a large ratio signals real differences between the groups. <strong>One-way ANOVA</strong> uses one factor to split the data into groups, while <strong>two-way ANOVA</strong> uses two factors and can also reveal their interaction \u2014 whether the effect of one factor depends on the level of the other."], "tip": "Z when \u03c3 is known, t when \u03c3 is estimated. Same gap, same SE \u2014 different p, because the t distribution has heavier tails.", "pages": [{"h": "Z vs t, and how ANOVA works", "body": ["A coffee roaster aims for 200 g per bag, and 9 bags average 204 g \u2014 a gap of 4 g. With a <strong>Z-test</strong>, the population standard deviation is known (6 g), so the standard error is SE = 6/\u221a9 = 2 g, giving Z = 4/2 = 2 and a two-sided p \u2248 4.6%. At 5%, that is evidence of a difference. With a <strong>t-test</strong>, the standard deviation is estimated from the sample (also 6 g), so the standard error is the same 2 g and t = 2 \u2014 but the heavier-tailed t distribution gives p \u2248 8.1%, and at 5% the verdict flips to \"no evidence\"."]}, {"h": "Z vs t, and how ANOVA works", "body": ["The rule is plain: use Z when \u03c3 is known, and t when \u03c3 is estimated from the sample. Estimating the spread adds uncertainty, and the t distribution prices that uncertainty in with heavier tails \u2014 which is why the same gap of 4 g can be significant under one test and not under the other. As the sample grows, the t distribution approaches the normal and the two answers converge."]}, {"h": "Z vs t, and how ANOVA works", "body": ["<strong>ANOVA</strong> \u2014 analysis of variance \u2014 compares group means by comparing variation between groups with variation within groups; a large ratio signals real differences between the groups. <strong>One-way ANOVA</strong> uses one factor to split the data into groups, while <strong>two-way ANOVA</strong> uses two factors and can also reveal their interaction \u2014 whether the effect of one factor depends on the level of the other."]}], "game": {"done": "Polly nods: significant is not the same as large, and the right test starts with what you actually know.", "groups": [{"a": 0, "hint": "0.035 is below 0.05.", "label": "The signup gap (+3pp, p \u2248 0.035) at \u03b1 = 0.05 is", "options": ["Statistically significant", "Not significant", "Proof the rates differ"]}, {"a": 0, "hint": "2:00 minus 1:54 \u2014 how large, not how unusual.", "label": "The caf\u00e9's effect size is", "options": ["6 seconds", "p \u2248 0.035", "5,000 orders"]}, {"a": 0, "hint": "Z when \u03c3 is known, t when it is estimated.", "label": "Coffee bags: \u03c3 known \u2192 use", "options": ["A Z-test", "A t-test", "An ANOVA"]}], "intro": "Three verdicts to deliver. Polly is watching \u2014 significant, size, and the right test.", "sentence": "p \u2248 0.035 is significant at 5%, the effect is 6 seconds \u2014 and with \u03c3 known, the Z-test is the right call.", "title": "Dr. K Challenge: Polly's verdict", "type": "build"}}], "quiz": [{"a": 1, "opts": ["Not significant", "Statistically significant", "Proof the redesign caused the lift", "Meaningless"], "q": "Signup redesign: 10% vs 13%, p \u2248 0.035. At \u03b1 = 0.05, the result is\u2026", "why": "p \u2248 0.035 is below 0.05, so the gap is statistically significant \u2014 though significance is not proof of causation or of business value."}, {"a": 1, "opts": ["t-test", "Z-test", "ANOVA", "Chi-square"], "q": "Coffee roaster: population SD known (6 g), 9 bags, mean 204 g vs target 200 g. Which test?", "why": "Z when \u03c3 is known \u2014 use a Z-test: SE = 6/\u221a9 = 2 g, Z = 2, p \u2248 4.6%. With \u03c3 estimated from the sample you would use a t-test (p \u2248 8.1%)."}, {"a": 1, "opts": ["p \u2248 0.035", "6 seconds", "5,000 orders", "3 percentage points"], "q": "System A mean wait 2:00, System B 1:54. What is the effect size?", "why": "Effect size is how large the difference is: 2:00 \u2212 1:54 = 6 seconds. The p-value answers a different question \u2014 how unusual that gap would be if there were no real difference."}], "host": "Dr. K", "intro": "<p>Welcome back, questers! Today we meet Polly p-value \u2014 part detective, part referee. She will show you how to pick the right test for the data in front of you, what a p-value really says, and why a tiny p-value is not the same as a big effect. Bring your scepticism!</p>", "outro": "Next up: the Midterm boss battle \u2014 practice only, a chance to put everything from the first four episodes to work \u2014 and then we move on to regression.", "blurb": "Meet Polly p-value and learn to choose the right test, read a p-value without fooling yourself, and tell a real effect from a merely surprising one \u2014 p \u2248 0.035, and a 6-second effect size."}, {"n": 5, "title": "Regression & Model Fitting", "chapter": "Regression \u00b7 StatsMania E1\u2013E6", "badge": "Regression Badge", "tags": ["OLS", "Logistic & GLMs", "Loss functions"], "lessons": [{"h": "Reading an OLS summary", "body": ["A regression summary starts with two numbers that do most of the talking. In a small example of 10 students, study hours predict an exam score with an <strong>intercept</strong> of 50 and a <strong>slope</strong> of 4.0. The intercept is the predicted score at zero study hours, and the slope says each extra hour adds about 4 points \u2014 so at 5 hours the predicted score is 50 + 4.0 \u00d7 5 = 70.", "The summary then tells us how sure we can be about that slope. Its standard error is 0.991, giving a t-value of 4.0 \u00f7 0.991 \u2248 4.04, a p-value of 0.004, and a 95% confidence interval of 1.7 to 6.3. A <strong>residual</strong> is the gap between the actual score and the predicted one \u2014 for a student who actually scored 81 against a prediction of 70, the residual is 81 \u2212 70 = 11 \u2014 and the residual standard error here is about 9.", "The fit as a whole is summed up in a few more figures: R\u00b2 is 0.671, so about 67% of the variation in scores is explained by study hours, adjusted R\u00b2 is 0.630, and the F-statistic is 16.30 with a p-value of 0.00375, which compares the model against simply predicting the mean score for everyone. And one warning belongs on every summary: a slope shows association, not causation \u2014 hours and scores move together, but the regression alone cannot prove that extra hours caused the higher score."], "tip": "Read the whole summary \u2014 intercept, slope, uncertainty, and fit \u2014 before you believe any single number.", "pages": [{"h": "Reading an OLS summary", "body": ["A regression summary starts with two numbers that do most of the talking. In a small example of 10 students, study hours predict an exam score with an <strong>intercept</strong> of 50 and a <strong>slope</strong> of 4.0. The intercept is the predicted score at zero study hours, and the slope says each extra hour adds about 4 points \u2014 so at 5 hours the predicted score is 50 + 4.0 \u00d7 5 = 70."]}, {"h": "Reading an OLS summary", "body": ["The summary then tells us how sure we can be about that slope. Its standard error is 0.991, giving a t-value of 4.0 \u00f7 0.991 \u2248 4.04, a p-value of 0.004, and a 95% confidence interval of 1.7 to 6.3. A <strong>residual</strong> is the gap between the actual score and the predicted one \u2014 for a student who actually scored 81 against a prediction of 70, the residual is 81 \u2212 70 = 11 \u2014 and the residual standard error here is about 9."]}, {"h": "Reading an OLS summary", "body": ["The fit as a whole is summed up in a few more figures: R\u00b2 is 0.671, so about 67% of the variation in scores is explained by study hours, adjusted R\u00b2 is 0.630, and the F-statistic is 16.30 with a p-value of 0.00375, which compares the model against simply predicting the mean score for everyone. And one warning belongs on every summary: a slope shows association, not causation \u2014 hours and scores move together, but the regression alone cannot prove that extra hours caused the higher score."]}]}, {"h": "Logistic regression & GLMs", "body": ["Some outcomes are yes-or-no, not a number, and that is where <strong>logistic regression</strong> comes in. Take a spam filter looking at an email with 4 suspicious words and 2 links. The weights are +1.005 per suspicious word and +0.851 per link, with a bias of \u22124.332, so the score is 4 \u00d7 1.005 + 2 \u00d7 0.851 \u2212 4.332 = 4.020 + 1.702 \u2212 4.332 = 1.390. Passing that score through the sigmoid function gives 1/(1 + e^(\u22121.390)) \u2248 0.80, so the email is about 80% likely to be spam.", "A probability still needs a decision rule, and here the threshold is 50%: above it, the email is labelled spam. That threshold is a trade-off, not a law of nature \u2014 lowering it catches more spam, but also flags more legitimate mail as spam. And the training signal behind it all is <strong>log loss</strong>, which penalises confident wrong predictions heavily, so a model that is 99% sure and wrong pays far more than one that is 60% sure and wrong.", "Logistic regression is one member of a bigger family, the <strong>generalised linear model</strong> (GLM): one framework built from a linear predictor, a distribution, and a link function. Linear regression is Gaussian with an identity link; logistic regression is Bernoulli with a logit link; Poisson regression is Poisson with a log link \u2014 for example, predicting a caf\u00e9's daily orders from temperature and a weekend indicator. Coefficients mean different things under each link, and all of them are fitted by maximum likelihood."], "tip": "A score is not a probability until it passes through the link \u2014 and a probability is not a decision until you set a threshold."}, {"h": "Loss functions", "body": ["A model is only as good as its misses, and a <strong>loss function</strong> is how we measure them. Picture delivery times with errors of +1, \u22121, and +4 minutes. The mean absolute error, MAE, averages the sizes of the misses: (1 + 1 + 4) \u00f7 3 = 2 minutes \u2014 it simply keeps the distance. The mean squared error, MSE, squares each miss first: (1 + 1 + 16) \u00f7 3 = 6 min\u00b2 \u2014 it grows the squares before averaging.", "That squaring changes what a big miss costs. Doubling a miss doubles its contribution to MAE, but quadruples its contribution to MSE, so MSE punishes large errors disproportionately. A model that is usually close but occasionally badly wrong can look fine under MAE and terrible under MSE \u2014 and which one is right depends on whether one big miss matters more to you than several small ones.", "There are four essentials to know by name. MSE and MAE are the workhorses; <strong>Huber loss</strong> is a compromise, squared for small errors and linear for large ones; and log loss is the choice for probabilities, penalising confident wrong calls. The rule is simple: pick the loss that matches what a big miss actually costs you."], "tip": "If one huge miss would ruin your day, MSE will show it. If all misses count alike, MAE is the honest measure.", "pages": [{"h": "Loss functions", "body": ["A model is only as good as its misses, and a <strong>loss function</strong> is how we measure them. Picture delivery times with errors of +1, \u22121, and +4 minutes. The mean absolute error, MAE, averages the sizes of the misses: (1 + 1 + 4) \u00f7 3 = 2 minutes \u2014 it simply keeps the distance. The mean squared error, MSE, squares each miss first: (1 + 1 + 16) \u00f7 3 = 6 min\u00b2 \u2014 it grows the squares before averaging."]}, {"h": "Loss functions", "body": ["That squaring changes what a big miss costs. Doubling a miss doubles its contribution to MAE, but quadruples its contribution to MSE, so MSE punishes large errors disproportionately. A model that is usually close but occasionally badly wrong can look fine under MAE and terrible under MSE \u2014 and which one is right depends on whether one big miss matters more to you than several small ones."]}, {"h": "Loss functions", "body": ["There are four essentials to know by name. MSE and MAE are the workhorses; <strong>Huber loss</strong> is a compromise, squared for small errors and linear for large ones; and log loss is the choice for probabilities, penalising confident wrong calls. The rule is simple: pick the loss that matches what a big miss actually costs you."]}], "game": {"done": "Reggie approves: read the whole summary, not just the slope \u2014 and pick the loss that matches what a big miss costs.", "groups": [{"a": 0, "hint": "Intercept 50 plus slope 4.0 \u00d7 5 hours.", "label": "At 5 study hours, the predicted exam score is", "options": ["70", "81", "50"]}, {"a": 0, "hint": "Sigmoid of +1.390 is about 0.80.", "label": "The spam score +1.390 means the email is", "options": ["80% spam", "20% spam", "50% spam"]}, {"a": 0, "hint": "(1 + 1 + 4) \u00f7 3 = 2. (6 is the MSE, in squared minutes.)", "label": "With errors +1, \u22121, +4, the MAE is", "options": ["2 min", "6 min\u00b2", "4 min"]}], "intro": "Reggie has three quick checks for you \u2014 one from each lesson. Pick the right value in each group and the sentence builds itself.", "sentence": "Predicted 70 at 5 hours, the email is 80% spam \u2014 and the MAE is 2 minutes.", "title": "Dr. K Challenge: Reggie's fit check", "type": "build"}}], "quiz": [{"a": 2, "opts": ["50", "54", "70", "81"], "q": "OLS: intercept 50, slope 4.0. Predicted exam score after 5 study hours?", "why": "50 + 4.0 \u00d7 5 = 70. (81 is an actual score in the example; its residual is 81 \u2212 70 = 11.)"}, {"a": 2, "opts": ["About 20%", "About 50%", "About 80%", "About 99%"], "q": "Spam score +1.390 through the sigmoid gives what probability?", "why": "1/(1 + e^(\u22121.390)) \u2248 0.80 \u2014 80% spam, above the 50% threshold, so it is labelled spam."}, {"a": 0, "opts": ["2 min", "6 min\u00b2", "4 min", "1 min"], "q": "Errors +1, \u22121, +4 minutes. What is the MAE?", "why": "MAE = (1 + 1 + 4) \u00f7 3 = 2 min. MSE is the squared version: (1 + 1 + 16) \u00f7 3 = 6 min\u00b2."}], "host": "Dr. K", "intro": "<p>Welcome back, questers \u2014 Dr. K here, and today we meet Reggie Regression, your guide to fitting lines to data and reading what the fit actually says. We will open up a real regression summary piece by piece, sort spam from real mail with a logistic model, and learn to judge a model by the cost of its mistakes. Grab your notebook: the numbers tell the story, if you know where to look.</p>", "outro": "You can now read a regression summary end to end, turn a score into a probability, and judge a model by the loss that fits its job. Next episode, Trevor Tree opens the machine learning toolkit \u2014 eight models, honest training, and evaluation that refuses to be fooled.", "blurb": "Reggie Regression joins Dr. K to read a full OLS summary, turn a spam score into an 80% probability, and measure misses with an MAE of 2 minutes."}, {"n": 6, "title": "Machine Learning Toolkit", "chapter": "Machine Learning \u00b7 StatsMania F1\u2013F20", "badge": "ML Toolkit Badge", "tags": ["8 ML models", "Bias vs variance", "Precision & recall"], "lessons": [{"h": "The 8 essential models", "body": ["Machine learning boils down to three core tasks. <strong>Regression</strong> predicts a number, <strong>classification</strong> predicts a category, and <strong>clustering</strong> finds groups with no labels at all \u2014 and the eight essential models below each serve one of those jobs. Start with the two workhorses: linear regression predicts a number, such as rent from floor area, while logistic regression predicts a category's probability, such as the chance a customer churns.", "The next two classify by geometry. <strong>K-nearest neighbours</strong> classifies a customer by looking at the K most similar customers around them, while a <strong>support vector machine</strong> separates categories with the widest possible margin \u2014 the boundary is fixed by the closest points on each side, called support vectors. Both are simple ideas with a surprising amount of power.", "The tree family brings the flowchart to life. A <strong>decision tree</strong> asks a chain of yes-or-no questions, like sorting out why deliveries run late; a <strong>random forest</strong> grows many trees and lets them vote, which is more reliable than any single tree; and <strong>gradient-boosted trees</strong> build trees in sequence, each one correcting the last, which is why they shine at demand forecasting \u2014 XGBoost is the best-known version. Finally, <strong>K-means clustering</strong> groups similar customers together without any labels, which is how you discover segments you did not know existed."], "tip": "Name the task first \u2014 number, category, or groups \u2014 and the right model usually picks itself.", "pages": [{"h": "The 8 essential models", "body": ["Machine learning boils down to three core tasks. <strong>Regression</strong> predicts a number, <strong>classification</strong> predicts a category, and <strong>clustering</strong> finds groups with no labels at all \u2014 and the eight essential models below each serve one of those jobs. Start with the two workhorses: linear regression predicts a number, such as rent from floor area, while logistic regression predicts a category's probability, such as the chance a customer churns."]}, {"h": "The 8 essential models", "body": ["The next two classify by geometry. <strong>K-nearest neighbours</strong> classifies a customer by looking at the K most similar customers around them, while a <strong>support vector machine</strong> separates categories with the widest possible margin \u2014 the boundary is fixed by the closest points on each side, called support vectors. Both are simple ideas with a surprising amount of power."]}, {"h": "The 8 essential models", "body": ["The tree family brings the flowchart to life. A <strong>decision tree</strong> asks a chain of yes-or-no questions, like sorting out why deliveries run late; a <strong>random forest</strong> grows many trees and lets them vote, which is more reliable than any single tree; and <strong>gradient-boosted trees</strong> build trees in sequence, each one correcting the last, which is why they shine at demand forecasting \u2014 XGBoost is the best-known version. Finally, <strong>K-means clustering</strong> groups similar customers together without any labels, which is how you discover segments you did not know existed."]}]}, {"h": "Training honestly", "body": ["Most models learn by <strong>gradient descent</strong>: training means minimising a loss, such as MSE on a line fit, by stepping downhill. The update rule is simple \u2014 new value = current value \u2212 learning rate \u00d7 gradient. Start with a slope of 0, a gradient of \u221210, and a rate of 0.1, and the new slope is 0 \u2212 0.1 \u00d7 (\u221210) = 1; repeat, and the slope walks toward 2, where the MSE falls below 0.001. Small rates crawl, large rates overshoot \u2014 the rate is the steering.", "The deeper question is whether the model is too simple or too complicated, the <strong>bias\u2013variance</strong> trade-off. Picture an ice-cream shop: sales rise with temperature, then level off. A too-simple straight line has high bias \u2014 it underfits, missing the curve entirely. A wiggly model that chases every bump has high variance \u2014 it overfits, memorising noise instead of the pattern. The best balance predicts new data best, and you find it with validation and cross-validation, never with training error alone.", "Two ensemble habits help you hit that balance. <strong>Bagging</strong> trains models independently in parallel on bootstrap samples and averages or votes the results, which reduces variance \u2014 a random forest adds feature randomness on top. <strong>Boosting</strong> builds trees sequentially, each correcting the ensemble's errors and scaled by a learning rate, but it can chase noise and overfit, so use smaller learning rates and early stopping. Two house rules round it out: fit any feature scaling on training data only, and evaluate honestly with cross-validation \u2014 six techniques cover the usual splits: k-fold, stratified k-fold, leave-one-out, time-series split, repeated k-fold, and one further split scheme."], "tip": "Training error flatters you. Validation and cross-validation are the only honest judges of a model."}, {"h": "Evaluation & ensembles", "body": ["Good evaluation starts with a clean workflow: Learn on the training set, Tune on the validation set, and Test once on an untouched test set. Now meet the bank fraud detector, and watch accuracy lie: if fraud is rare, predicting that every transaction is legitimate still scores 99% accuracy \u2014 while catching 0 fraud. Accuracy is the wrong headline when the classes are that unbalanced.", "The <strong>confusion matrix</strong> tells the honest story. Here it reads TP 8, FN 2, FP 12, TN 978. Precision is 8 \u00f7 20 = 40% \u2014 of the 20 transactions flagged, 8 were truly fraud. Recall is 8 \u00f7 10 = 80% \u2014 of the 10 real frauds, 8 were caught. The F1 score balances the two: 2 \u00d7 0.4 \u00d7 0.8 \u00f7 (0.4 + 0.8) = 0.64 \u00f7 1.2 \u2248 0.533, about 53%. No single number hides the trade-off; precision and recall show it plainly.", "That trade-off is set by the <strong>decision threshold</strong>: lower it and you catch more fraud, but raise more false alarms \u2014 so set it on validation, before final testing. And some problems have no labels at all, which is where anomaly detection comes in. An <strong>isolation forest</strong> isolates points by random splitting, and anomalies isolate quickly: among 10 vans, Van 10 drove about 160 miles like another van but idled 16 hours versus 4 \u2014 one random cut, idle hours above 10, isolates it, while a normal van needs 4 cuts. Averaged across many trees, the path lengths are 2.14 versus 5.23, giving anomaly scores of 0.68 versus 0.39. Shorter path, higher score \u2014 the odd one out stands apart."], "tip": "When one class is rare, never trust accuracy alone \u2014 read precision and recall first.", "pages": [{"h": "Evaluation & ensembles", "body": ["Good evaluation starts with a clean workflow: Learn on the training set, Tune on the validation set, and Test once on an untouched test set. Now meet the bank fraud detector, and watch accuracy lie: if fraud is rare, predicting that every transaction is legitimate still scores 99% accuracy \u2014 while catching 0 fraud. Accuracy is the wrong headline when the classes are that unbalanced."]}, {"h": "Evaluation & ensembles", "body": ["The <strong>confusion matrix</strong> tells the honest story. Here it reads TP 8, FN 2, FP 12, TN 978. Precision is 8 \u00f7 20 = 40% \u2014 of the 20 transactions flagged, 8 were truly fraud. Recall is 8 \u00f7 10 = 80% \u2014 of the 10 real frauds, 8 were caught. The F1 score balances the two: 2 \u00d7 0.4 \u00d7 0.8 \u00f7 (0.4 + 0.8) = 0.64 \u00f7 1.2 \u2248 0.533, about 53%. No single number hides the trade-off; precision and recall show it plainly."]}, {"h": "Evaluation & ensembles", "body": ["That trade-off is set by the <strong>decision threshold</strong>: lower it and you catch more fraud, but raise more false alarms \u2014 so set it on validation, before final testing. And some problems have no labels at all, which is where anomaly detection comes in. An <strong>isolation forest</strong> isolates points by random splitting, and anomalies isolate quickly: among 10 vans, Van 10 drove about 160 miles like another van but idled 16 hours versus 4 \u2014 one random cut, idle hours above 10, isolates it, while a normal van needs 4 cuts. Averaged across many trees, the path lengths are 2.14 versus 5.23, giving anomaly scores of 0.68 versus 0.39. Shorter path, higher score \u2014 the odd one out stands apart."]}], "game": {"done": "Trevor nods: 99% accuracy caught zero fraud. Precision and recall tell the honest story.", "groups": [{"a": 0, "hint": "8 true frauds among 20 flagged: 8 \u00f7 20.", "label": "Precision on the fraud detector is", "options": ["40%", "80%", "99%"]}, {"a": 0, "hint": "8 of the 10 real frauds caught: 8 \u00f7 10.", "label": "Recall on the fraud detector is", "options": ["80%", "40%", "53%"]}, {"a": 0, "hint": "Averaging independent models steadies the prediction \u2014 it does not fix a too-simple model.", "label": "Bagging mainly reduces", "options": ["Variance", "Bias", "The number of trees"]}], "intro": "Trevor has three quick checks for you \u2014 precision, recall, and bagging. Pick the right value in each group and the sentence builds itself.", "sentence": "Precision 40%, recall 80% \u2014 and bagging reduces variance.", "title": "Dr. K Challenge: Trevor's fraud check", "type": "build"}}], "quiz": [{"a": 1, "opts": ["80%", "40%", "53%", "99%"], "q": "Fraud detector: TP 8, FP 12. What is precision?", "why": "Precision = TP \u00f7 (TP + FP) = 8 \u00f7 20 = 40%. (99% is the accuracy trap: predicting everything legitimate.)"}, {"a": 2, "opts": ["40%", "53%", "80%", "99%"], "q": "Fraud detector: TP 8, FN 2. What is recall?", "why": "Recall = TP \u00f7 (TP + FN) = 8 \u00f7 10 = 80% \u2014 8 of the 10 real frauds were caught."}, {"a": 2, "opts": ["0", "\u22121", "1", "2"], "q": "Gradient descent: slope 0, gradient \u221210, learning rate 0.1. What is the new slope?", "why": "New = current \u2212 rate \u00d7 gradient = 0 \u2212 0.1 \u00d7 (\u221210) = 1. The slope steps toward 2, where the MSE falls below 0.001."}], "host": "Dr. K", "intro": "<p>Welcome back, questers \u2014 Dr. K here, and today Trevor Tree is your guide to the machine learning toolkit. Eight models, one honest way to train them, and evaluation that looks past the easy headline number. By the end of this episode you will know which model to reach for, how to train it without fooling yourself, and how to tell whether it actually works. Let's open the toolbox.</p>", "outro": "You now carry the full toolkit: eight models, honest training with validation, and evaluation that catches what accuracy hides. Next episode, we turn from prediction to causes \u2014 causal inference, where the question is not what will happen, but what would happen if we acted.", "blurb": "Trevor Tree opens the machine learning toolkit: 8 essential models, honest training habits, and a fraud detector that scores 40% precision and 80% recall."}, {"n": 7, "title": "Causal Inference & Experiments", "chapter": "Causal Inference \u00b7 StatsMania H1\u2013H10", "badge": "Causal Badge", "tags": ["A/B testing", "Matching", "Causal toolkit"], "lessons": [{"h": "A/B Testing: Randomize, Measure, Evaluate", "body": ["An <strong>A/B test</strong> is a randomised controlled experiment: two versions of one thing, shown to randomly chosen users at the same time, with everything else held identical. Take a checkout page for wireless headphones \u2014 Version A says \"Continue\" and Version B says \"Complete order\". The <strong>hypothesis</strong> is that clearer wording raises purchases; the <strong>null hypothesis</strong> is that both versions convert equally; and the <strong>success metric</strong>, purchase conversion, is fixed before the test starts so nobody can move the goalposts afterwards.", "Random assignment is what makes the comparison fair: the two groups differ only by chance, so any real difference in purchases can be blamed on the wording. Size the test from the baseline conversion rate, the smallest effect worth caring about, and your chosen significance level (\u03b1) and power \u2014 then run it long enough to cover full business cycles, so a weekday-weekend swing cannot masquerade as a result.", "The result: 10,000 users in each group, Version A with 500 purchases (5%) and Version B with 600 (6%) \u2014 a lift of +1 percentage point, with a two-proportion test giving p &lt; 5%. But statistical significance is not the same as practical value, and three traps sink careless tests: stopping early the moment the numbers look good, changing several features at once so nobody knows which one worked, and cherry-picking whichever metric happens to look best. Carla's motto says it all: \"Randomize, Measure, Evaluate.\""], "tip": "Fix your metric, your sample size and your run length before you start \u2014 a test you can stop early is a test you can fool yourself with.", "pages": [{"h": "A/B Testing: Randomize, Measure, Evaluate", "body": ["An <strong>A/B test</strong> is a randomised controlled experiment: two versions of one thing, shown to randomly chosen users at the same time, with everything else held identical. Take a checkout page for wireless headphones \u2014 Version A says \"Continue\" and Version B says \"Complete order\". The <strong>hypothesis</strong> is that clearer wording raises purchases; the <strong>null hypothesis</strong> is that both versions convert equally; and the <strong>success metric</strong>, purchase conversion, is fixed before the test starts so nobody can move the goalposts afterwards."]}, {"h": "A/B Testing: Randomize, Measure, Evaluate", "body": ["Random assignment is what makes the comparison fair: the two groups differ only by chance, so any real difference in purchases can be blamed on the wording. Size the test from the baseline conversion rate, the smallest effect worth caring about, and your chosen significance level (\u03b1) and power \u2014 then run it long enough to cover full business cycles, so a weekday-weekend swing cannot masquerade as a result."]}, {"h": "A/B Testing: Randomize, Measure, Evaluate", "body": ["The result: 10,000 users in each group, Version A with 500 purchases (5%) and Version B with 600 (6%) \u2014 a lift of +1 percentage point, with a two-proportion test giving p &lt; 5%. But statistical significance is not the same as practical value, and three traps sink careless tests: stopping early the moment the numbers look good, changing several features at once so nobody knows which one worked, and cherry-picking whichever metric happens to look best. Carla's motto says it all: \"Randomize, Measure, Evaluate.\""]}]}, {"h": "Difference-in-Differences & Matching", "body": ["<strong>Difference-in-differences</strong> compares how two groups change over time: take the change in the treated group and subtract the change in an untreated control group, and whatever shared trend affected both \u2014 a seasonal boom, a market dip \u2014 cancels out. Picture two coffee shops: one tries a new loyalty offer and the other does not. If the treated shop's sales rise by more than the control shop's over the same weeks, that extra rise is the offer's effect, not the season's.", "<strong>Propensity score matching</strong> tackles a different trap: <strong>confounding</strong>, where the people who got the treatment were already different. A hotel loyalty programme looks like a triumph \u2014 members stay 3 extra nights a year \u2014 until you notice members were already frequent travellers before they joined. The naive comparison credits the programme with trips its members would have taken anyway.", "Matching fixes this in four steps. First, estimate each traveller's chance of joining \u2014 the <strong>propensity score</strong> \u2014 from past trips, spend and app visits, using logistic regression. Second, pair each member with a non-member whose score is near-identical. Third, check the two groups' traits actually balance after matching. Fourth, compare like with like: the true effect is 1 extra stay per year, not 3. Use these methods when an A/B test is impossible, unethical or too slow \u2014 but remember matching only balances traits you measured, it needs overlapping scores to find matches at all, and a randomised A/B test remains stronger whenever you can run one."], "tip": "Before you believe a comparison, ask who chose the treatment \u2014 if the treated group was already different, match first and compare second."}, {"h": "The Wider Toolkit: Synthetic Control, Time Series & Cutoffs", "body": ["When there is no clean control group at all, build one. A <strong>synthetic control</strong> takes a single treated unit \u2014 one city, one store, one region \u2014 and constructs a \"synthetic\" twin as a weighted mix of untreated units that tracked the treated one closely before the change; after the change, the gap between the real unit and its twin is the effect. An <strong>interrupted time series</strong> does the same job with a single line: fit the pre-change trend, extend it as the counterfactual, and measure the break. A food-delivery app in one city was gaining 20 orders a week when, at week 25, its delivery fee dropped from $3.99 to $0 for everyone; segmented regression found a level change of +400 orders in week 25 and a slope change as growth doubled from 20 to 40 orders a week \u2014 a gap of +620 orders by week 36.", "<strong>Regression discontinuity</strong> exploits a cutoff: a hotel earns a \"Top Rated\" badge at a review score of 4.5 or above, so hotels at 4.49 and 4.51 are practically identical \u2014 the badge is effectively a coin flip between them. Fit separate lines on each side of the cutoff within a narrow bandwidth, and the jump at the line estimates the badge's effect: bookings leap from 40 to 52 per week, about +12. In a simulation where the true effect is 2.0, all eight methods \u2014 randomised experiment, propensity matching, inverse probability weighting, causal forests, difference-in-differences, synthetic control, interrupted time series and regression discontinuity \u2014 converge on estimates around 2.0: different roads, same destination.", "That convergence matters because prediction and causation are different jobs. Predictive machine learning forecasts what will likely happen, P(Y|X); causal machine learning estimates how an outcome changes when an action is applied, E[Y(1)\u2212Y(0)|X]. Houses with solar panels sell for $520K against $440K without \u2014 but matching on size and neighbourhood shows the true solar effect is only +$25K, and the other $55K is confounding. And coupons show the same split: predictive targeting wastes $10 coupons on loyal customers who would order anyway with 90% probability, while causal (uplift) targeting finds the \"persuadables\" whose order probability jumps from 30% to 65% \u2014 +35 percentage points. Causal answers need stronger assumptions \u2014 overlap, no hidden bias \u2014 but they are the answers that tell you what to actually do."], "tip": "A prediction tells you who will buy; a causal estimate tells you who will buy because of what you did \u2014 spend the coupon on the second group.", "pages": [{"h": "The Wider Toolkit: Synthetic Control, Time Series & Cutoffs", "body": ["When there is no clean control group at all, build one. A <strong>synthetic control</strong> takes a single treated unit \u2014 one city, one store, one region \u2014 and constructs a \"synthetic\" twin as a weighted mix of untreated units that tracked the treated one closely before the change; after the change, the gap between the real unit and its twin is the effect. An <strong>interrupted time series</strong> does the same job with a single line: fit the pre-change trend, extend it as the counterfactual, and measure the break. A food-delivery app in one city was gaining 20 orders a week when, at week 25, its delivery fee dropped from $3.99 to $0 for everyone; segmented regression found a level change of +400 orders in week 25 and a slope change as growth doubled from 20 to 40 orders a week \u2014 a gap of +620 orders by week 36."]}, {"h": "The Wider Toolkit: Synthetic Control, Time Series & Cutoffs", "body": ["<strong>Regression discontinuity</strong> exploits a cutoff: a hotel earns a \"Top Rated\" badge at a review score of 4.5 or above, so hotels at 4.49 and 4.51 are practically identical \u2014 the badge is effectively a coin flip between them. Fit separate lines on each side of the cutoff within a narrow bandwidth, and the jump at the line estimates the badge's effect: bookings leap from 40 to 52 per week, about +12. In a simulation where the true effect is 2.0, all eight methods \u2014 randomised experiment, propensity matching, inverse probability weighting, causal forests, difference-in-differences, synthetic control, interrupted time series and regression discontinuity \u2014 converge on estimates around 2.0: different roads, same destination."]}, {"h": "The Wider Toolkit: Synthetic Control, Time Series & Cutoffs", "body": ["That convergence matters because prediction and causation are different jobs. Predictive machine learning forecasts what will likely happen, P(Y|X); causal machine learning estimates how an outcome changes when an action is applied, E[Y(1)\u2212Y(0)|X]. Houses with solar panels sell for $520K against $440K without \u2014 but matching on size and neighbourhood shows the true solar effect is only +$25K, and the other $55K is confounding. And coupons show the same split: predictive targeting wastes $10 coupons on loyal customers who would order anyway with 90% probability, while causal (uplift) targeting finds the \"persuadables\" whose order probability jumps from 30% to 65% \u2014 +35 percentage points. Causal answers need stronger assumptions \u2014 overlap, no hidden bias \u2014 but they are the answers that tell you what to actually do."]}], "game": {"done": "Carla approves: a prediction is not an intervention, and a matched comparison beats a naive one every time.", "groups": [{"a": 0, "hint": "6% minus 5%.", "label": "The headphone A/B result was", "options": ["+1 percentage point for Version B", "No difference", "A 10% lift"]}, {"a": 0, "hint": "The naive 3 was mostly travellers who were already frequent.", "label": "The loyalty programme's true effect, after matching, is", "options": ["1 extra stay per year", "3 extra stays per year", "0 extra stays"]}, {"a": 0, "hint": "The jump at the 4.5 cutoff: 52 \u2212 40.", "label": "The Top Rated badge effect is about", "options": ["+12 bookings per week", "\u221212 bookings per week", "No effect"]}], "intro": "Carla has three quick checks for you. Each one asks you to read the number the method actually produced \u2014 not the number the naive comparison shouted first.", "sentence": "A/B +1 point, loyalty +1 stay a year \u2014 and the badge is worth about +12 bookings a week.", "title": "Dr. K Challenge: Carla's cause check", "type": "build"}}], "quiz": [{"a": 1, "opts": ["No difference", "B won by 1 percentage point", "A won by 1 percentage point", "B won by 10 percentage points"], "q": "Headphone checkout A/B: A 5%, B 6%, 10,000 users each. What was the result?", "why": "B converted 600/10,000 = 6% vs A 500/10,000 = 5% \u2014 a +1 percentage point lift, p < 5%."}, {"a": 1, "opts": ["3 extra stays a year", "1 extra stay a year", "0 extra stays", "5 extra stays a year"], "q": "Hotel loyalty: naive comparison says members stay 3 extra nights a year; after propensity matching the true effect is\u2026", "why": "Matching like-for-like travellers strips out the confounding \u2014 members were already frequent travellers \u2014 leaving a true effect of 1 extra stay per year."}, {"a": 0, "opts": ["+12 bookings a week", "\u221212 bookings a week", "0 bookings a week", "+52 bookings a week"], "q": "Top Rated badge at 4.5 stars: bookings jump from 40 to 52 per week at the cutoff. The badge effect is about\u2026", "why": "Regression discontinuity: 52 \u2212 40 = +12 bookings per week, since hotels just either side of 4.5 are otherwise identical."}], "host": "Dr. K", "intro": "<p>Welcome back, analyst \u2014 this episode, we stop asking what <em>will</em> happen and start asking what <em>caused</em> it. Meet <strong>Carla Causal</strong>, our resident experimenter, who never trusts a difference until she has randomised it, matched it, or found the cutoff that decided it. By the end, you'll know how to run an A/B test, strip the bias out of a comparison, and pick the right causal tool when an experiment is impossible.</p>", "outro": "You can now design an experiment, un-bias a comparison, and reach for the right causal method when randomisation is off the table. Next stop: the final episode \u2014 forecasting, visualisation, and the analyst's job itself. Bring everything you've learned; Aria ARIMA is waiting.", "blurb": "Carla Causal joins the quest to separate real causes from lucky correlations: run a headphone A/B test that lifts purchases by 1 percentage point, match hotel travellers like-for-like to find the loyalty programme is really worth 1 extra stay a year, and measure the Top Rated badge at +12 bookings a week."}, {"n": 8, "title": "Forecasting, Visualisation & the Analyst's Job", "chapter": "Applied Analytics \u00b7 StatsMania I\u2013L", "badge": "Analyst Badge", "tags": ["ARIMA", "Charts", "Metric trees"], "lessons": [{"h": "Time Series: AR, ARIMA & SARIMA", "body": ["An <strong>autoregressive (AR)</strong> model predicts future values from earlier values of the same series \u2014 warm today usually means warm tomorrow. Past values, called <strong>lags</strong>, become the predictors: an AR(1) model uses one lag, an AR(2) uses two. The forecast is a weighted sum of those past lags plus a constant and a random error, with the weights fitted to the series' own history.", "Take temperature: with a fitted model of 5 + 0.8 \u00d7 yesterday's temperature, a 20 \u00b0C day predicts 5 + 0.8 \u00d7 20 = 21 \u00b0C tomorrow \u2014 and the actual came in at 22 \u00b0C, a reminder that a forecast is a best guess, not a promise. Multi-step forecasts feed each prediction back in as the next input, so uncertainty compounds the further out you go; and adding more lags can overfit noise, so always check the model on data it has never seen.", "<strong>ARIMA</strong> adds two more ingredients to the AR idea: differencing (integration) to make a trending series <strong>stationary</strong>, and a moving-average (MA) term built from past errors \u2014 together, it predicts future values from the series' own history. <strong>SARIMA</strong> adds seasonal components \u2014 seasonal AR, differencing and MA \u2014 for cycles that repeat, like monthly sales. Rule of thumb: pick ARIMA for trend and non-stationarity, and reach for SARIMA when a seasonal cycle keeps repeating."], "tip": "A time series remembers itself \u2014 but every step you forecast ahead borrows from a guess, so uncertainty grows with the horizon.", "pages": [{"h": "Time Series: AR, ARIMA & SARIMA", "body": ["An <strong>autoregressive (AR)</strong> model predicts future values from earlier values of the same series \u2014 warm today usually means warm tomorrow. Past values, called <strong>lags</strong>, become the predictors: an AR(1) model uses one lag, an AR(2) uses two. The forecast is a weighted sum of those past lags plus a constant and a random error, with the weights fitted to the series' own history."]}, {"h": "Time Series: AR, ARIMA & SARIMA", "body": ["Take temperature: with a fitted model of 5 + 0.8 \u00d7 yesterday's temperature, a 20 \u00b0C day predicts 5 + 0.8 \u00d7 20 = 21 \u00b0C tomorrow \u2014 and the actual came in at 22 \u00b0C, a reminder that a forecast is a best guess, not a promise. Multi-step forecasts feed each prediction back in as the next input, so uncertainty compounds the further out you go; and adding more lags can overfit noise, so always check the model on data it has never seen."]}, {"h": "Time Series: AR, ARIMA & SARIMA", "body": ["<strong>ARIMA</strong> adds two more ingredients to the AR idea: differencing (integration) to make a trending series <strong>stationary</strong>, and a moving-average (MA) term built from past errors \u2014 together, it predicts future values from the series' own history. <strong>SARIMA</strong> adds seasonal components \u2014 seasonal AR, differencing and MA \u2014 for cycles that repeat, like monthly sales. Rule of thumb: pick ARIMA for trend and non-stationarity, and reach for SARIMA when a seasonal cycle keeps repeating."]}]}, {"h": "Choosing a Chart: The Data Caf\u00e9", "body": ["Every chart answers one kind of question, and the caf\u00e9 test proves it. At \"The Data Caf\u00e9\", a <strong>bar chart</strong> compares drink categories \u2014 Coffee 120, Tea 60, Smoothies 20 \u2014 and crowns the bestseller at a glance; a <strong>line chart</strong> traces daily orders over two weeks and reveals the busy weekends; and a <strong>histogram</strong> groups 32 customers' waiting times into intervals, showing typical waits and a long tail of unlucky ones.", "A <strong>box plot</strong> compares whole distributions side by side: Branch A waits a median 3.05 minutes against Branch B's 4.60, with the spread visible too. A <strong>scatter plot</strong> of temperature against iced-coffee sales shows the association \u2014 and reminds you that association is not causation. And a <strong>pie or donut chart</strong> shows shares of 60%, 30% and 10% \u2014 but for close percentages, bars beat slices every time, because lengths are easier to compare than angles.", "The summary rule is simple: match the chart type to the question \u2014 bars for categories, lines for time, histograms for a distribution, box plots for comparing groups, scatter plots for relationships, pies for shares. And when the classics run out, six underrated charts are waiting: a Sankey diagram traces flows between stages, a waterfall explains how a total changed, a bump chart tracks rankings over time, a treemap sizes hierarchical categories, an UpSet plot shows exact set overlaps, and a ridgeline plot compares group distributions stacked like mountain ranges."], "tip": "Don't pick a chart and then find a question for it \u2014 start from the question, and the chart picks itself."}, {"h": "The Metric-Tree Mystery & SQL in a Nutshell", "body": ["A <strong>metric tree</strong> decomposes a headline number into its branches, and you walk each branch until you find the break. Nike's online revenue fell from $3M to $2.4M (\u221220%): last month 1M visitors \u00d7 3% conversion \u00d7 $100 average order value = $3M, and this month it is $2.4M. Visitors and average order value held \u2014 only conversion moved, falling 3.0% to 2.4%. Conversion itself splits into add-to-cart \u00d7 checkout completion: add-to-cart held at 10%, but checkout completion fell 30% to 24%. Root cause: a new $10 shipping fee at checkout. The changes multiply: 1.0 \u00d7 0.8 \u00d7 1.0 = 0.8, exactly the \u221220%.", "The same walk solves other mysteries. Instagram ad revenue fell from $1M last week \u2014 10M users \u00d7 20 ads each = 200M impressions, 2M clicks at $0.50 cost per click \u2014 with users, ad load and cost per click all holding; click-through rate fell 1.0% to 0.8%, and segmenting by platform showed Android holding at 1.0% while iOS fell to 0.6%: an iOS update had shrunk the \"Learn More\" button. Airbnb's revenue fell from $1.2M to $900K (\u221225%) with guest searches steady, so the walk runs through match rate versus booking rate to locate the break: 1M searches \u00d7 2% conversion = 20,000 bookings \u00d7 $500 = $10M gross merchandise value \u00d7 12% take rate = $1.2M. And when Netflix subscription revenue fell about 13% in a month with no members lost, the flat member count means the break must sit in price, plan mix, discounts or billing. The framework is five words: Define, Decompose, Compare, Segment, Test.", "The analyst's other daily tool is SQL \u2014 and its first surprise is that it runs its clauses in a different order than you write them. Execution order is FROM/JOIN, then WHERE, then GROUP BY, then HAVING, then SELECT, then DISTINCT, then ORDER BY, then LIMIT. Around that order sit the 9 everyday patterns: execution order, joins, set operations, GROUP BY &amp; HAVING, conditional aggregation, handling NULLs, ranking functions, LAG/LEAD &amp; running totals, and CTEs \u2014 enough to answer almost any question a metric tree throws at you."], "tip": "When a headline number moves, never guess \u2014 decompose it, compare branch by branch, and segment until only one branch is still moving.", "pages": [{"h": "The Metric-Tree Mystery & SQL in a Nutshell", "body": ["A <strong>metric tree</strong> decomposes a headline number into its branches, and you walk each branch until you find the break. Nike's online revenue fell from $3M to $2.4M (\u221220%): last month 1M visitors \u00d7 3% conversion \u00d7 $100 average order value = $3M, and this month it is $2.4M. Visitors and average order value held \u2014 only conversion moved, falling 3.0% to 2.4%. Conversion itself splits into add-to-cart \u00d7 checkout completion: add-to-cart held at 10%, but checkout completion fell 30% to 24%. Root cause: a new $10 shipping fee at checkout. The changes multiply: 1.0 \u00d7 0.8 \u00d7 1.0 = 0.8, exactly the \u221220%."]}, {"h": "The Metric-Tree Mystery & SQL in a Nutshell", "body": ["The same walk solves other mysteries. Instagram ad revenue fell from $1M last week \u2014 10M users \u00d7 20 ads each = 200M impressions, 2M clicks at $0.50 cost per click \u2014 with users, ad load and cost per click all holding; click-through rate fell 1.0% to 0.8%, and segmenting by platform showed Android holding at 1.0% while iOS fell to 0.6%: an iOS update had shrunk the \"Learn More\" button. Airbnb's revenue fell from $1.2M to $900K (\u221225%) with guest searches steady, so the walk runs through match rate versus booking rate to locate the break: 1M searches \u00d7 2% conversion = 20,000 bookings \u00d7 $500 = $10M gross merchandise value \u00d7 12% take rate = $1.2M. And when Netflix subscription revenue fell about 13% in a month with no members lost, the flat member count means the break must sit in price, plan mix, discounts or billing. The framework is five words: Define, Decompose, Compare, Segment, Test."]}, {"h": "The Metric-Tree Mystery & SQL in a Nutshell", "body": ["The analyst's other daily tool is SQL \u2014 and its first surprise is that it runs its clauses in a different order than you write them. Execution order is FROM/JOIN, then WHERE, then GROUP BY, then HAVING, then SELECT, then DISTINCT, then ORDER BY, then LIMIT. Around that order sit the 9 everyday patterns: execution order, joins, set operations, GROUP BY &amp; HAVING, conditional aggregation, handling NULLs, ranking functions, LAG/LEAD &amp; running totals, and CTEs \u2014 enough to answer almost any question a metric tree throws at you."]}], "game": {"done": "Aria approves: define, decompose, compare, segment, test \u2014 and the tree points at checkout, not traffic.", "groups": [{"a": 0, "hint": "$1.6M \u00f7 $2M = 0.8.", "label": "Revenue fell by", "options": ["20%", "25%", "4%"]}, {"a": 0, "hint": "Visitors and add-to-cart held; only checkout completion moved.", "label": "The broken branch is", "options": ["Checkout completion (20% \u2192 16%)", "Add-to-cart (held at 20%)", "Visitors (held at 500,000)"]}, {"a": 0, "hint": "20% add-to-cart \u00d7 16% checkout = 3.2%.", "label": "Conversion fell from 4.0% to", "options": ["3.2%", "2.4%", "4.8%"]}], "intro": "A fresh case for your detective skills. An online shop's revenue fell from $2M to $1.6M (\u221220%): last month 500,000 visitors \u00d7 4% conversion \u00d7 $100 average order value = $2,000,000. This month visitors held at 500,000 and average order value held at $100 \u2014 only conversion moved, falling 4.0% to 3.2%. Conversion = add-to-cart \u00d7 checkout completion: add-to-cart held at 20%, checkout completion fell 20% to 16%. Walk the tree and find the broken branch.", "sentence": "Revenue \u221220%: conversion 4.0% \u2192 3.2%, because checkout completion fell 20% \u2192 16% while add-to-cart held.", "title": "Dr. K Challenge: Aria's metric-tree mystery", "type": "build"}}], "quiz": [{"a": 1, "opts": ["20 \u00b0C", "21 \u00b0C", "22 \u00b0C", "25 \u00b0C"], "q": "AR model: forecast = 5 + 0.8 \u00d7 20 \u00b0C. What is the predicted temperature?", "why": "5 + 0.8 \u00d7 20 = 5 + 16 = 21 \u00b0C. (The actual came in at 22 \u00b0C \u2014 a forecast is not a promise.)"}, {"a": 1, "opts": ["Fewer visitors", "A new $10 shipping fee at checkout", "Lower prices (AOV fell)", "Fewer items added to cart"], "q": "Nike revenue fell 20%: visitors and AOV held, conversion fell 3.0% \u2192 2.4%, add-to-cart held at 10%, checkout completion fell 30% \u2192 24%. What is the root cause?", "why": "Only checkout completion moved (30% \u2192 24%), and the break is the new $10 shipping fee at checkout: 1.0 \u00d7 0.8 \u00d7 1.0 = 0.8, a \u221220% revenue fall."}, {"a": 1, "opts": ["Bar chart", "Box plot", "Pie chart", "Line chart"], "q": "Branch A median wait 3.05 min vs Branch B 4.60 min. Which chart compares the two branches' wait-time distributions best?", "why": "A box plot shows medians and spread side by side \u2014 Branch A 3.05 min vs Branch B 4.60 min. A bar chart would show one number per branch; a pie chart shows shares."}], "host": "Dr. K", "intro": "<p>Here we are \u2014 the final episode, analyst. Meet <strong>Aria ARIMA</strong>, our forecaster, who reads the past to see the future and never lets a chart lie to her. Today you'll predict a time series, choose the chart that answers the question, and hunt a broken revenue metric down its tree branch by branch. Everything the crew taught you comes together here.</p>", "outro": "That's the whole quest, analyst \u2014 from describing data to forecasting it, from a p-value to a causal claim, from a bar chart to a metric tree. The Final boss battle is next: practice only, no stakes, just you and everything you've learned. The whole crew is rooting for you. Go finish it.", "blurb": "Aria ARIMA closes the quest: forecast tomorrow's temperature at 21 \u00b0C with an autoregressive model, solve the metric-tree mystery of a revenue drop, and pick the right chart for every question \u2014 from the Data Caf\u00e9's bestseller to a box plot that settles which branch waits longer."}];
+        var BOSSES = {
+        after4: { name: "Midterm Boss Battle", covers: "Episodes 1–4", text: "Boss battle #1 guards the trail at the halfway point. Polly p-value is on guard duty. The Midterm is a practice boss battle covering describing data, probability, correlation, and inference — Episodes 1–4 of this quest. Nothing here is graded; it is a checkpoint for you, not a score for anyone else.", pts: "PRACTICE" },
+        after8: { name: "Final Boss Battle", covers: "Episodes 5–8", text: "The final boss. Aria ARIMA is on guard duty. The Final is a practice boss battle covering regression, machine learning, causal inference, and forecasting — Episodes 5–8 of this quest. Clear it and the quest is yours.", pts: "PRACTICE" }
+      };
+        var LEVELS = [
+        { xp: 0, name: "Stats Cadet" },
+        { xp: 150, name: "Data Scout" },
+        { xp: 350, name: "Pattern Finder" },
+        { xp: 600, name: "Inference Analyst" },
+        { xp: 800, name: "Model Builder" },
+        { xp: 900, name: "Predictive Analytics Master" }
+      ];
+        var XP_LESSON = 10, XP_QUESTION = 20, XP_BONUS = 30;
+
+      /* ============================================================
+         STATE (session only)
+         ============================================================ */
+      var state = { xp: 0, cleared: {}, stars: {}, awarded: {}, current: -1, step: 0, score: 0, answered: false, page: 0, gamesDone: {} };
+
+      function $(id){ return document.getElementById(id); }
+      function epMaxXP(ep){ return ep.lessons.length * XP_LESSON + ep.quiz.length * XP_QUESTION + XP_BONUS; }
+      function isUnlocked(i){ return i === 0 || !!state.cleared[i - 1]; }
+      function levelFor(xp){
+        var cur = LEVELS[0], next = null;
+        for (var i = 0; i < LEVELS.length; i++){
+          if (xp >= LEVELS[i].xp){ cur = LEVELS[i]; next = LEVELS[i + 1] || null; }
+        }
+        return { cur: cur, next: next, idx: LEVELS.indexOf(cur) };
+      }
+
+      function updateHUD(){
+        var lv = levelFor(state.xp);
+        $("hud-level").textContent = "Level " + (lv.idx + 1) + " · " + lv.cur.name;
+        var pct = 100;
+        if (lv.next){ pct = Math.round(100 * (state.xp - lv.cur.xp) / (lv.next.xp - lv.cur.xp)); }
+        $("hud-levelbar").style.width = pct + "%";
+        $("hud-xp").textContent = state.xp + " XP";
+        var clearedCount = Object.keys(state.cleared).length;
+        $("hud-cleared").textContent = clearedCount + " / 8 cleared";
+        var firstOpen = EPISODES.findIndex(function(_, i){ return !state.cleared[i]; });
+        $("btn-start-label").textContent = firstOpen === -1 ? "Replay any episode" :
+          (clearedCount === 0 ? "Start Episode 1" : "Continue: Episode " + (firstOpen + 1));
+      }
+
+      /* ============================================================
+         EPISODE MAP
+         ============================================================ */
+      function starString(n){
+        var s = "";
+        for (var i = 0; i < 3; i++){ s += '<span class="' + (i < n ? "on" : "") + '">★</span>'; }
+        return s;
+      }
+      function bossHTML(key){
+        var b = BOSSES[key];
+        return '<div class="boss" role="note">' +
+          '<div class="bic"><svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0z"/><path d="M7 6H4a2 2 0 002 4h1M17 6h3a2 2 0 01-2 4h-1"/></svg></div>' +
+          '<div><div class="chap">Boss Battle · ' + b.covers + '</div><h3>' + b.name + '</h3><p>' + b.text + '</p></div>' +
+          '<div class="pts">' + b.pts + '<small>PRACTICE ONLY</small></div></div>';
+      }
+      function renderTrail(){
+        var html = "";
+        EPISODES.forEach(function(ep, i){
+          var unlocked = isUnlocked(i), cleared = !!state.cleared[i];
+          var status = cleared ? '<span class="status-pill done">Cleared</span>'
+            : unlocked ? '<span class="status-pill now">Now playing</span>'
+            : '<span class="status-pill lock">Locked</span>';
+          html += '<article class="ep ' + (cleared ? "cleared" : unlocked ? "" : "locked") + '">' +
+            '<div class="ep-medal" aria-hidden="true"><span><small>EP</small><span class="n">' + ep.n + '</span></span></div>' +
+            '<div class="ep-body"><div class="chap">' + ep.chapter + ' · ' + status.replace(/<[^>]+>/g, "") + '</div>' +
+            '<h3>' + ep.title + '</h3><p>' + ep.blurb + '</p>' +
+            '<div class="ep-tags">' + ep.tags.map(function(t){ return '<span class="tag">' + t + '</span>'; }).join("") + '</div></div>' +
+            '<div class="ep-side">' + status +
+            '<span class="stars" aria-label="' + (state.stars[i] || 0) + ' of 3 stars earned">' + starString(state.stars[i] || 0) + '</span>' +
+            '<span class="ep-badge">Badge: ' + ep.badge + '</span>' +
+            '<span class="ep-xp">+' + epMaxXP(ep) + ' XP</span>' +
+            (unlocked
+              ? '<button class="btn-play" type="button" data-play="' + i + '">' + (cleared ? "Replay" : "Play") +
+                ' <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg></button>'
+              : '<button class="btn-play" type="button" disabled><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg> Locked</button>') +
+            '</div></article>';
+          if (i === 3) html += bossHTML("after4");
+          if (i === 7) html += bossHTML("after8");
+        });
+        $("trail").innerHTML = html;
+        var btns = document.querySelectorAll("[data-play]");
+        for (var j = 0; j < btns.length; j++){
+          btns[j].addEventListener("click", function(){ openEpisode(parseInt(this.getAttribute("data-play"), 10)); });
+        }
+      }
+
+      /* ============================================================
+         PLAYER
+         ============================================================ */
+      function openEpisode(i){
+        state.current = i; state.step = 0; state.score = 0; state.answered = false; state.page = 0;
+        var ep = EPISODES[i];
+        $("p-chap").textContent = "Episode " + ep.n + " · " + ep.chapter;
+        $("p-title").textContent = ep.title;
+        $("home").style.display = "none";
+        $("player").classList.add("open");
+        window.scrollTo({ top: 0 });
+        renderStep();
+        $("p-title").setAttribute("tabindex", "-1");
+        $("p-title").focus({ preventScroll: true });
+      }
+      function exitPlayer(){
+        $("player").classList.remove("open");
+        $("home").style.display = "";
+        state.current = -1;
+        renderTrail(); updateHUD();
+        window.scrollTo({ top: 0 });
+      }
+      function totalSteps(ep){ return ep.lessons.length + ep.quiz.length; }
+      function renderDots(){
+        var ep = EPISODES[state.current], html = "";
+        for (var i = 0; i < totalSteps(ep); i++){
+          html += '<span class="dot' + (i < state.step ? " done" : i === state.step ? " now" : "") + '"></span>';
+        }
+        $("p-dots").innerHTML = html;
+      }
+      function renderStep(){
+        var ep = EPISODES[state.current];
+        renderDots();
+        if (state.step < ep.lessons.length){ if (ep.lessons[state.step].pages) renderPagedLesson(ep, state.step); else renderLesson(ep, state.step); }
+        else if (state.step < totalSteps(ep)) renderQuiz(ep, state.step - ep.lessons.length);
+        else renderResults(ep);
+      }
+      function awardXP(key, amount){
+        if (state.awarded[key]) return;
+        state.awarded[key] = true;
+        state.xp += amount;
+        updateHUD();
+      }
+      function renderLesson(ep, li){
+        var L = ep.lessons[li];
+        var last = li === ep.lessons.length - 1;
+        $("p-phase").textContent = "Phase 1 · Micro-lessons — " + (li + 1) + " of " + ep.lessons.length;
+        $("p-stage").innerHTML =
+          '<span class="lesson-kicker"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V4H6.5A2.5 2.5 0 004 6.5z"/></svg> Micro-lesson ' + (li + 1) + '</span>' +
+          '<h3>' + L.h + '</h3>' +
+          L.body.map(function(p){ return "<p>" + p + "</p>"; }).join("") +
+          '<div class="powerup"><strong>Power-up · Field tip</strong>' + L.tip + '</div>' +
+          '<div class="stage-actions">' +
+            (li > 0 ? '<button class="btn btn-ghost" id="btn-back" type="button">← Back</button>' : "") +
+            '<span class="spacer"></span><span class="xp-pop">' + (state.awarded["L" + state.current + "-" + li] ? "" : "+" + XP_LESSON + " XP") + '</span>' +
+            '<button class="btn btn-gold" id="btn-next" type="button">' + (last ? "Start the checkpoint challenge →" : "Got it — next lesson →") + '</button>' +
+          '</div>';
+        if (li > 0) $("btn-back").addEventListener("click", function(){ state.step--; renderStep(); });
+        $("btn-next").addEventListener("click", function(){
+          awardXP("L" + state.current + "-" + li, XP_LESSON);
+          state.step++; renderStep();
+        });
+      }
+      function renderQuiz(ep, qi){
+        var Q = ep.quiz[qi];
+        state.answered = false;
+        $("p-phase").textContent = "Phase 2 · Checkpoint challenge — question " + (qi + 1) + " of " + ep.quiz.length + " · Score so far: " + state.score;
+        var letters = ["A", "B", "C", "D"];
+        $("p-stage").innerHTML =
+          '<span class="quiz-kicker"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4.5 13.5H11L9.5 22 19 10h-6.5z"/></svg> Checkpoint question ' + (qi + 1) + '</span>' +
+          '<h3>' + Q.q + '</h3>' +
+          '<div class="opts" role="group" aria-label="Answer choices">' +
+          Q.opts.map(function(o, oi){
+            return '<button class="opt" type="button" data-oi="' + oi + '"><span class="letter">' + letters[oi] + '</span><span>' + o + '</span></button>';
+          }).join("") + '</div>' +
+          '<div class="feedback" id="q-feedback"></div>' +
+          '<div class="stage-actions"><span class="spacer"></span>' +
+          '<button class="btn btn-gold" id="btn-qnext" type="button" style="display:none">' +
+          (qi === ep.quiz.length - 1 ? "See my results →" : "Next question →") + '</button></div>';
+        var opts = document.querySelectorAll(".opt");
+        for (var j = 0; j < opts.length; j++){
+          opts[j].addEventListener("click", function(){ answerQuestion(this, Q, ep); });
+        }
+        $("btn-qnext").addEventListener("click", function(){ state.step++; renderStep(); });
+      }
+      function answerQuestion(btn, Q, ep){
+        if (state.answered) return;
+        state.answered = true;
+        var picked = parseInt(btn.getAttribute("data-oi"), 10);
+        var correct = picked === Q.a;
+        var opts = document.querySelectorAll(".opt");
+        for (var j = 0; j < opts.length; j++){
+          opts[j].disabled = true;
+          var oi = parseInt(opts[j].getAttribute("data-oi"), 10);
+          if (oi === Q.a) opts[j].classList.add("correct");
+          else if (oi === picked) opts[j].classList.add("wrong");
+          else opts[j].classList.add("dim");
+        }
+        var fb = $("q-feedback");
+        fb.className = "feedback show " + (correct ? "good" : "bad");
+        if (correct){
+          state.score++;
+          var qi2 = state.step - ep.lessons.length;
+          var gained = !state.awarded["Q" + state.current + "-" + qi2];
+          awardXP("Q" + state.current + "-" + qi2, XP_QUESTION);
+          fb.innerHTML = "<strong>Correct!" + (gained ? " +" + XP_QUESTION + " XP" : "") + "</strong>" + Q.why;
+        } else {
+          fb.innerHTML = "<strong>Not quite — the correct answer is highlighted.</strong>" + Q.why;
+        }
+        $("p-phase").textContent = "Phase 2 · Checkpoint challenge · Score so far: " + state.score;
+        $("btn-qnext").style.display = "";
+        $("btn-qnext").focus();
+      }
+      function renderResults(ep){
+        var firstClear = !state.cleared[state.current];
+        var stars = state.score;
+        if (firstClear){
+          state.cleared[state.current] = true;
+          if (state.score === ep.quiz.length) awardXP("B" + state.current, XP_BONUS);
+        }
+        if (!state.stars[state.current] || stars > state.stars[state.current]) state.stars[state.current] = stars;
+        updateHUD();
+        $("p-phase").textContent = "Episode complete";
+        var verdict = state.score === ep.quiz.length ? "Flawless run. The checkpoint never stood a chance."
+          : state.score >= 1 ? "Checkpoint cleared. Review the explanations above any time by replaying the episode."
+          : "Checkpoint cleared — but this boss deserves a rematch. Replay to earn more stars.";
+        $("p-stage").innerHTML =
+          '<div class="results">' +
+          '<span class="quiz-kicker">Episode ' + ep.n + ' cleared</span>' +
+          '<div class="big-stars" aria-label="' + stars + ' of 3 stars">' + starString(stars) + '</div>' +
+          '<h3>' + verdict + '</h3>' +
+          '<div class="score-line">Checkpoint score: ' + state.score + ' / ' + ep.quiz.length + (state.score === ep.quiz.length ? ' · Perfect-run bonus +' + XP_BONUS + ' XP' : '') + '</div>' +
+          '<div><span class="badge-earned"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="M8.5 14L7 22l5-3 5 3-1.5-8"/></svg> Badge earned: ' + ep.badge + '</span></div>' +
+          '<div class="score-line">Episode value: +' + epMaxXP(ep) + ' XP · Checkpoint: ' + state.score + ' / ' + ep.quiz.length + '</div>' +
+          badgeShelfHTML(ep) + certRowHTML() + shelfHTML(ep) + outroHTML(ep) +
+          '<div class="stage-actions" style="justify-content:center">' +
+            '<button class="btn btn-ghost" id="btn-replay" type="button">Replay episode</button>' +
+            '<button class="btn btn-ghost" id="btn-tomap" type="button">Back to map</button>' +
+            (state.current < EPISODES.length - 1 ? '<button class="btn btn-gold" id="btn-nextep" type="button">Next episode →</button>' : "") +
+          '</div></div>';
+        $("btn-replay").addEventListener("click", function(){ openEpisode(state.current); });
+        $("btn-tomap").addEventListener("click", exitPlayer);
+        var nx = $("btn-nextep");
+        if (nx) nx.addEventListener("click", function(){ openEpisode(state.current + 1); });
+        var cb = $("btn-cert");
+        if (cb) cb.addEventListener("click", function(){ openCert(ep); });
+        if (firstClear) confetti();
+      }
+      function confetti(){
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        var box = $("confetti"), colors = ["#f2b33d", "#0d9488", "#cf3f3f", "#f4edd9", "#4f6df5"];
+        var html = "";
+        for (var i = 0; i < 60; i++){
+          var left = Math.random() * 100;
+          var delay = (Math.random() * 0.6).toFixed(2);
+          var dur = (1.6 + Math.random() * 1.6).toFixed(2);
+          var col = colors[i % colors.length];
+          html += '<i style="left:' + left + '%;background:' + col + ';animation-delay:' + delay + 's;animation-duration:' + dur + 's"></i>';
+        }
+        box.innerHTML = html;
+        setTimeout(function(){ box.innerHTML = ""; }, 4200);
+      }
+
+
+      /* ---------- Episode 1 fun pass: paged lessons, games, badges, certificate ---------- */
+      function lessonPages(ep, li){
+        var L = ep.lessons[li];
+        if (!L.pages) return 1;
+        return L.pages.length + (L.game ? 1 : 0);
+      }
+      function renderVisual(key){
+        if (key === "dataflow") return '<div class="viz viz-flow" role="img" aria-label="Data becomes information, then a decision"><span class="viz-step">Raw data</span><span class="viz-arrow">→</span><span class="viz-step">Organized</span><span class="viz-arrow">→</span><span class="viz-step">Information</span><span class="viz-arrow">→</span><span class="viz-step">Decision</span></div>';
+        if (key === "lenses") return '<div class="viz viz-cards">' +
+          '<div class="viz-card"><b>Descriptive</b><span>What happened? Last quarter’s sales by region.</span></div>' +
+          '<div class="viz-card"><b>Predictive</b><span>What will happen? Next quarter’s demand.</span></div>' +
+          '<div class="viz-card"><b>Prescriptive</b><span>What should we do? The markdown schedule.</span></div></div>';
+        if (key === "fivevs") return '<div class="viz viz-vs">' +
+          '<span class="viz-v">Volume<span>how much</span></span>' +
+          '<span class="viz-v">Velocity<span>how fast</span></span>' +
+          '<span class="viz-v">Variety<span>how many kinds</span></span>' +
+          '<span class="viz-v">Veracity<span>how much to trust</span></span>' +
+          '<span class="viz-v gold">Value<span>what decision improves</span></span></div>';
+        if (key === "sentence") return '<div class="viz viz-sent">Should <b>owner</b> <b>decision</b>, choosing among <b>alternatives</b>, judged on <b>criteria</b>?</div>';
+        return "";
+      }
+      function renderPagedLesson(ep, li){
+        var L = ep.lessons[li];
+        var total = lessonPages(ep, li);
+        var pg = state.page;
+        var lastLesson = li === ep.lessons.length - 1;
+        var isGame = !!L.game && pg >= L.pages.length;
+        var isLastPage = pg === total - 1;
+        $("p-phase").textContent = "Phase 1 · Micro-lessons — " + (li + 1) + " of " + ep.lessons.length + " · Page " + (pg + 1) + " of " + total;
+        var html = '<span class="lesson-kicker"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V4H6.5A2.5 2.5 0 004 6.5z"/></svg> Micro-lesson ' + (li + 1) + '</span>';
+        if (li === 0 && pg === 0 && ep.intro){
+          html += '<div class="drk-intro"><strong>A note from Dr. K</strong>' + ep.intro + '</div>';
+        }
+        if (isGame){
+          html += '<h3>' + L.game.title + '</h3><div id="game-box"></div>';
+        } else {
+          var P = L.pages[pg];
+          html += '<h3>' + P.h + '</h3>' +
+            P.body.map(function(p){ return "<p>" + p + "</p>"; }).join("") +
+            (P.visual ? renderVisual(P.visual) : "") +
+            (P.aside ? '<div class="drk-aside">' + P.aside + '</div>' : "") +
+            (pg === L.pages.length - 1 ? '<div class="powerup"><strong>' + (ep.host ? ep.host + "’s field tip" : "Power-up · Field tip") + '</strong>' + L.tip + '</div>' : "");
+        }
+        html += '<div class="stage-actions">' +
+          ((li > 0 || pg > 0) ? '<button class="btn btn-ghost" id="btn-back" type="button">← Back</button>' : "") +
+          '<span class="spacer"></span><span class="xp-pop">' + ((isLastPage && !state.awarded["L" + state.current + "-" + li]) ? "+" + XP_LESSON + " XP" : "") + '</span>' +
+          '<button class="btn btn-gold" id="btn-next" type="button">' + (isLastPage ? (lastLesson ? "Start the checkpoint challenge →" : "Got it — next lesson →") : "Next page →") + '</button>' +
+          '</div>';
+        $("p-stage").innerHTML = html;
+        if (isGame) renderGame(L.game, li);
+        var back = $("btn-back");
+        if (back) back.addEventListener("click", function(){
+          if (state.page > 0){ state.page--; }
+          else { state.step--; state.page = lessonPages(ep, state.step) - 1; }
+          renderStep();
+        });
+        $("btn-next").addEventListener("click", function(){
+          if (!isLastPage){ state.page++; renderStep(); return; }
+          awardXP("L" + state.current + "-" + li, XP_LESSON);
+          state.step++; state.page = 0; renderStep();
+        });
+      }
+      function gameKey(li){ return "G" + state.current + "-" + li; }
+      function renderGame(g, li){
+        var box = $("game-box");
+        var doneKey = gameKey(li);
+        var html = '<div class="game"><h4>' + g.title + '</h4><p class="gintro">' + g.intro + '</p>';
+        if (g.type === "sort"){
+          html += g.items.map(function(it, ii){
+            return '<div class="gitem" id="gi-' + ii + '"><span>' + it.t + '</span>' +
+              g.buckets.map(function(b, bi){
+                return '<button class="gbtn" type="button" data-ii="' + ii + '" data-bi="' + bi + '">' + b + '</button>';
+              }).join("") + '<div class="gwhy" id="gw-' + ii + '"></div></div>';
+          }).join("");
+          html += '<div class="gdone" id="gdone" style="display:none">' + g.done + '</div></div>';
+          box.innerHTML = html;
+          var correct = 0, total = g.items.length;
+          var hint = g.buckets.length === 2
+            ? "Not quite — is it a recorded fact, or meaning that can change a decision?"
+            : "Not quite — what happened, what will happen, or what should we do?";
+          var btns = box.querySelectorAll(".gbtn");
+          for (var k = 0; k < btns.length; k++){
+            btns[k].addEventListener("click", function(){
+              var ii = parseInt(this.getAttribute("data-ii"), 10);
+              var bi = parseInt(this.getAttribute("data-bi"), 10);
+              var row = $("gi-" + ii);
+              if (row.classList.contains("ok")) return;
+              var it = g.items[ii];
+              if (bi === it.b){
+                row.classList.add("ok"); row.classList.remove("no");
+                $("gw-" + ii).textContent = "Right. " + it.why;
+                var rowBtns = row.querySelectorAll(".gbtn");
+                for (var m = 0; m < rowBtns.length; m++) rowBtns[m].disabled = true;
+                this.classList.add("sel");
+                correct++;
+                if (correct === total){
+                  state.gamesDone[doneKey] = true;
+                  $("gdone").style.display = "";
+                }
+              } else {
+                row.classList.add("no");
+                $("gw-" + ii).textContent = hint;
+              }
+            });
+          }
+        } else if (g.type === "build"){
+          html += g.groups.map(function(gr, gi){
+            return '<div class="ggroup" id="gg-' + gi + '"><strong>' + gr.label + '</strong>' +
+              gr.options.map(function(o, oi){
+                return '<button class="gbtn" type="button" data-gi="' + gi + '" data-oi="' + oi + '">' + o + '</button>';
+              }).join("") + '<div class="gwhy" id="gh-' + gi + '"></div></div>';
+          }).join("");
+          html += '<button class="btn btn-gold" id="gcheck" type="button">Check my sentence</button>' +
+            '<div class="gdone" id="gdone" style="display:none"></div></div>';
+          box.innerHTML = html;
+          var picks = {};
+          var gbtns = box.querySelectorAll(".gbtn");
+          for (var k2 = 0; k2 < gbtns.length; k2++){
+            gbtns[k2].addEventListener("click", function(){
+              var gi = parseInt(this.getAttribute("data-gi"), 10);
+              var oi = parseInt(this.getAttribute("data-oi"), 10);
+              picks[gi] = oi;
+              var grp = $("gg-" + gi);
+              var gb = grp.querySelectorAll(".gbtn");
+              for (var m2 = 0; m2 < gb.length; m2++) gb[m2].classList.remove("sel");
+              this.classList.add("sel");
+            });
+          }
+          $("gcheck").addEventListener("click", function(){
+            var allRight = true;
+            for (var gi2 = 0; gi2 < g.groups.length; gi2++){
+              var grp2 = $("gg-" + gi2);
+              if (picks[gi2] === undefined){ allRight = false; $("gh-" + gi2).textContent = "Pick one for this slot first."; continue; }
+              if (picks[gi2] === g.groups[gi2].a){ grp2.classList.add("ok"); $("gh-" + gi2).textContent = "Right."; }
+              else { grp2.classList.remove("ok"); allRight = false; $("gh-" + gi2).textContent = g.groups[gi2].hint; }
+            }
+            var dn = $("gdone");
+            if (allRight){
+              state.gamesDone[doneKey] = true;
+              dn.innerHTML = "<strong>" + g.sentence + "</strong><br>" + g.done;
+              dn.style.display = "";
+            } else {
+              dn.style.display = "none";
+            }
+          });
+        }
+      }
+      function gamesDoneCount(){
+        var done = 0;
+        for (var k in state.gamesDone){ if (k.indexOf("G" + state.current + "-") === 0) done++; }
+        return done;
+      }
+      function badgeShelfHTML(ep){
+        var perfect = state.score === ep.quiz.length;
+        var games = (ep.lessons || []).filter(function(L){ return !!L.game; }).length;
+        var gm = games > 0 && gamesDoneCount() >= games;
+        function chip(name, desc, got){
+          return '<span class="badge-chip ' + (got ? "got" : "miss") + '">' + (got ? "★ " : "☆ ") + name + '<small>' + desc + '</small></span>';
+        }
+        return '<div class="badge-shelf">' +
+          chip(ep.badge, "Clear this episode", true) +
+          chip("Perfect Run", "Score 3/3 on the checkpoint", perfect) +
+          (games > 0 ? chip("Game Master", "Finish all " + games + " games in this episode", gm) : "") +
+          '</div>';
+      }
+      function certRowHTML(){
+        return '<div class="cert-row"><label for="cert-input">Name for your certificate (optional): </label>' +
+          '<input id="cert-input" type="text" maxlength="60" placeholder="Your name" autocomplete="name">' +
+          '<button class="btn btn-gold" id="btn-cert" type="button">Print badge certificate (PDF)</button></div>';
+      }
+      function shelfHTML(ep){
+        if (!ep.shelf) return "";
+        var h = '<div class="shelf"><h4>Keep learning with Dr. K</h4><p class="snote">Optional — not graded, not on any test. Dr. K’s picks for the curious.</p>';
+        ep.shelf.forEach(function(s){
+          h += '<a href="' + s.url + '" target="_blank" rel="noopener"><span class="kind">' + (s.kind === "watch" ? "Watch" : "Read") + '</span><b>' + s.title + '</b><span>' + s.note + '</span></a>';
+        });
+        return h + '</div>';
+      }
+      function outroHTML(ep){
+        return ep.outro ? '<div class="drk-outro">' + ep.outro + '</div>' : "";
+      }
+      function openCert(ep){
+        var name = $("cert-input") ? $("cert-input").value.trim() : "";
+        $("cert-name").textContent = name || "A Statistics Quest player";
+        $("cert-ep").textContent = "Episode " + ep.n + ": " + ep.title;
+        $("cert-badge").textContent = ep.badge;
+        $("cert-score").textContent = "Checkpoint: " + state.score + " / " + ep.quiz.length + " · Episode value: +" + epMaxXP(ep) + " XP";
+        var bonus = [];
+        if (state.score === ep.quiz.length) bonus.push("Perfect Run");
+        var games = (ep.lessons || []).filter(function(L){ return !!L.game; }).length;
+        if (games > 0 && gamesDoneCount() >= games) bonus.push("Game Master");
+        $("cert-bonus").textContent = bonus.length ? "Bonus badges: " + bonus.join(" · ") : "Bonus badges: none this run — replay the games and the checkpoint to earn them.";
+        $("cert-date").textContent = new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+        $("cert-overlay").classList.add("open");
+      }
+      /* ---------- wiring ---------- */
+      $("btn-exit").addEventListener("click", exitPlayer);
+      $("btn-start").addEventListener("click", function(){
+        var firstOpen = EPISODES.findIndex(function(_, i){ return !state.cleared[i] && isUnlocked(i); });
+        if (firstOpen === -1) firstOpen = 0;
+        openEpisode(firstOpen);
+      });
+      var _pb = $("btn-cert-print"); if (_pb) _pb.addEventListener("click", function(){ window.print(); });
+      var _cb2 = $("btn-cert-close"); if (_cb2) _cb2.addEventListener("click", function(){ $("cert-overlay").classList.remove("open"); });
+      var _ov = $("cert-overlay"); if (_ov) _ov.addEventListener("click", function(e){ if (e.target === this) this.classList.remove("open"); });
+      document.addEventListener("keydown", function(e){ if (e.key === "Escape"){ var o = $("cert-overlay"); if (o) o.classList.remove("open"); } });
+      renderTrail();
+      updateHUD();
+    </script>
+
+  </body>
+</html>
