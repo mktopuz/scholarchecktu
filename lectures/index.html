@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dr. K's Lecture Quests — University of Tulsa</title>
+<meta name="description" content="Game-style micro-learning practice companions for Dr. K's graduate courses at the University of Tulsa.">
+<style>
+  :root{
+    --ink:#2b2620;
+    --muted:#6b6257;
+    --paper:#f7f2e8;
+    --card:#fffdf7;
+    --gold:#b8860b;
+    --gold-soft:#e9d9a6;
+    --navy:#1f3a5f;
+    --teal:#0f766e;
+    --border:#e3d9c2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:Georgia,'Times New Roman',serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.6;
+    -webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+  header{
+    text-align:center;
+    padding:56px 20px 40px;
+    background:linear-gradient(180deg,#fdf9ef 0%,var(--paper) 100%);
+    border-bottom:3px solid var(--gold-soft);
+  }
+  header .eyebrow{
+    font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
+    font-size:13px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--gold);font-weight:700;
+  }
+  header h1{
+    font-size:clamp(30px,5vw,44px);
+    line-height:1.15;margin:12px 0 10px;
+    color:var(--navy);
+  }
+  header p{
+    max-width:640px;margin:0 auto;
+    font-size:17px;color:var(--muted);
+  }
+  header p strong{color:var(--ink)}
+  main{padding:40px 0 24px}
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    gap:24px;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:28px 26px 24px;
+    display:flex;flex-direction:column;
+    box-shadow:0 2px 10px rgba(43,38,32,.06);
+  }
+  .card .code{
+    font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
+    font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  }
+  .card.analytics .code{color:var(--navy)}
+  .card.ops .code{color:var(--teal)}
+  .card h2{font-size:24px;line-height:1.25;margin:8px 0 4px;color:var(--ink)}
+  .card .meta{
+    font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
+    font-size:14px;color:var(--muted);margin-bottom:12px;
+  }
+  .card p.desc{font-size:16px;margin-bottom:18px;flex:1}
+  .card ul{
+    list-style:none;
+    font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
+    font-size:14px;color:var(--muted);
+    margin-bottom:20px;
+  }
+  .card ul li{padding:3px 0 3px 22px;position:relative}
+  .card ul li::before{
+    content:"✓";position:absolute;left:0;
+    color:var(--gold);font-weight:700;
+  }
+  .btn{
+    display:inline-block;text-align:center;
+    font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
+    font-size:16px;font-weight:700;text-decoration:none;
+    color:#fff;background:var(--navy);
+    padding:12px 20px;border-radius:10px;
+    transition:background .15s ease, transform .15s ease;
+  }
+  .card.ops .btn{background:var(--teal)}
+  .btn:hover{background:#16304d;transform:translateY(-1px)}
+  .card.ops .btn:hover{background:#0b5e57}
+  .coming{
+    margin-top:32px;
+    border:1.5px dashed var(--gold-soft);
+    border-radius:14px;
+    padding:22px 26px;
+    text-align:center;
+    background:#fdf9ef;
+  }
+  .coming h3{
+    font-size:19px;color:var(--navy);margin-bottom:4px;
+  }
+  .coming p{
+    font-size:15px;color:var(--muted);max-width:560px;margin:0 auto;
+  }
+  footer{
+    text-align:center;
+    padding:28px 20px 40px;
+    font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
+    font-size:13px;color:var(--muted);
+  }
+  footer a{color:var(--navy)}
+  @media (max-width:520px){
+    header{padding:40px 16px 30px}
+    .card{padding:24px 20px 20px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="eyebrow">University of Tulsa &middot; Graduate Courses</div>
+    <h1>Dr. K&rsquo;s Lecture Quests</h1>
+    <p>Game-style <strong>micro-learning practice companions</strong> for Dr. K&rsquo;s courses.
+    Short lessons, checkpoint questions, XP and badges &mdash; practice that feels like a quest, not a chore.
+    Nothing here is graded; graded work lives in Harvey and the course platforms.</p>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="grid">
+
+      <article class="card analytics">
+        <div class="code">QM 7073 &middot; Foundations of Analytics</div>
+        <h2>The Analytics Quest</h2>
+        <div class="meta">8 episodes &middot; Decision Framing &rarr; Prescriptive Analytics</div>
+        <p class="desc">Each episode teaches a core analytics concept in bite-size micro-lessons, then challenges you with checkpoint questions before you can move on. Clear all eight episodes, survive two boss battles, and level up from Data Cadet to Analytics Master.</p>
+        <ul>
+          <li>3 micro-lessons + 3 questions per episode</li>
+          <li>Midterm boss battle after Episode 5</li>
+          <li>Final boss battle after Episode 8</li>
+          <li>XP, stars &amp; badges &middot; 120 XP per episode</li>
+        </ul>
+        <a class="btn" href="https://mktopuz.github.io/scholarchecktu/foundations-of-analytics/">Start the Analytics Quest &rarr;</a>
+      </article>
+
+      <article class="card ops">
+        <div class="code">MBA 7033 &middot; Operations Management</div>
+        <h2>The Operations Quest</h2>
+        <div class="meta">8 episodes &middot; one per module &middot; Supply &amp; Demand &rarr; Optimization</div>
+        <p class="desc">Dr. K hosts the quest, and the operations crew &mdash; Dana Demand &amp; Sam Supply, Benny Bottleneck, Fiona Flow, Quinn Quality, Ivy Inventory, Freddie Forecast, Petra Project and Otto Optimizer &mdash; will try to trip you up, in a friendly way. One build challenge in every episode.</p>
+        <ul>
+          <li>3 micro-lessons + 3 questions per episode</li>
+          <li>Midterm after Module 4 &middot; Final after Module 8</li>
+          <li>A challenge game in every episode</li>
+          <li>XP, stars &amp; badges &middot; 120 XP per episode</li>
+        </ul>
+        <a class="btn" href="https://mktopuz.github.io/scholarchecktu/operations-management/">Start the Operations Quest &rarr;</a>
+      </article>
+
+    </div>
+
+    <section class="coming">
+      <h3>More lectures coming</h3>
+      <p>This hub grows with Dr. K&rsquo;s courses. New lecture quests will appear here as cards, alongside the two above &mdash; check back for the next one.</p>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    Dr. K &middot; Associate Professor of Business Analytics and Operations Management, The University of Tulsa<br>
+    Practice companions &mdash; graded work lives in Harvey and the course platforms.
+  </div>
+</footer>
+</body>
+</html>
