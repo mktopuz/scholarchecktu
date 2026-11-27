@@ -1741,7 +1741,7 @@
         function draw(){
           var panels = vizSkewPanels(vizSeesawX5());
           var W = 560, H = 280, T = 56, B = 190;
-          var px0 = [20, 196, 372], pw = 168;
+          var px0 = [14, 194, 374], pw = 166;
           var titles = ['Left-skew', 'Symmetric', 'Right-skew'];
           var subs = ['illustrative', 'illustrative', 'the incomes'];
           function curvePts(fn, d0, d1, x0, x1){
@@ -1768,8 +1768,12 @@
             inner += '<line data-panel="' + panels[p].panel + '" data-marker="median" x1="' + vizNum(mdp, 1) + '" y1="' + T + '" x2="' + vizNum(mdp, 1) + '" y2="' + B + '" stroke="#b8860b" stroke-width="2.5" stroke-dasharray="5 4"/>';
             inner += vizTickLabel((x0 + x1) / 2, 24, titles[p], 'middle');
             inner += vizTickLabel((x0 + x1) / 2, 40, subs[p], 'middle');
-            inner += vizTickLabel(x0, B + 16, '0', 'middle');
-            inner += vizTickLabel(x1, B + 16, String(d1), 'middle');
+            /* Axis ticks are end-anchored (0 starts at the panel's left edge,
+               the max ends at its right edge) so no label can spill into the
+               neighbouring panel: middle-anchored ticks let one panel's "100"
+               sit on top of the next panel's "0". */
+            inner += vizTickLabel(x0, B + 16, '0', 'start');
+            inner += vizTickLabel(x1, B + 16, String(d1), 'end');
             if (pm === pd){
               inner += vizTickLabel((x0 + x1) / 2, B + 34, 'mean = median ' + vizNum(pm, 1), 'middle');
             } else if (Math.abs(pm - pd) < 8){
